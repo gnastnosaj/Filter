@@ -22,4 +22,8 @@ cache:
     - $HOME/.gradle/wrapper/
     - $HOME/.android/build-cache
 script:
-   - ./gradlew clean build
+   - ./gradlew dsl:clean dsl:build
+   - ./gradlew dsl-groovy:clean dsl-groovy:build
+   - ./gradlew magneto:clean magneto:build
+   - ./gradlew app:clean app:build
+   - ./gradlew magneto-standalone:clean magneto-standalone:build
