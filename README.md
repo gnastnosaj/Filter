@@ -4,9 +4,7 @@
 
 ## What is Filter?
 
-Filter is a web crawler inspired by gradle dsl.
-
-![Filter](https://jasontsang.gitee.io/filter/screencapture/screencapture-1533689923917.gif)
+[Filter](https://jasontsang.gitee.io/filter/screencapture/screencapture-1533689923917.gif) is a web crawler inspired by gradle dsl.
 
 ## LICENSE
 
