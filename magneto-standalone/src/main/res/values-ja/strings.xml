@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">マグネト</string>
+    <string name="app_link">https://www.pgyer.com/TgHO</string>
+
+    <string name="action_search">検索</string>
+    <string name="action_share">分かち合う</string>
+    <string name="action_about">について</string>
+
+    <string name="copy_magnet_success">マグネット・リンクをクリップボードにコピーされました</string>
+
+</resources>

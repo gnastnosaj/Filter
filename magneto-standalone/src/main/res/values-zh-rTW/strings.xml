@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">萬磁王</string>
+    <string name="app_link">https://www.pgyer.com/TgHO</string>
+
+    <string name="action_search">蒐索</string>
+    <string name="action_share">分享</string>
+    <string name="action_about">關於</string>
+
+    <string name="copy_magnet_success">磁鐵連結已複製到剪貼板</string>
+
+</resources>

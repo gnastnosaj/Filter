@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="kaleidoscope_keyword" type="id"/>
+    <item name="kaleidoscope_app_bar_layout" type="id"/>
+    <item name="kaleidoscope_progress_bar" type="id"/>
+    <item name="kaleidoscope_address" type="id"/>
+    <item name="kaleidoscope_adblock_web_view" type="id"/>
+    <item name="kaleidoscope_screenshot" type="id"/>
+
+    <item name="catalog_view_pager" type="id"/>
+    <item name="thumbnail" type="id"/>
+    <item name="title" type="id"/>
+    <item name="alphabet" type="id"/>
+    <item name="www" type="id"/>
+</resources>

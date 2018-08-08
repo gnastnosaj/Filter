@@ -1,0 +1,45 @@
+<resources>
+    <string name="area">tw</string>
+    <string name="app_name">萬花筒</string>
+    <string name="slogan">A girl with kaleidoscope eyes</string>
+
+    <string name="tab_title">新打開的標籤頁</string>
+    <string name="undo">撤銷</string>
+    <string name="removed_tab_snackbar">已關閉 %1$s</string>
+    <string name="cleared_tabs_snackbar">已關閉所有的標籤頁</string>
+
+    <string name="action_search">蒐索</string>
+    <string name="action_share">分享</string>
+    <string name="share_kaleidoscope">發現了一款福利App「萬花筒」，免費觀看熱門影片，更有隱藏福利等你來挖掘，太贊了！推薦~：http://fir.im/vrbx</string>
+    <string name="action_kaleido">Kaleido</string>
+    <string name="action_favourite">我的最愛</string>
+    <string name="action_settings">設定</string>
+    <string name="action_about">關於</string>
+    <string name="action_toggle_tab_switcher">Toggle switcher</string>
+    <string name="action_add_tab">打開新的標籤頁</string>
+    <string name="action_clear_tabs">關閉所有標籤頁</string>
+    <string name="action_exit">退出</string>
+
+    <string name="searching">╭ (′▽`)╭(′▽`)╭(′▽`)╯正在瘋狂蒐索中，請先隨便逛逛吧～</string>
+    <string name="search_result_not_found">⊙﹏⊙‖∣° 悲劇，未找到可用的資源，請重新試試吧...</string>
+    <string name="search_result_found">＾(￣）￣)《(￣）￣)＾嘿嘿，發現可用資源，開車注意安全喲～</string>
+    <string name="plugin_initializing">╭ (′▽`)╭(′▽`)╭(′▽`)╯挿件正在初始化～</string>
+    <string name="plugin_error">⊙﹏⊙‖∣°悲劇，發生了什麼，請重新試試吧…</string>
+    <string name="adult_warning">包含僅供18歲以上的成人相關題材，點擊繼續代表您已達到合法年齡並且符合當地的相關法律。</string>
+    <string name="adult_warning_continue">繼續</string>
+    <string name="adult_warning_not_18">未滿18周歲</string>
+    <string name="action_cancel">取消</string>
+    <string name="action_check">查看</string>
+    <string name="copy_magnet_success">磁鐵連結已複製到剪貼板</string>
+
+    <string name="kaleidoscope_base_url">https://jasontsang.gitee.io/filter/</string>
+    <string name="magneto">萬磁王</string>
+
+    <string name="action_mosaic">馬賽克</string>
+    <string name="action_save">保存</string>
+    <string name="save_to_phone">保存到相册？</string>
+    <string name="save_picture_success">圖片已保存 %s</string>
+    <string name="save_picture_fail">保存失敗，請重試</string>
+    <string name="action_clear">清除</string>
+
+</resources>

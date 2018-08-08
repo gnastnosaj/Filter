@@ -1,0 +1,48 @@
+<resources>
+    <string name="area">ja</string>
+    <string name="app_name">Kaleidoscope</string>
+    <string name="slogan">A girl with kaleidoscope eyes</string>
+
+    <string name="tab_title">新しいタブ</string>
+    <string name="undo">取り消す</string>
+    <string name="removed_tab_snackbar">閉鎖された %1$s</string>
+    <string name="cleared_tabs_snackbar">すべてのタブを閉じた</string>
+
+    <string name="action_search">検索</string>
+    <string name="action_share">分かち合う</string>
+    <string name="share_kaleidoscope">発見した一本の福祉アプリ「Kaleidoscope」、性感美女写真唯美の大本営が隠し福祉待って発掘し、かっこよかった！推薦～：http://fir.im/vrbx
+    </string>
+    <string name="action_kaleido">Kaleido</string>
+    <string name="action_favourite">私の一番好きなのは</string>
+    <string name="action_settings">設定</string>
+    <string name="action_about">について</string>
+    <string name="action_toggle_tab_switcher">Toggle switcher</string>
+    <string name="action_add_tab">新しいタブを開く</string>
+    <string name="action_clear_tabs">すべてのタブをクリア</string>
+    <string name="action_exit">出口</string>
+
+    <string name="searching">╭ (′▽`)╭(′▽`)╭(′▽`)╯狂っている中で、先にぶらぶらしてください～</string>
+    <string name="search_result_not_found">⊙﹏⊙‖∣° 悲劇、未利用の資源を探し当てて、再試して下さい...</string>
+    <string name="search_result_found">＾(￣）￣)《(￣）￣)＾へへへ、資源、車で安全に注意を注意することを発見することを発見します～</string>
+    <string name="plugin_initializing">╭ (′▽`)╭(′▽`)╭(′▽`)╯プラグインは初期化しています～</string>
+    <string name="plugin_error">⊙﹏⊙‖∣°悲劇、未知の誤り、もう一度やってみてください...</string>
+    <string name="adult_warning">
+        この項目では、映画の無料観覧無料、子供たちのためのものではない。このダイアログは、あなたにあなたが法定年齢であるということを述べて過去の継続的で合法的ですあなたの地域でセクシーな日本の美人のポルノの材料を表示します。
+    </string>
+    <string name="adult_warning_continue">今は続けます</string>
+    <string name="adult_warning_not_18">私は18歳ではない</string>
+    <string name="action_cancel">キャンセル</string>
+    <string name="action_check">査看</string>
+    <string name="copy_magnet_success">マグネット・リンクをクリップボードにコピーされました</string>
+
+    <string name="kaleidoscope_base_url">https://jasontsang.gitee.io/filter/</string>
+    <string name="magneto">マグネト</string>
+
+    <string name="action_mosaic">マザック</string>
+    <string name="action_save">保存する</string>
+    <string name="save_to_phone">アルバムに保存してある？</string>
+    <string name="save_picture_success">写真は保存している %s</string>
+    <string name="save_picture_fail">セーブに失敗し、再び試みて下さい</string>
+    <string name="action_clear">クリア</string>
+
+</resources>

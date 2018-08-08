@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dsl/dsl.iml" filepath="$PROJECT_DIR$/dsl/dsl.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dsl-groovy/dsl-groovy.iml" filepath="$PROJECT_DIR$/dsl-groovy/dsl-groovy.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dsl-kotlin/dsl-kotlin.iml" filepath="$PROJECT_DIR$/dsl-kotlin/dsl-kotlin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Filter.iml" filepath="$PROJECT_DIR$/Filter.iml" />
+      <module fileurl="file://$PROJECT_DIR$/magneto/magneto.iml" filepath="$PROJECT_DIR$/magneto/magneto.iml" />
+      <module fileurl="file://$PROJECT_DIR$/magneto-standalone/magneto-standalone.iml" filepath="$PROJECT_DIR$/magneto-standalone/magneto-standalone.iml" />
+    </modules>
+  </component>
+</project>
