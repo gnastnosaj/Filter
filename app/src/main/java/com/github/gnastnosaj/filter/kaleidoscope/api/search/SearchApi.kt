@@ -72,11 +72,11 @@ fun BaseActivity.search(keyword: String, title: String = keyword): Observable<Li
                 if (it.isNotEmpty()) {
                     AlertDialog.Builder(this)
                             .setMessage(R.string.search_result_found)
-                            .setNegativeButton(R.string.action_cancel, { dialog, _ -> dialog.dismiss() })
-                            .setPositiveButton(R.string.action_check, { dialog, _ ->
+                            .setNegativeButton(R.string.action_cancel) { dialog, _ -> dialog.dismiss() }
+                            .setPositiveButton(R.string.action_check) { dialog, _ ->
                                 startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("magneto:$keyword")).putExtra(MagnetoActivity.EXTRA_TITLE, title))
                                 dialog.dismiss()
-                            }).show()
+                            }.show()
                 } else {
                     Snackbar.make(findViewById(android.R.id.content), R.string.search_result_not_found, Snackbar.LENGTH_LONG).show()
                 }

@@ -21,6 +21,7 @@ import com.github.gnastnosaj.filter.kaleidoscope.api.event.ToolbarEvent
 import com.github.gnastnosaj.filter.kaleidoscope.util.ShareHelper
 import com.shizhefei.mvc.IDataAdapter
 import me.relex.photodraweeview.PhotoDraweeView
+import timber.log.Timber
 import java.io.File
 
 
@@ -39,13 +40,22 @@ class GalleryAdapter(private val context: Context) : PagerAdapter(), IDataAdapte
                 .setOldController(photoDraweeView.controller)
                 .setControllerListener(object : BaseControllerListener<ImageInfo>() {
                     override fun onFinalImageSet(id: String?, @Nullable imageInfo: ImageInfo?, @Nullable anim: Animatable?) {
+                        photoDraweeView.isEnableDraweeMatrix = true
                         imageInfo?.let {
                             photoDraweeView.update(it.width, it.height)
                         }
                     }
 
                     override fun onFailure(id: String?, throwable: Throwable?) {
-
+                        Timber.e(throwable)
+                        photoDraweeView.isEnableDraweeMatrix = false
+                        data["thumbnail_error"]?.let {
+                            photoDraweeView.controller = Fresco.newDraweeControllerBuilder()
+                                    .setUri(it)
+                                    .setOldController(photoDraweeView.controller)
+                                    .setControllerListener(this)
+                                    .build()
+                        }
                     }
                 }).build()
 
@@ -54,10 +64,10 @@ class GalleryAdapter(private val context: Context) : PagerAdapter(), IDataAdapte
         photoDraweeView.setOnLongClickListener {
             AlertDialog.Builder(context)
                     .setMessage(R.string.save_to_phone)
-                    .setNegativeButton(R.string.action_cancel, { dialog, _ ->
+                    .setNegativeButton(R.string.action_cancel) { dialog, _ ->
                         dialog.dismiss()
-                    })
-                    .setPositiveButton(R.string.action_save, { dialog, _ ->
+                    }
+                    .setPositiveButton(R.string.action_save) { dialog, _ ->
                         dialog.dismiss()
                         ShareHelper.configuration?.imageDownloader?.download(context, data["thumbnail"], ShareHelper.configuration!!.getImageCachePath(context), object : IImageDownloader.OnImageDownloadListener {
                             override fun onSuccess(path: String?) {
@@ -74,7 +84,7 @@ class GalleryAdapter(private val context: Context) : PagerAdapter(), IDataAdapte
 
                             }
                         })
-                    })
+                    }
                     .show()
             true
         }

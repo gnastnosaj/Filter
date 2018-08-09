@@ -18,6 +18,7 @@ import com.github.gnastnosaj.filter.kaleidoscope.ui.view.ratioImageView
 import me.drakeet.multitype.ItemViewBinder
 import org.jetbrains.anko.*
 import org.jetbrains.anko.cardview.v7.cardView
+import timber.log.Timber
 
 
 class ThumbnailViewBinder : ItemViewBinder<Map<*, *>, ThumbnailViewBinder.ViewHolder>() {
@@ -57,21 +58,30 @@ class ThumbnailViewBinder : ItemViewBinder<Map<*, *>, ThumbnailViewBinder.ViewHo
 
     override fun onBindViewHolder(viewHolder: ViewHolder, item: Map<*, *>) {
         viewHolder.thumbnail?.apply {
-            (item as? Map<String, String>)?.get("thumbnail")?.let {
-                controller = Fresco.newDraweeControllerBuilder()
-                        .setUri(it)
-                        .setOldController(controller)
-                        .setControllerListener(object : BaseControllerListener<ImageInfo>() {
-                            override fun onFinalImageSet(id: String?, @Nullable imageInfo: ImageInfo?, @Nullable anim: Animatable?) {
-                                imageInfo?.let {
-                                    setOriginalSize(it.width, it.height)
+            (item as? Map<String, String>)?.let { data ->
+                data["thumbnail"]?.let {
+                    controller = Fresco.newDraweeControllerBuilder()
+                            .setUri(it)
+                            .setOldController(controller)
+                            .setControllerListener(object : BaseControllerListener<ImageInfo>() {
+                                override fun onFinalImageSet(id: String?, @Nullable imageInfo: ImageInfo?, @Nullable anim: Animatable?) {
+                                    imageInfo?.let {
+                                        setOriginalSize(it.width, it.height)
+                                    }
                                 }
-                            }
 
-                            override fun onFailure(id: String?, throwable: Throwable?) {
-
-                            }
-                        }).build()
+                                override fun onFailure(id: String?, throwable: Throwable?) {
+                                    Timber.e(throwable)
+                                    data["thumbnail_error"]?.let {
+                                        controller = Fresco.newDraweeControllerBuilder()
+                                                .setUri(it)
+                                                .setOldController(controller)
+                                                .setControllerListener(this)
+                                                .build()
+                                    }
+                                }
+                            }).build()
+                }
             }
         }
         viewHolder.titleView?.text = (item as? Map<String, String>)?.get("title")
