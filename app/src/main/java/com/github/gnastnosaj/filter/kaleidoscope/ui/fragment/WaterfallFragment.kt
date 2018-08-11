@@ -8,6 +8,7 @@ import android.view.*
 import com.github.gnastnosaj.filter.dsl.core.Connection
 import com.github.gnastnosaj.filter.kaleidoscope.Kaleidoscope
 import com.github.gnastnosaj.filter.kaleidoscope.api.datasource.ConnectionDataSource
+import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
 import com.github.gnastnosaj.filter.kaleidoscope.ui.activity.GalleryActivity
 import com.github.gnastnosaj.filter.kaleidoscope.ui.adapter.WaterfallAdapter
 import com.shizhefei.mvc.MVCHelper
@@ -20,6 +21,7 @@ import org.jetbrains.anko.recyclerview.v7.recyclerView
 import org.jetbrains.anko.support.v4.swipeRefreshLayout
 
 class WaterfallFragment : Fragment() {
+    private var plugin: Plugin? = null
     private var connection: Connection? = null
     private var rootView: View? = null
 
@@ -27,6 +29,11 @@ class WaterfallFragment : Fragment() {
     private var dataSource: ConnectionDataSource? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        if (plugin == null) {
+            savedInstanceState?.apply {
+                plugin = getParcelable(PLUGIN)
+            }
+        }
         if (connection == null) {
             savedInstanceState?.apply {
                 val hashCode = getInt(CONNECTION_HASH_CODE)
@@ -64,6 +71,7 @@ class WaterfallFragment : Fragment() {
                                                                     GalleryActivity.EXTRA_ID to (data["id"]
                                                                             ?: data["title"]),
                                                                     GalleryActivity.EXTRA_TITLE to data["title"],
+                                                                    GalleryActivity.EXTRA_PLUGIN to plugin,
                                                                     GalleryActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(it)
                                                             ))
                                                         }
@@ -93,6 +101,9 @@ class WaterfallFragment : Fragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
+        plugin?.let {
+            outState.putParcelable(PLUGIN, it)
+        }
         connection?.let {
             outState.putInt(CONNECTION_HASH_CODE, Kaleidoscope.saveInstanceState(it))
         }
@@ -100,8 +111,10 @@ class WaterfallFragment : Fragment() {
 
     companion object {
         const val CONNECTION_HASH_CODE = "connectionHashCode"
-        fun newInstance(connection: Connection): WaterfallFragment {
+        const val PLUGIN = "plugin"
+        fun newInstance(plugin: Plugin, connection: Connection): WaterfallFragment {
             val instance = WaterfallFragment()
+            instance.plugin = plugin
             instance.connection = connection
             return instance
         }

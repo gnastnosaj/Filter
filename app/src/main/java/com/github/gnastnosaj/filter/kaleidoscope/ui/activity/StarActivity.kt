@@ -8,10 +8,12 @@ import android.view.GestureDetector
 import android.view.MenuItem
 import android.view.MotionEvent
 import com.github.gnastnosaj.boilerplate.ui.activity.BaseActivity
-import com.github.gnastnosaj.filter.dsl.groovy.api.Connection
+import com.github.gnastnosaj.filter.dsl.core.Catalog
+import com.github.gnastnosaj.filter.dsl.core.Category
+import com.github.gnastnosaj.filter.dsl.core.Connection
 import com.github.gnastnosaj.filter.kaleidoscope.Kaleidoscope
 import com.github.gnastnosaj.filter.kaleidoscope.R
-import com.github.gnastnosaj.filter.kaleidoscope.api.datasource.ConnectionDataSource
+import com.github.gnastnosaj.filter.kaleidoscope.api.datasource.StarDataSource
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
 import com.github.gnastnosaj.filter.kaleidoscope.ui.adapter.WaterfallAdapter
 import com.shizhefei.mvc.MVCSwipeRefreshHelper
@@ -25,22 +27,21 @@ import org.jetbrains.anko.recyclerview.v7.recyclerView
 import org.jetbrains.anko.support.v4.swipeRefreshLayout
 import org.jetbrains.anko.wrapContent
 
-class WaterfallActivity : BaseActivity() {
+class StarActivity : BaseActivity() {
     private var plugin: Plugin? = null
-    private var connection: Connection? = null
+    private var catalog: Catalog? = null
 
     companion object {
-        const val EXTRA_TITLE = "title"
+        const val EXTRA_CATALOG_HASH_CODE = "catalog"
         const val EXTRA_PLUGIN = "plugin"
-        const val EXTRA_CONNECTION_HASH_CODE = "connectionHashCode"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        title = intent.getStringExtra(EXTRA_TITLE)
+        setTitle(R.string.action_favourite)
         plugin = intent.getParcelableExtra(EXTRA_PLUGIN)
-        connection = Kaleidoscope.restoreInstanceState(intent.getIntExtra(EXTRA_CONNECTION_HASH_CODE, -1))
+        catalog = Kaleidoscope.restoreInstanceState(intent.getIntExtra(EXTRA_CATALOG_HASH_CODE, -1))
 
         frameLayout {
             fitsSystemWindows = true
@@ -74,7 +75,7 @@ class WaterfallActivity : BaseActivity() {
                                             val position = getChildAdapterPosition(childView)
                                             if (-1 < position && position < waterfallAdapter.data.size) {
                                                 val data = waterfallAdapter.data[position]
-                                                connection?.execute("page", data["href"]!!)?.let {
+                                                connect(data["entrance"]!!)?.execute("page", data["href"]!!)?.let {
                                                     startActivity(intentFor<GalleryActivity>(
                                                             GalleryActivity.EXTRA_ID to (data["id"] ?: data["title"]),
                                                             GalleryActivity.EXTRA_TITLE to data["title"],
@@ -92,8 +93,8 @@ class WaterfallActivity : BaseActivity() {
                     }.lparams(matchParent, matchParent)
                     val mvcHelper = MVCSwipeRefreshHelper<List<Map<String, String>>>(swipeRefreshLayout)
                     mvcHelper.adapter = waterfallAdapter
-                    connection?.let {
-                        val dataSource = ConnectionDataSource(context, it)
+                    plugin?.let {
+                        val dataSource = StarDataSource(context, it)
                         mvcHelper.setDataSource(dataSource)
                         mvcHelper.refresh()
                     }
@@ -114,5 +115,32 @@ class WaterfallActivity : BaseActivity() {
                 super.onOptionsItemSelected(item)
             }
         }
+    }
+
+    private fun connect(entrance: String): Connection? {
+        catalog?.apply {
+            connections?.values?.firstOrNull {
+                it.url == entrance
+            }?.let {
+                return it
+            }
+            fun search(category: Category): Connection? {
+                if (category.connection?.url == entrance) {
+                    return category.connection
+                }
+                category.children?.forEach {
+                    search(it)?.let {
+                        return it
+                    }
+                }
+                return null
+            }
+            categories?.forEach {
+                search(it)?.let {
+                    return it
+                }
+            }
+        }
+        return null
     }
 }

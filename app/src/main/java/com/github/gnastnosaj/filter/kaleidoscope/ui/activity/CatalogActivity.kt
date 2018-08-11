@@ -22,8 +22,8 @@ import com.github.gnastnosaj.filter.dsl.core.Category
 import com.github.gnastnosaj.filter.dsl.groovy.api.Project
 import com.github.gnastnosaj.filter.kaleidoscope.Kaleidoscope
 import com.github.gnastnosaj.filter.kaleidoscope.R
-import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
 import com.github.gnastnosaj.filter.kaleidoscope.api.KaleidoscopeRetrofit
+import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
 import com.github.gnastnosaj.filter.kaleidoscope.api.search.search
 import com.github.gnastnosaj.filter.kaleidoscope.ui.adapter.CatalogAdapter
 import com.github.gnastnosaj.filter.kaleidoscope.ui.view.materialSearchView
@@ -51,8 +51,8 @@ class CatalogActivity : BaseActivity() {
     private var catalog: Catalog? = null
 
     companion object {
-        const val EXTRA_CATALOG_HASH_CODE = "catalog"
         const val EXTRA_PLUGIN = "plugin"
+        const val EXTRA_CATALOG_HASH_CODE = "catalog"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -181,7 +181,7 @@ class CatalogActivity : BaseActivity() {
             compose(RxHelper.rxSchedulerHelper())
                     .compose(bindUntilEvent(ActivityEvent.DESTROY))
                     .subscribe { catalog ->
-                        val catalogAdapter = CatalogAdapter(this@CatalogActivity, supportFragmentManager, catalog)
+                        val catalogAdapter = CatalogAdapter(this@CatalogActivity, supportFragmentManager, plugin!!, catalog)
                         viewPager?.let {
                             it.adapter = catalogAdapter
                             tabLayout?.setupWithViewPager(it)
@@ -224,6 +224,7 @@ class CatalogActivity : BaseActivity() {
                 true
             }
             R.id.action_favourite -> {
+                startActivity(intentFor<StarActivity>(StarActivity.EXTRA_PLUGIN to plugin, StarActivity.EXTRA_CATALOG_HASH_CODE to Kaleidoscope.saveInstanceState(catalog!!)))
                 true
             }
             R.id.action_about -> {
@@ -263,8 +264,8 @@ class CatalogActivity : BaseActivity() {
                             setOnTagClickListener { tag ->
                                 categories.firstOrNull {
                                     it.name == tag
-                                }?.connection?.apply {
-                                    startActivity(Intent(intentFor<WaterfallActivity>(WaterfallActivity.EXTRA_TITLE to tag, WaterfallActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(this))))
+                                }?.connection?.let { connection ->
+                                    startActivity(Intent(intentFor<WaterfallActivity>(WaterfallActivity.EXTRA_TITLE to tag, WaterfallActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(connection))))
                                 }
                             }
                         }.lparams(matchParent, wrapContent)
@@ -289,7 +290,7 @@ class CatalogActivity : BaseActivity() {
                             children?.firstOrNull {
                                 it.name == tag
                             }?.connection?.let { connection ->
-                                startActivity(Intent(intentFor<WaterfallActivity>(WaterfallActivity.EXTRA_TITLE to tag, WaterfallActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(connection))))
+                                startActivity(Intent(intentFor<WaterfallActivity>(WaterfallActivity.EXTRA_TITLE to tag, WaterfallActivity.EXTRA_PLUGIN to plugin, WaterfallActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(connection))))
                             }
                         }
                     }.lparams(matchParent, wrapContent)

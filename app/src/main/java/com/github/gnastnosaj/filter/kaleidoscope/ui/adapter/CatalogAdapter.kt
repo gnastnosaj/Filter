@@ -5,9 +5,10 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import com.github.gnastnosaj.filter.dsl.core.Catalog
+import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
 import com.github.gnastnosaj.filter.kaleidoscope.ui.fragment.WaterfallFragment
 
-class CatalogAdapter(context: Context, fm: FragmentManager, catalog: Catalog) : FragmentPagerAdapter(fm) {
+class CatalogAdapter(context: Context, fm: FragmentManager, plugin: Plugin, catalog: Catalog) : FragmentPagerAdapter(fm) {
     private val connections = catalog.connections?.entries?.flatMap {
         arrayListOf(it)
     }
@@ -15,7 +16,7 @@ class CatalogAdapter(context: Context, fm: FragmentManager, catalog: Catalog) : 
 
     init {
         connections?.forEach {
-            fragments.add(WaterfallFragment.newInstance(it.value))
+            fragments.add(WaterfallFragment.newInstance(plugin, it.value))
         }
     }
 

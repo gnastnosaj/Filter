@@ -15,7 +15,7 @@ class Plugin : Parcelable {
     override fun equals(other: Any?): Boolean {
         other?.let {
             if (it is Plugin) {
-                return it.id.equals(this.id)
+                return it.id == this.id
             }
         }
         return false

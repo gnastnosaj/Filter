@@ -23,6 +23,9 @@ import com.github.gnastnosaj.filter.kaleidoscope.R
 import com.github.gnastnosaj.filter.kaleidoscope.api.datasource.ConnectionDataSource
 import com.github.gnastnosaj.filter.kaleidoscope.api.event.TagEvent
 import com.github.gnastnosaj.filter.kaleidoscope.api.event.ToolbarEvent
+import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
+import com.github.gnastnosaj.filter.kaleidoscope.api.model.Star
+import com.github.gnastnosaj.filter.kaleidoscope.api.plugin.StarApi
 import com.github.gnastnosaj.filter.kaleidoscope.api.search.search
 import com.github.gnastnosaj.filter.kaleidoscope.ui.adapter.GalleryAdapter
 import com.github.gnastnosaj.filter.kaleidoscope.ui.view.tagGroup
@@ -45,6 +48,7 @@ import java.lang.Exception
 
 class GalleryActivity : BaseActivity() {
     private var appBar: AppBarLayout? = null
+    private var menu: Menu? = null
     private var progressBar: ProgressBar? = null
     private var viewPager: ViewPager? = null
     private var tagGroup: TagGroup? = null
@@ -55,11 +59,17 @@ class GalleryActivity : BaseActivity() {
     private var tagEventObservable: Observable<TagEvent>? = null
 
     private var id: String? = null
+    private var plugin: Plugin? = null
     private var connection: Connection? = null
+
+    private var entrance: String? = null
+    private var starApi: StarApi? = null
+    private var star: Boolean = false
 
     companion object {
         const val EXTRA_ID = "id"
         const val EXTRA_TITLE = "title"
+        const val EXTRA_PLUGIN = "plugin"
         const val EXTRA_CONNECTION_HASH_CODE = "connectionHashCode"
     }
 
@@ -68,8 +78,13 @@ class GalleryActivity : BaseActivity() {
 
         id = intent.getStringExtra(EXTRA_ID)
         title = intent.getStringExtra(EXTRA_TITLE)
+        plugin = intent.getParcelableExtra(EXTRA_PLUGIN)
+        plugin?.let {
+            starApi = StarApi(it)
+        }
         connection = Kaleidoscope.restoreInstanceState(intent.getIntExtra(EXTRA_CONNECTION_HASH_CODE, -1))
         connection?.let {
+            entrance = it.execute("entrance") as? String
             tagEventObservable = RxBus.getInstance().register(it, TagEvent::class.java)
         }
 
@@ -162,6 +177,7 @@ class GalleryActivity : BaseActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        this.menu = menu
         menuInflater.inflate(R.menu.menu_page, menu)
         menu?.findItem(R.id.action_share)?.icon = IconicsDrawable(this)
                 .icon(MaterialDesignIconic.Icon.gmi_share)
@@ -169,9 +185,27 @@ class GalleryActivity : BaseActivity() {
         menu?.findItem(R.id.action_search)?.icon = IconicsDrawable(this)
                 .icon(MaterialDesignIconic.Icon.gmi_search)
                 .color(Color.WHITE).sizeDp(18)
-        menu?.findItem(R.id.action_favourite)?.icon = IconicsDrawable(this)
-                .icon(MaterialDesignIconic.Icon.gmi_label_heart)
-                .color(Color.WHITE).sizeDp(18)
+        menu?.findItem(R.id.action_favourite)?.apply {
+            isVisible = false
+            if (entrance != null) {
+                val star = Star()
+                star.href = connection?.url
+                starApi?.contains(star)?.apply {
+                    compose(RxHelper.rxSchedulerHelper())
+                            .compose(bindUntilEvent(ActivityEvent.DESTROY))
+                            .doOnNext {
+                                this@GalleryActivity.star = it
+                            }
+                            .subscribe {
+                                icon = IconicsDrawable(this@GalleryActivity)
+                                        .icon(MaterialDesignIconic.Icon.gmi_label_heart)
+                                        .colorRes(if (this@GalleryActivity.star) R.color.colorAccent else R.color.white)
+                                        .sizeDp(18)
+                                isVisible = true
+                            }
+                }
+            }
+        }
         menu?.findItem(R.id.action_mosaic)?.icon = IconicsDrawable(this)
                 .icon(MaterialDesignIconic.Icon.gmi_blur_linear)
                 .color(Color.WHITE).sizeDp(18)
@@ -208,6 +242,37 @@ class GalleryActivity : BaseActivity() {
                 true
             }
             R.id.action_favourite -> {
+                val star = Star()
+                star.href = connection?.url
+                entrance?.let {
+                    star.data["entrance"] = it
+                }
+                star.data["title"] = title.toString()
+                val first = galleryAdapter?.data?.firstOrNull()
+                first?.get("cover")?.let {
+                    star.data["thumbnail"] = it
+                }
+                first?.get("thumbnail_error")?.let {
+                    star.data["thumbnail_error"] = it
+                }
+                menu?.findItem(R.id.action_favourite)?.apply {
+                    val starAction = if (this@GalleryActivity.star) {
+                        starApi?.delete(star)
+                    } else {
+                        starApi?.insertOrUpdate(star)
+                    }
+                    starAction?.apply {
+                        compose(RxHelper.rxSchedulerHelper())
+                        compose(bindUntilEvent(ActivityEvent.DESTROY))
+                                .subscribe {
+                                    this@GalleryActivity.star = !this@GalleryActivity.star
+                                    icon = IconicsDrawable(this@GalleryActivity)
+                                            .icon(MaterialDesignIconic.Icon.gmi_label_heart)
+                                            .colorRes(if (this@GalleryActivity.star) R.color.colorAccent else R.color.white)
+                                            .sizeDp(18)
+                                }
+                    }
+                }
                 true
             }
             R.id.action_mosaic -> {

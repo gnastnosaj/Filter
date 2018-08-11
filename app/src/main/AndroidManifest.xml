@@ -61,6 +61,11 @@
                 android:theme="@style/AppTheme.NoActionBar"/>
 
         <activity
+                android:name=".ui.activity.StarActivity"
+                android:screenOrientation="portrait"
+                android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity
                 android:name=".ui.activity.GalleryActivity"
                 android:screenOrientation="portrait"
                 android:theme="@style/AppTheme.NoActionBar"/>
