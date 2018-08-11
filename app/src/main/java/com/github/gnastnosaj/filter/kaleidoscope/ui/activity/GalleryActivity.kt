@@ -249,6 +249,9 @@ class GalleryActivity : BaseActivity() {
                 }
                 star.data["title"] = title.toString()
                 val first = galleryAdapter?.data?.firstOrNull()
+                first?.get("thumbnail")?.let {
+                    star.data["thumbnail"] = it
+                }
                 first?.get("cover")?.let {
                     star.data["thumbnail"] = it
                 }
