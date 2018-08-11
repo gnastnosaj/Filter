@@ -113,8 +113,8 @@ class GalleryActivity : BaseActivity() {
                             .subscribe { tagEvent ->
                                 setTags(tagEvent.tags.keys.toList())
                                 setOnTagClickListener { tag ->
-                                    tagEvent.tags[tag]?.apply {
-                                        startActivity(Intent(intentFor<WaterfallActivity>(WaterfallActivity.EXTRA_TITLE to tag, WaterfallActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(this))))
+                                    tagEvent.tags[tag]?.let {
+                                        startActivity(Intent(intentFor<WaterfallActivity>(WaterfallActivity.EXTRA_TITLE to tag, WaterfallActivity.EXTRA_PLUGIN to plugin, WaterfallActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(it))))
                                     }
                                 }
                             }
