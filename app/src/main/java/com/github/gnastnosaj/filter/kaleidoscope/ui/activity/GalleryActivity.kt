@@ -244,8 +244,8 @@ class GalleryActivity : BaseActivity() {
             R.id.action_favourite -> {
                 val star = Star()
                 star.href = connection?.url
-                entrance?.let {
-                    star.data["entrance"] = it
+                id?.let {
+                    star.data["id"] = it
                 }
                 star.data["title"] = title.toString()
                 val first = galleryAdapter?.data?.firstOrNull()
@@ -254,6 +254,9 @@ class GalleryActivity : BaseActivity() {
                 }
                 first?.get("thumbnail_error")?.let {
                     star.data["thumbnail_error"] = it
+                }
+                entrance?.let {
+                    star.data["entrance"] = it
                 }
                 menu?.findItem(R.id.action_favourite)?.apply {
                     val starAction = if (this@GalleryActivity.star) {
