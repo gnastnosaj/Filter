@@ -153,6 +153,7 @@ class StarActivity : BaseActivity() {
                     return it
                 }
             }
+            return connections?.values?.firstOrNull()
         }
         return null
     }
