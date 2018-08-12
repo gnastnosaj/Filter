@@ -64,6 +64,12 @@ class CatalogActivity : BaseActivity() {
         if (intent.hasExtra(EXTRA_CATALOG_HASH_CODE)) {
             catalog = Kaleidoscope.restoreInstanceState(intent.getIntExtra(EXTRA_CATALOG_HASH_CODE, -1))
         }
+        if (catalog == null) {
+            savedInstanceState?.apply {
+                val hashCode = getInt(EXTRA_CATALOG_HASH_CODE)
+                catalog = Kaleidoscope.restoreInstanceState(hashCode)
+            }
+        }
 
         var tabLayout: TabLayout? = null
         var viewPager: ViewPager? = null
@@ -245,6 +251,13 @@ class CatalogActivity : BaseActivity() {
             }
         }
         super.onBackPressed()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        catalog?.let {
+            outState?.putInt(EXTRA_CATALOG_HASH_CODE, Kaleidoscope.saveInstanceState(it))
+        }
     }
 
     private fun prepareCategories(categories: List<Category>) {

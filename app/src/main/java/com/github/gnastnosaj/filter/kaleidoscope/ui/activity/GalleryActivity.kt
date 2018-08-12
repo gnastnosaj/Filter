@@ -83,6 +83,12 @@ class GalleryActivity : BaseActivity() {
             starApi = StarApi(it)
         }
         connection = Kaleidoscope.restoreInstanceState(intent.getIntExtra(EXTRA_CONNECTION_HASH_CODE, -1))
+        if (connection == null) {
+            savedInstanceState?.apply {
+                val hashCode = getInt(EXTRA_CONNECTION_HASH_CODE)
+                connection = Kaleidoscope.restoreInstanceState(hashCode)
+            }
+        }
         connection?.let {
             entrance = it.execute("entrance") as? String
             tagEventObservable = RxBus.getInstance().register(it, TagEvent::class.java)
@@ -288,6 +294,13 @@ class GalleryActivity : BaseActivity() {
             else -> {
                 super.onOptionsItemSelected(item)
             }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        connection?.let {
+            outState?.putInt(EXTRA_CONNECTION_HASH_CODE, Kaleidoscope.saveInstanceState(it))
         }
     }
 

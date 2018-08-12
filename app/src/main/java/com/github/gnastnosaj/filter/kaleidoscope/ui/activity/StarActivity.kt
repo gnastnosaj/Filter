@@ -32,8 +32,8 @@ class StarActivity : BaseActivity() {
     private var catalog: Catalog? = null
 
     companion object {
-        const val EXTRA_CATALOG_HASH_CODE = "catalog"
         const val EXTRA_PLUGIN = "plugin"
+        const val EXTRA_CATALOG_HASH_CODE = "catalog"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +42,12 @@ class StarActivity : BaseActivity() {
         setTitle(R.string.action_favourite)
         plugin = intent.getParcelableExtra(EXTRA_PLUGIN)
         catalog = Kaleidoscope.restoreInstanceState(intent.getIntExtra(EXTRA_CATALOG_HASH_CODE, -1))
+        if (catalog == null) {
+            savedInstanceState?.apply {
+                val hashCode = getInt(EXTRA_CATALOG_HASH_CODE)
+                catalog = Kaleidoscope.restoreInstanceState(hashCode)
+            }
+        }
 
         frameLayout {
             fitsSystemWindows = true
@@ -114,6 +120,13 @@ class StarActivity : BaseActivity() {
             else -> {
                 super.onOptionsItemSelected(item)
             }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        catalog?.let {
+            outState?.putInt(EXTRA_CATALOG_HASH_CODE, Kaleidoscope.saveInstanceState(it))
         }
     }
 
