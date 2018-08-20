@@ -21,6 +21,7 @@ import android.webkit.*
 import android.widget.*
 import br.com.mauker.materialsearchview.MaterialSearchView
 import com.bilibili.socialize.share.core.shareparam.ShareParamText
+import com.github.gnastnosaj.boilerplate.Boilerplate
 import com.github.gnastnosaj.boilerplate.rxbus.RxHelper
 import com.github.gnastnosaj.boilerplate.util.keyboard.BaseActivity
 import com.github.gnastnosaj.boilerplate.util.keyboard.KeyBoardUtil
@@ -927,7 +928,7 @@ class KaleidoscopeActivity : BaseActivity(), TabSwitcherListener {
                                             .switchMap {
                                                 if (plugin.script != null) {
                                                     Observable.create<Script> { emitter ->
-                                                        emitter.onNext(GrooidClassLoader.loadAndCreateGroovyObject(this, plugin.script) as Script)
+                                                        emitter.onNext(GrooidClassLoader.loadAndCreateGroovyObject(Boilerplate.getInstance(), plugin.script) as Script)
                                                         emitter.onComplete()
                                                     }
                                                 } else {
@@ -971,11 +972,11 @@ class KaleidoscopeActivity : BaseActivity(), TabSwitcherListener {
                             if (plugin.args?.get("adult_warning") as? Boolean == true) {
                                 AlertDialog.Builder(this)
                                         .setMessage(R.string.adult_warning)
-                                        .setNegativeButton(R.string.adult_warning_not_18, { dialog, _ -> dialog.dismiss() })
-                                        .setPositiveButton(R.string.adult_warning_continue, { dialog, _ ->
+                                        .setNegativeButton(R.string.adult_warning_not_18) { dialog, _ -> dialog.dismiss() }
+                                        .setPositiveButton(R.string.adult_warning_continue) { dialog, _ ->
                                             startActivity(intentFor<CatalogActivity>(CatalogActivity.EXTRA_PLUGIN to plugin, CatalogActivity.EXTRA_CATALOG_HASH_CODE to Kaleidoscope.saveInstanceState(project.catalog!!)))
                                             dialog.dismiss()
-                                        }).show()
+                                        }.show()
                             } else {
                                 startActivity(intentFor<CatalogActivity>(CatalogActivity.EXTRA_PLUGIN to plugin, CatalogActivity.EXTRA_CATALOG_HASH_CODE to Kaleidoscope.saveInstanceState(project.catalog!!)))
                             }
