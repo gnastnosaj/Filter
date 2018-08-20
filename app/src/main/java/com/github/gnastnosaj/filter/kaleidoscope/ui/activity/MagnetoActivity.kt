@@ -16,6 +16,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.widget.ListView
 import br.com.mauker.materialsearchview.MaterialSearchView
+import com.github.gnastnosaj.boilerplate.Boilerplate
 import com.github.gnastnosaj.boilerplate.ui.activity.BaseActivity
 import com.github.gnastnosaj.filter.kaleidoscope.R
 import com.github.gnastnosaj.filter.kaleidoscope.api.datasource.MagnetoDataSource
@@ -77,7 +78,7 @@ class MagnetoActivity : BaseActivity() {
                                         if (-1 < position && position < magnetoAdapter.data.size) {
                                             val data = magnetoAdapter.data[position]
                                             val clipData = ClipData.newPlainText("Magnet Link", data["magnet"])
-                                            val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                            val clipboardManager = Boilerplate.getInstance().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                             clipboardManager.primaryClip = clipData
                                             Snackbar.make(this@recyclerView, R.string.copy_magnet_success, Snackbar.LENGTH_SHORT).show()
                                         }
