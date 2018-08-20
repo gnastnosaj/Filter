@@ -9,3 +9,4 @@
 .externalNativeBuild
 .service
 filter.jks
+gradle.properties
