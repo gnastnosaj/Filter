@@ -3,16 +3,10 @@ package com.github.gnastnosaj.filter.kaleidoscope
 import android.app.Application
 import android.content.Context
 import android.os.Build
-import android.os.Build.MANUFACTURER
-import android.os.Build.VERSION.SDK_INT
-import android.os.Build.VERSION_CODES.KITKAT
-import android.os.Build.VERSION_CODES.N
 import android.support.multidex.MultiDex
 import android.util.Log
 import android.webkit.WebView
 import com.github.gnastnosaj.boilerplate.Boilerplate
-import com.github.gnastnosaj.boilerplate.event.ActivityLifecycleEvent
-import com.github.gnastnosaj.boilerplate.rxbus.RxBus
 import com.github.gnastnosaj.filter.kaleidoscope.net.OkHttpEnhancer.enhance
 import com.github.gnastnosaj.filter.kaleidoscope.net.PluginInterceptor
 import com.github.gnastnosaj.filter.kaleidoscope.util.ShareHelper
@@ -21,8 +15,6 @@ import com.github.piasy.biv.loader.fresco.FrescoImageLoader
 import com.jiongbull.jlog.Logger
 import com.jiongbull.jlog.constant.LogLevel
 import com.jiongbull.jlog.constant.LogSegment
-import io.reactivex.Observable
-import io.reactivex.disposables.Disposable
 import okhttp3.OkHttpClient
 import okhttp3.OkUrlFactory
 import org.adblockplus.libadblockplus.android.AdblockEngine
@@ -104,34 +96,6 @@ class Kaleidoscope : Application() {
                                 .build()
                 )) {
             logger.isDebug = Boilerplate.DEBUG
-
-            val observable: Observable<ActivityLifecycleEvent> = RxBus.getInstance()
-                    .register(ActivityLifecycleEvent::class.java, ActivityLifecycleEvent::class.java)
-
-            var disposable: Disposable? = null
-            disposable = observable.subscribe {
-                if (MANUFACTURER == "samsung" && SDK_INT >= KITKAT && SDK_INT <= N) {
-                    if (it.type == ActivityLifecycleEvent.onActivityDestroyed) {
-                        try {
-                            val semEmergencyManagerClass = Class.forName("com.samsung.android.emergencymode.SemEmergencyManager")
-                            val sInstanceField = semEmergencyManagerClass.getDeclaredField("sInstance")
-                            sInstanceField.isAccessible = true
-                            val sInstance = sInstanceField.get(null)
-                            val mContextField = semEmergencyManagerClass.getDeclaredField("mContext")
-                            mContextField.isAccessible = true
-                            mContextField.set(sInstance, this)
-                        } catch (_: Throwable) {
-                        }
-                        RxBus.getInstance().unregister(ActivityLifecycleEvent::class.java, observable)
-                        disposable?.apply {
-                            if (!isDisposed) {
-                                dispose()
-                            }
-                        }
-                        Timber.d("Fixes a leak caused by SemEmergencyManager. Tracked at https://github.com/square/leakcanary/issues/762")
-                    }
-                }
-            }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 WebView.setWebContentsDebuggingEnabled(Boilerplate.DEBUG)
