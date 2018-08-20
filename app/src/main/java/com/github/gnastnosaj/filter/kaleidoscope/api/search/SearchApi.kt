@@ -34,7 +34,8 @@ class SearchApi {
                     .switchMap { granted ->
                         if (granted) {
                             if (magneto == null) {
-                                Magneto.newInstance(baseActivity).doOnNext {
+                                //use applicationContext to avoid memory leak
+                                Magneto.newInstance(Boilerplate.getInstance()).doOnNext {
                                     magneto = it
                                 }
                             } else {

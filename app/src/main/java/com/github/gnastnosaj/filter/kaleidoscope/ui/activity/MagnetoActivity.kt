@@ -138,7 +138,7 @@ class MagnetoActivity : BaseActivity() {
                     override fun onQueryTextSubmit(query: String?): Boolean {
                         dataSource?.keyword = query
                         mvcHelper?.refresh()
-                        return true
+                        return false
                     }
                 })
                 setOnItemClickListener { _, _, position, _ ->

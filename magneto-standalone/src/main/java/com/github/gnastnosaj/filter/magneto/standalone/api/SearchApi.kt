@@ -26,7 +26,7 @@ class SearchApi {
                     .switchMap { granted ->
                         if (granted) {
                             if (magneto == null) {
-                                Magneto.newInstance(baseActivity).doOnNext {
+                                Magneto.newInstance(Boilerplate.getInstance()).doOnNext {
                                     magneto = it
                                 }
                             } else {

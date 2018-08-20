@@ -10,6 +10,8 @@ import com.github.gnastnosaj.boilerplate.Boilerplate
 import com.github.gnastnosaj.filter.kaleidoscope.net.OkHttpEnhancer.enhance
 import com.github.gnastnosaj.filter.kaleidoscope.net.PluginInterceptor
 import com.github.gnastnosaj.filter.kaleidoscope.util.ShareHelper
+import com.github.piasy.biv.BigImageViewer
+import com.github.piasy.biv.loader.fresco.FrescoImageLoader
 import com.jiongbull.jlog.Logger
 import com.jiongbull.jlog.constant.LogLevel
 import com.jiongbull.jlog.constant.LogSegment
@@ -63,66 +65,69 @@ class Kaleidoscope : Application() {
                 .setPackagedLevel(6)
                 .build()
 
-        Boilerplate.initialize(this,
-                Boilerplate.Config.Builder()
-                        .cockroach(true)
-                        .addUncaughtExceptionHandler { _, e -> Timber.e(e) }
-                        .logger { priority, tag, message, throwable ->
-                            when (priority) {
-                                Log.VERBOSE ->
-                                    logger.v(tag, message)
-                                Log.DEBUG ->
-                                    logger.d(tag, message)
-                                Log.INFO ->
-                                    logger.i(tag, message)
-                                Log.WARN ->
-                                    logger.w(tag, message)
-                                Log.ERROR ->
-                                    logger.e(tag, throwable, message)
-                                Log.ASSERT ->
-                                    logger.wtf(tag, throwable, message)
-                            }
-                        }
-                        .build()
-        )
+        if (Boilerplate.initialize(this,
+                        Boilerplate.Config.Builder()
+                                .leakCanary(true)
+                                .cockroach(true)
+                                .addUncaughtExceptionHandler { _, e -> Timber.e(e) }
+                                .logger { priority, tag, message, throwable ->
+                                    when (priority) {
+                                        Log.VERBOSE ->
+                                            logger.v(tag, message)
+                                        Log.DEBUG ->
+                                            logger.d(tag, message)
+                                        Log.INFO ->
+                                            logger.i(tag, message)
+                                        Log.WARN ->
+                                            logger.w(tag, message)
+                                        Log.ERROR ->
+                                            logger.e(tag, throwable, message)
+                                        Log.ASSERT ->
+                                            logger.wtf(tag, throwable, message)
+                                    }
+                                }
+                                .build()
+                )) {
+            logger.isDebug = Boilerplate.DEBUG
 
-        logger.isDebug = Boilerplate.DEBUG
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                WebView.setWebContentsDebuggingEnabled(Boilerplate.DEBUG)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            WebView.setWebContentsDebuggingEnabled(Boilerplate.DEBUG)
+                val okHttpClientBuilder = OkHttpClient.Builder()
+                okHttpClientBuilder.apply {
+                    enhance()
+                    addInterceptor(PluginInterceptor)
+                }
 
-            val okHttpClientBuilder = OkHttpClient.Builder()
-            okHttpClientBuilder.apply {
-                enhance()
-                addInterceptor(PluginInterceptor)
+                URL.setURLStreamHandlerFactory(OkUrlFactory(okHttpClientBuilder.build()))
             }
 
-            URL.setURLStreamHandlerFactory(OkUrlFactory(okHttpClientBuilder.build()))
-        }
+            if (!AdblockHelper.get().isInit) {
+                // init Adblock
+                val basePath = getDir(AdblockEngine.BASE_PATH_DIRECTORY, Context.MODE_PRIVATE).absolutePath
 
-        ShareHelper.initialize(this)
+                // provide preloaded subscriptions
+                val map = java.util.HashMap<String, Int>()
+                map[AndroidWebRequestResourceWrapper.EASYLIST] = R.raw.easylist
+                map[AndroidWebRequestResourceWrapper.EASYLIST_CHINESE] = R.raw.easylistchina
+                map[AndroidWebRequestResourceWrapper.ACCEPTABLE_ADS] = R.raw.exceptionrules
 
-        if (!AdblockHelper.get().isInit) {
-            // init Adblock
-            val basePath = getDir(AdblockEngine.BASE_PATH_DIRECTORY, Context.MODE_PRIVATE).absolutePath
+                AdblockHelper
+                        .get()
+                        .init(this, basePath, true, AdblockHelper.PREFERENCE_NAME)
+                        .preloadSubscriptions(AdblockHelper.PRELOAD_PREFERENCE_NAME, map)
+                        .addEngineCreatedListener {
+                            Timber.d("adblock engine created")
+                        }
+                        .addEngineDisposedListener {
+                            Timber.d("adblock engine disposed")
+                        }
+                        .retain(true)
+            }
 
-            // provide preloaded subscriptions
-            val map = java.util.HashMap<String, Int>()
-            map[AndroidWebRequestResourceWrapper.EASYLIST] = R.raw.easylist
-            map[AndroidWebRequestResourceWrapper.EASYLIST_CHINESE] = R.raw.easylistchina
-            map[AndroidWebRequestResourceWrapper.ACCEPTABLE_ADS] = R.raw.exceptionrules
+            BigImageViewer.initialize(FrescoImageLoader.with(this))
 
-            AdblockHelper
-                    .get()
-                    .init(this, basePath, true, AdblockHelper.PREFERENCE_NAME)
-                    .preloadSubscriptions(AdblockHelper.PRELOAD_PREFERENCE_NAME, map)
-                    .addEngineCreatedListener {
-                        Timber.d("adblock engine created")
-                    }
-                    .addEngineDisposedListener {
-                        Timber.d("adblock engine disposed")
-                    }
-                    .retain(true)
+            ShareHelper.initialize(this)
         }
     }
 }

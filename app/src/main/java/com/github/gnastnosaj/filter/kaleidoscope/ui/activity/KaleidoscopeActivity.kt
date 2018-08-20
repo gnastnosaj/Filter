@@ -122,7 +122,7 @@ class KaleidoscopeActivity : BaseActivity(), TabSwitcherListener {
                         query?.apply {
                             search(this)
                         }
-                        return true
+                        return false
                     }
                 })
                 setOnItemClickListener { _, _, position, _ ->

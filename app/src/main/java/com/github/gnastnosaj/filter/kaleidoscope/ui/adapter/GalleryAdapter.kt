@@ -2,27 +2,24 @@ package com.github.gnastnosaj.filter.kaleidoscope.ui.adapter
 
 import android.app.AlertDialog
 import android.content.Context
-import android.content.Intent
-import android.graphics.drawable.Animatable
 import android.net.Uri
-import android.support.annotation.Nullable
+import android.provider.MediaStore
 import android.support.design.widget.Snackbar
 import android.support.v4.view.PagerAdapter
 import android.view.View
 import android.view.ViewGroup
 import com.bilibili.socialize.share.download.IImageDownloader
-import com.facebook.drawee.backends.pipeline.Fresco
-import com.facebook.drawee.controller.BaseControllerListener
-import com.facebook.drawee.drawable.ScalingUtils
-import com.facebook.imagepipeline.image.ImageInfo
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.github.gnastnosaj.boilerplate.rxbus.RxBus
 import com.github.gnastnosaj.filter.kaleidoscope.R
 import com.github.gnastnosaj.filter.kaleidoscope.api.event.ToolbarEvent
 import com.github.gnastnosaj.filter.kaleidoscope.util.ShareHelper
+import com.github.piasy.biv.loader.ImageLoader
+import com.github.piasy.biv.view.BigImageView
+import com.github.piasy.biv.view.FrescoImageViewFactory
 import com.shizhefei.mvc.IDataAdapter
-import me.relex.photodraweeview.PhotoDraweeView
-import timber.log.Timber
 import java.io.File
+import java.lang.Exception
 
 
 class GalleryAdapter(private val context: Context) : PagerAdapter(), IDataAdapter<List<Map<String, String>>> {
@@ -30,38 +27,49 @@ class GalleryAdapter(private val context: Context) : PagerAdapter(), IDataAdapte
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
         val data = data[position]
+        var uri = data["thumbnail"]
 
-        val photoDraweeView = PhotoDraweeView(context)
+        val bigImageView = BigImageView(context)
+        bigImageView.setImageViewFactory(object : FrescoImageViewFactory() {
+            override fun createStillImageView(context: Context): SubsamplingScaleImageView {
+                val ssiv = super.createStillImageView(context)
+                ssiv.maxScale = 10f
+                return ssiv
+            }
+        })
+        bigImageView.setImageLoaderCallback(object : ImageLoader.Callback {
+            override fun onStart() {
+            }
 
-        photoDraweeView.hierarchy.setPlaceholderImage(R.drawable.ic_placeholder_dark, ScalingUtils.ScaleType.FIT_CENTER)
+            override fun onFinish() {
+            }
 
-        photoDraweeView.controller = Fresco.newDraweeControllerBuilder()
-                .setUri(data["thumbnail"])
-                .setOldController(photoDraweeView.controller)
-                .setControllerListener(object : BaseControllerListener<ImageInfo>() {
-                    override fun onFinalImageSet(id: String?, @Nullable imageInfo: ImageInfo?, @Nullable anim: Animatable?) {
-                        photoDraweeView.isEnableDraweeMatrix = true
-                        imageInfo?.let {
-                            photoDraweeView.update(it.width, it.height)
-                        }
+            override fun onSuccess(image: File?) {
+            }
+
+            override fun onCacheHit(imageType: Int, image: File?) {
+            }
+
+            override fun onCacheMiss(imageType: Int, image: File?) {
+            }
+
+            override fun onProgress(progress: Int) {
+            }
+
+            override fun onFail(error: Exception?) {
+                data["thumbnail_error"]?.let {
+                    if (uri != it) {
+                        uri = it
+                        bigImageView.showImage(Uri.parse(uri))
                     }
+                }
+            }
+        })
+        bigImageView.showImage(Uri.parse("android.resource://${context.packageName}/${R.drawable.ic_placeholder_dark}"), Uri.parse(uri))
 
-                    override fun onFailure(id: String?, throwable: Throwable?) {
-                        Timber.e(throwable)
-                        photoDraweeView.isEnableDraweeMatrix = false
-                        data["thumbnail_error"]?.let {
-                            photoDraweeView.controller = Fresco.newDraweeControllerBuilder()
-                                    .setUri(it)
-                                    .setOldController(photoDraweeView.controller)
-                                    .setControllerListener(this)
-                                    .build()
-                        }
-                    }
-                }).build()
+        bigImageView.setOnClickListener { _ -> RxBus.getInstance().post(ToolbarEvent::class.java, ToolbarEvent) }
 
-        photoDraweeView.setOnViewTapListener { _, _, _ -> RxBus.getInstance().post(ToolbarEvent::class.java, ToolbarEvent) }
-
-        photoDraweeView.setOnLongClickListener {
+        bigImageView.setOnLongClickListener {
             AlertDialog.Builder(context)
                     .setMessage(R.string.save_to_phone)
                     .setNegativeButton(R.string.action_cancel) { dialog, _ ->
@@ -70,14 +78,13 @@ class GalleryAdapter(private val context: Context) : PagerAdapter(), IDataAdapte
                     .setPositiveButton(R.string.action_save) { dialog, _ ->
                         dialog.dismiss()
                         ShareHelper.configuration?.imageDownloader?.download(context, data["thumbnail"], ShareHelper.configuration!!.getImageCachePath(context), object : IImageDownloader.OnImageDownloadListener {
-                            override fun onSuccess(path: String?) {
-                                Snackbar.make(photoDraweeView, context.resources.getString(R.string.save_picture_success, path), Snackbar.LENGTH_SHORT).show()
-                                val scannerIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(File(path)))
-                                context.sendBroadcast(scannerIntent)
+                            override fun onSuccess(path: String) {
+                                Snackbar.make(bigImageView, context.resources.getString(R.string.save_picture_success, path), Snackbar.LENGTH_SHORT).show()
+                                MediaStore.Images.Media.insertImage(context.contentResolver, path, File(path).name, "")
                             }
 
-                            override fun onFailed(error: String?) {
-                                Snackbar.make(photoDraweeView, R.string.save_picture_fail, Snackbar.LENGTH_SHORT).show()
+                            override fun onFailed(error: String) {
+                                Snackbar.make(bigImageView, R.string.save_picture_fail, Snackbar.LENGTH_SHORT).show()
                             }
 
                             override fun onStart() {
@@ -89,9 +96,9 @@ class GalleryAdapter(private val context: Context) : PagerAdapter(), IDataAdapte
             true
         }
 
-        container.addView(photoDraweeView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        container.addView(bigImageView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
 
-        return photoDraweeView
+        return bigImageView
     }
 
     override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {

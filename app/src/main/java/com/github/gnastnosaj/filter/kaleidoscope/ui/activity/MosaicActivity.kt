@@ -1,13 +1,12 @@
 package com.github.gnastnosaj.filter.kaleidoscope.ui.activity
 
 import android.Manifest
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
-import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.provider.MediaStore
 import android.support.design.widget.Snackbar
 import android.view.Menu
 import android.view.MenuItem
@@ -119,8 +118,7 @@ class MosaicActivity : BaseActivity() {
             R.id.action_save -> {
                 save()?.subscribe { path ->
                     Snackbar.make(mosaicView!!, resources.getString(R.string.save_picture_success, path), Snackbar.LENGTH_SHORT).show()
-                    val scannerIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(File(path)))
-                    sendBroadcast(scannerIntent)
+                    MediaStore.Images.Media.insertImage(contentResolver, path, File(path).name, "")
                 }
                 return true
             }

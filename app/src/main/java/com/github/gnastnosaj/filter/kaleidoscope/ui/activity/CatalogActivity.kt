@@ -136,7 +136,6 @@ class CatalogActivity : BaseActivity() {
                             }, {
                                 progressBar?.visibility = View.GONE
                             })
-                            return true
                         }
                         return false
                     }

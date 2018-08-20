@@ -85,6 +85,8 @@ dependencies {
     implementation("org.jetbrains.anko:anko-percent:$ankoVersion")
 
     implementation("com.github.gnastnosaj.Boilerplate:boilerplate:$boilerplateVersion")
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:+")
+    releaseImplementation("com.squareup.leakcanary:leakcanary-android-no-op:+")
     implementation("com.github.JiongBull:jlog:+")
     implementation("me.drakeet.multitype:multitype-kotlin:+")
     implementation("com.github.gnastnosaj.Boilerplate:net:$boilerplateVersion")
@@ -107,7 +109,9 @@ dependencies {
 
     implementation("com.github.gnastnosaj:MaterialSearchView:4463cd3949")
     implementation("com.yqritc:recyclerview-flexibledivider:+")
-    implementation("me.relex:photodraweeview:+")
+    implementation("com.github.piasy:BigImageViewer:+")
+    implementation("com.github.piasy:FrescoImageLoader:+")
+    implementation("com.github.piasy:FrescoImageViewFactory:+")
     implementation("com.github.gnastnosaj:AndroidTagGroup:743b9e1175")
     implementation("net.qiujuer.genius:graphics:+")
     implementation("com.ramotion.foldingcell:folding-cell:+")

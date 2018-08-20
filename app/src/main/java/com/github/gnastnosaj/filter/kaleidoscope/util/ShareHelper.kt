@@ -69,8 +69,7 @@ object ShareHelper {
     class ShareFrescoImageDownloader : AbsImageDownloader() {
 
         override fun downloadDirectly(imageUrl: String, filePath: String, listener: IImageDownloader.OnImageDownloadListener?) {
-            if (listener != null)
-                listener.onStart()
+            listener?.onStart()
 
             val request = ImageRequest.fromUri(imageUrl)
             val dataSource = Fresco.getImagePipeline().fetchDecodedImage(request, null)
@@ -94,9 +93,7 @@ object ShareHelper {
                                 val cacheFile = resource.file
                                 try {
                                     FileUtil.copyFile(cacheFile, File(filePath))
-                                    if (listener != null) {
-                                        listener.onSuccess(filePath)
-                                    }
+                                    listener?.onSuccess(filePath)
                                 } catch (e: IOException) {
                                     Timber.e(e, "ShareFrescoImageDownloader exception")
                                 }
@@ -105,15 +102,13 @@ object ShareHelper {
                         } finally {
                             CloseableReference.closeSafely(ref)
                         }
-                    } else if (listener != null) {
-                        listener.onFailed(imageUrl)
+                    } else {
+                        listener?.onFailed(imageUrl)
                     }
                 }
 
                 override fun onFailureImpl(dataSource: DataSource<CloseableReference<CloseableImage>>) {
-                    if (listener != null) {
-                        listener.onFailed(imageUrl)
-                    }
+                    listener?.onFailed(imageUrl)
                 }
 
             }, UiThreadImmediateExecutorService.getInstance())

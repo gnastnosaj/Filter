@@ -14,7 +14,7 @@ ext {
 
     set("ankoVersion", "0.10.4")
 
-    set("boilerplateVersion", "2.0.5")
+    set("boilerplateVersion", "2.0.6-rc1")
 }
 
 buildscript {
@@ -45,6 +45,9 @@ allprojects {
         }
         maven {
             url = URI("https://dl.bintray.com/thelasterstar/maven/")
+        }
+        maven {
+            url = URI("http://dl.bintray.com/piasy/maven")
         }
     }
 }
