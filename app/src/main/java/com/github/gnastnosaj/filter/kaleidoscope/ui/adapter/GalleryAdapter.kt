@@ -30,9 +30,47 @@ class GalleryAdapter(private val context: Context) : PagerAdapter(), IDataAdapte
         var uri = data["thumbnail"]
 
         val bigImageView = BigImageView(context)
+        val thumbnailError: (throwable: Throwable) -> Unit = {
+            data["thumbnail_error"]?.let {
+                if (uri != it) {
+                    uri = it
+                    bigImageView.showImage(Uri.parse(uri))
+                }
+            }
+        }
         bigImageView.setImageViewFactory(object : FrescoImageViewFactory() {
             override fun createStillImageView(context: Context): SubsamplingScaleImageView {
-                val ssiv = super.createStillImageView(context)
+                val ssiv = object : SubsamplingScaleImageView(context) {
+                    override fun setOnImageEventListener(onImageEventListener: OnImageEventListener?) {
+                        super.setOnImageEventListener(object : OnImageEventListener {
+                            override fun onImageLoaded() {
+                                onImageEventListener?.onImageLoaded()
+                            }
+
+                            override fun onReady() {
+                                onImageEventListener?.onReady()
+                            }
+
+                            override fun onTileLoadError(e: Exception) {
+                                thumbnailError(e)
+                                onImageEventListener?.onTileLoadError(e)
+                            }
+
+                            override fun onPreviewReleased() {
+                                onImageEventListener?.onPreviewReleased()
+                            }
+
+                            override fun onImageLoadError(e: Exception) {
+                                thumbnailError(e)
+                                onImageEventListener?.onImageLoadError(e)
+                            }
+
+                            override fun onPreviewLoadError(e: Exception) {
+                                onImageEventListener?.onPreviewLoadError(e)
+                            }
+                        })
+                    }
+                }
                 ssiv.maxScale = 10f
                 return ssiv
             }
@@ -56,19 +94,12 @@ class GalleryAdapter(private val context: Context) : PagerAdapter(), IDataAdapte
             override fun onProgress(progress: Int) {
             }
 
-            override fun onFail(error: Exception?) {
-                data["thumbnail_error"]?.let {
-                    if (uri != it) {
-                        uri = it
-                        bigImageView.showImage(Uri.parse(uri))
-                    }
-                }
+            override fun onFail(error: Exception) {
+                thumbnailError(error)
             }
         })
         bigImageView.showImage(Uri.parse("android.resource://${context.packageName}/${R.drawable.ic_placeholder_dark}"), Uri.parse(uri))
-
         bigImageView.setOnClickListener { _ -> RxBus.getInstance().post(ToolbarEvent::class.java, ToolbarEvent) }
-
         bigImageView.setOnLongClickListener {
             AlertDialog.Builder(context)
                     .setMessage(R.string.save_to_phone)
