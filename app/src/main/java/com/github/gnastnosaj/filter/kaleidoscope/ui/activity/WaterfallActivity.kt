@@ -1,12 +1,18 @@
 package com.github.gnastnosaj.filter.kaleidoscope.ui.activity
 
+import android.app.Activity
 import android.os.Bundle
 import android.support.design.widget.AppBarLayout
+import android.support.v4.app.ActivityCompat
+import android.support.v4.app.ActivityOptionsCompat
+import android.support.v4.app.SharedElementCallback
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.StaggeredGridLayoutManager
 import android.view.GestureDetector
 import android.view.MenuItem
 import android.view.MotionEvent
+import android.view.View
+import com.facebook.drawee.view.SimpleDraweeView
 import com.github.gnastnosaj.boilerplate.ui.activity.BaseActivity
 import com.github.gnastnosaj.filter.dsl.groovy.api.Connection
 import com.github.gnastnosaj.filter.kaleidoscope.Kaleidoscope
@@ -81,12 +87,15 @@ class WaterfallActivity : BaseActivity() {
                                             if (-1 < position && position < waterfallAdapter.data.size) {
                                                 val data = waterfallAdapter.data[position]
                                                 connection?.execute("page", data["href"]!!)?.let {
-                                                    startActivity(intentFor<GalleryActivity>(
+                                                    val optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                                                            context as Activity, childView, GalleryActivity.TRANSITION_NAME
+                                                    )
+                                                    ActivityCompat.startActivity(context as Activity, intentFor<GalleryActivity>(
                                                             GalleryActivity.EXTRA_ID to (data["id"] ?: data["title"]),
                                                             GalleryActivity.EXTRA_TITLE to data["title"],
                                                             GalleryActivity.EXTRA_PLUGIN to plugin,
                                                             GalleryActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(it)
-                                                    ))
+                                                    ), optionsCompat.toBundle())
                                                 }
                                             }
                                         }
@@ -108,6 +117,17 @@ class WaterfallActivity : BaseActivity() {
                 }
             }.lparams(matchParent, matchParent)
         }
+
+        ActivityCompat.setExitSharedElementCallback(this, object : SharedElementCallback() {
+            override fun onSharedElementEnd(sharedElementNames: MutableList<String>?, sharedElements: MutableList<View>?, sharedElementSnapshots: MutableList<View>?) {
+                super.onSharedElementEnd(sharedElementNames, sharedElements, sharedElementSnapshots)
+                sharedElements?.forEach {
+                    it.findViewById<SimpleDraweeView>(R.id.thumbnail)?.apply {
+                        drawable.setVisible(true, true)
+                    }
+                }
+            }
+        })
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

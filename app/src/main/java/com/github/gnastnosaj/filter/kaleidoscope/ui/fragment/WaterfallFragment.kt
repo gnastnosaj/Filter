@@ -1,6 +1,9 @@
 package com.github.gnastnosaj.filter.kaleidoscope.ui.fragment
 
+import android.app.Activity
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
+import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.app.Fragment
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.StaggeredGridLayoutManager
@@ -19,6 +22,7 @@ import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.recyclerview.v7.recyclerView
 import org.jetbrains.anko.support.v4.swipeRefreshLayout
+
 
 class WaterfallFragment : Fragment() {
     private var plugin: Plugin? = null
@@ -67,13 +71,18 @@ class WaterfallFragment : Fragment() {
                                                 when (data["type"] ?: "thumbnail") {
                                                     "thumbnail" -> connection?.execute("page", data["href"]!!)?.let {
                                                         when ((it as? Connection)?.execute("layout") ?: "gallery") {
-                                                            "gallery" -> startActivity(intentFor<GalleryActivity>(
-                                                                    GalleryActivity.EXTRA_ID to (data["id"]
-                                                                            ?: data["title"]),
-                                                                    GalleryActivity.EXTRA_TITLE to data["title"],
-                                                                    GalleryActivity.EXTRA_PLUGIN to plugin,
-                                                                    GalleryActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(it)
-                                                            ))
+                                                            "gallery" -> {
+                                                                val optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                                                                        context as Activity, childView, GalleryActivity.TRANSITION_NAME
+                                                                )
+                                                                ActivityCompat.startActivity(context as Activity, intentFor<GalleryActivity>(
+                                                                        GalleryActivity.EXTRA_ID to (data["id"]
+                                                                                ?: data["title"]),
+                                                                        GalleryActivity.EXTRA_TITLE to data["title"],
+                                                                        GalleryActivity.EXTRA_PLUGIN to plugin,
+                                                                        GalleryActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(it)
+                                                                ), optionsCompat.toBundle())
+                                                            }
                                                         }
                                                     }
                                                 }

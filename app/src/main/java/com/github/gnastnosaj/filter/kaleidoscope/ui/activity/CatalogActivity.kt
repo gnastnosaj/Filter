@@ -4,6 +4,8 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.TabLayout
+import android.support.v4.app.ActivityCompat
+import android.support.v4.app.SharedElementCallback
 import android.support.v4.view.ViewPager
 import android.view.Gravity
 import android.view.Menu
@@ -15,6 +17,7 @@ import android.widget.ListView
 import android.widget.ProgressBar
 import br.com.mauker.materialsearchview.MaterialSearchView
 import com.bilibili.socialize.share.core.shareparam.ShareParamText
+import com.facebook.drawee.view.SimpleDraweeView
 import com.github.gnastnosaj.boilerplate.rxbus.RxHelper
 import com.github.gnastnosaj.boilerplate.ui.activity.BaseActivity
 import com.github.gnastnosaj.filter.dsl.core.Catalog
@@ -198,6 +201,17 @@ class CatalogActivity : BaseActivity() {
                         }
                     }
         }
+
+        ActivityCompat.setExitSharedElementCallback(this, object : SharedElementCallback() {
+            override fun onSharedElementEnd(sharedElementNames: MutableList<String>?, sharedElements: MutableList<View>?, sharedElementSnapshots: MutableList<View>?) {
+                super.onSharedElementEnd(sharedElementNames, sharedElements, sharedElementSnapshots)
+                sharedElements?.forEach {
+                    it.findViewById<SimpleDraweeView>(R.id.thumbnail)?.apply {
+                        drawable.setVisible(true, true)
+                    }
+                }
+            }
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

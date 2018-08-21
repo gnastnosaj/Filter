@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.AppBarLayout
+import android.support.v4.view.ViewCompat
 import android.support.v4.view.ViewPager
 import android.view.Gravity
 import android.view.Menu
@@ -71,6 +72,8 @@ class GalleryActivity : BaseActivity() {
         const val EXTRA_TITLE = "title"
         const val EXTRA_PLUGIN = "plugin"
         const val EXTRA_CONNECTION_HASH_CODE = "connectionHashCode"
+
+        const val TRANSITION_NAME = "transitionName"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -97,9 +100,11 @@ class GalleryActivity : BaseActivity() {
         frameLayout {
             backgroundColorResource = R.color.colorPrimaryDark
             fitsSystemWindows = true
+            ViewCompat.setTransitionName(this, TRANSITION_NAME)
             frameLayout {
                 galleryAdapter = GalleryAdapter(context)
-                viewPager = viewPager().lparams(matchParent, matchParent)
+                viewPager = viewPager {
+                }.lparams(matchParent, matchParent)
             }
             appBar = themedAppBarLayout(R.style.AppTheme_AppBarOverlay) {
                 setSupportActionBar(toolbar {
