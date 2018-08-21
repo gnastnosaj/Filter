@@ -6,6 +6,10 @@ import android.os.Build
 import android.support.multidex.MultiDex
 import android.util.Log
 import android.webkit.WebView
+import com.facebook.common.memory.MemoryTrimType
+import com.facebook.common.memory.MemoryTrimmable
+import com.facebook.common.memory.MemoryTrimmableRegistry
+import com.facebook.imagepipeline.core.ImagePipelineConfig
 import com.github.gnastnosaj.boilerplate.Boilerplate
 import com.github.gnastnosaj.filter.kaleidoscope.net.OkHttpEnhancer.enhance
 import com.github.gnastnosaj.filter.kaleidoscope.net.PluginInterceptor
@@ -29,6 +33,9 @@ import java.net.URL
 class Kaleidoscope : Application() {
     private val instanceStatePool by lazy {
         HashMap<Int, Any>()
+    }
+    private val frescoMemoryRegistry by lazy {
+        arrayListOf<MemoryTrimmable>()
     }
 
     companion object {
@@ -93,6 +100,20 @@ class Kaleidoscope : Application() {
                                             logger.wtf(tag, throwable, message)
                                     }
                                 }
+                                .setImagePipelineConfig(
+                                        ImagePipelineConfig
+                                                .newBuilder(this)
+                                                .setMemoryTrimmableRegistry(object : MemoryTrimmableRegistry {
+                                                    override fun registerMemoryTrimmable(trimmable: MemoryTrimmable) {
+                                                        frescoMemoryRegistry.add(trimmable)
+                                                    }
+
+                                                    override fun unregisterMemoryTrimmable(trimmable: MemoryTrimmable) {
+                                                        frescoMemoryRegistry.remove(trimmable)
+                                                    }
+                                                })
+                                                .build()
+                                )
                                 .build()
                 )) {
             logger.isDebug = Boilerplate.DEBUG
@@ -136,5 +157,13 @@ class Kaleidoscope : Application() {
 
             ShareHelper.initialize(this)
         }
+    }
+
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        frescoMemoryRegistry.forEach {
+            it.trim(MemoryTrimType.OnSystemLowMemoryWhileAppInBackground)
+        }
+        Timber.d("onTrimMemory")
     }
 }

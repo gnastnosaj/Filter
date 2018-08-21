@@ -1,17 +1,19 @@
 package com.github.gnastnosaj.filter.kaleidoscope.ui.view
 
 import android.content.Context
+import android.support.transition.ChangeBounds
+import android.support.transition.TransitionManager
+import android.view.ViewGroup
 import android.view.ViewManager
 import com.facebook.drawee.view.SimpleDraweeView
 import org.jetbrains.anko.custom.ankoView
 
 
 class RatioImageView(context: Context?) : SimpleDraweeView(context) {
-
     private var originalWidth: Int = 0
     private var originalHeight: Int = 0
 
-    fun setOriginalSize(originalWidth: Int, originalHeight: Int) {
+    fun setOriginalSize(originalWidth: Int, originalHeight: Int, animation: Boolean = false) {
         this.originalWidth = originalWidth
         this.originalHeight = originalHeight
 
@@ -25,6 +27,13 @@ class RatioImageView(context: Context?) : SimpleDraweeView(context) {
                 layoutParams.height = (width.toFloat() / ratio).toInt()
             }
 
+            if (animation) {
+                (parent as? ViewGroup)?.let {
+                    val changeBounds = ChangeBounds()
+                    changeBounds.duration = 100
+                    TransitionManager.beginDelayedTransition(it, changeBounds)
+                }
+            }
             setLayoutParams(layoutParams)
         }
     }
@@ -44,10 +53,16 @@ class RatioImageView(context: Context?) : SimpleDraweeView(context) {
         } else {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec)
 
-            setMeasuredDimension(measuredWidth, measuredWidth)
+            //setMeasuredDimension(measuredWidth, measuredWidth)
         }
     }
 
+    override fun onDetachedFromWindow() {
+        (parent as? ViewGroup)?.let {
+            TransitionManager.endTransitions(it)
+        }
+        super.onDetachedFromWindow()
+    }
 }
 
 inline fun ViewManager.ratioImageView() = ratioImageView {}
