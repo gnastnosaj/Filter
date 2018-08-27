@@ -12,25 +12,6 @@
         <!--<item name="android:windowBackground">@drawable/splash</item>-->
     </style>
 
-    <style name="AppTheme.Translucent" parent="@style/AppTheme.NoActionBar">
-        <item name="android:windowBackground">@color/colorPrimary</item>
-    </style>
-
-    <style name="AppTheme.Translucent.Light" parent="@style/AppTheme.Translucent">
-        <item name="tabSwitcherThemeGlobal">@style/LightTabSwitcher</item>
-    </style>
-
-    <style name="LightTabSwitcher" parent="@style/TabSwitcher.Light">
-        <item name="tabSwitcherTabIcon">@drawable/ic_file_outline_18dp</item>
-        <item name="tabSwitcherTabIconTint">#ff666666</item>
-        <item name="tabSwitcherToolbarNavigationIconTint">@color/white</item>
-        <item name="tabSwitcherToolbarPopupTheme">@style/LightToolbar</item>
-    </style>
-
-    <style name="LightToolbar" parent="@style/ThemeOverlay.AppCompat.Light">
-        <item name="android:textColorPrimary">@color/secondaryTextColor</item>
-    </style>
-
     <style name="TagGroup.Beauty_Red.Inverse.Hacky" parent="TagGroup.Beauty_Red.Inverse">
         <item name="atg_pressedBackgroundColor">#FF3D7F</item>
     </style>

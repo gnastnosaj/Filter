@@ -32,6 +32,7 @@ import com.github.gnastnosaj.filter.kaleidoscope.ui.adapter.CatalogAdapter
 import com.github.gnastnosaj.filter.kaleidoscope.ui.view.materialSearchView
 import com.github.gnastnosaj.filter.kaleidoscope.ui.view.tagGroup
 import com.github.gnastnosaj.filter.kaleidoscope.util.ShareHelper
+import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.material_design_iconic_typeface_library.MaterialDesignIconic
 import com.trello.rxlifecycle2.android.ActivityEvent
@@ -84,7 +85,12 @@ class CatalogActivity : BaseActivity() {
                     setSupportActionBar(toolbar {
                         popupTheme = R.style.AppTheme_PopupOverlay
                     })
-                    supportActionBar?.setDisplayHomeAsUpEnabled(true)
+                    supportActionBar?.apply {
+                        setDisplayHomeAsUpEnabled(true)
+                        setHomeAsUpIndicator(IconicsDrawable(context)
+                                .icon(CommunityMaterial.Icon.cmd_window_close)
+                                .color(Color.WHITE).sizeDp(14))
+                    }
                     title = plugin?.name
                     progressBar = horizontalProgressBar(R.style.Widget_AppCompat_ProgressBar_Horizontal) {
                         scaleY = 0.5f
