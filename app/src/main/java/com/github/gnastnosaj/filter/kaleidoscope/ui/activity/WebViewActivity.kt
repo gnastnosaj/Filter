@@ -1,6 +1,8 @@
 package com.github.gnastnosaj.filter.kaleidoscope.ui.activity
 
+import android.app.ActivityManager
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.AppBarLayout
 import android.view.KeyEvent
@@ -55,6 +57,9 @@ class WebViewActivity : BaseActivity() {
                                 .color(Color.WHITE).sizeDp(14))
                     }
                     title = if (intent.hasExtra(EXTRA_KEYWORD)) intent.getStringExtra(EXTRA_KEYWORD) else ""
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        setTaskDescription(ActivityManager.TaskDescription(title.toString(), null, resources.getColor(R.color.colorPrimary)))
+                    }
                 }.lparams(matchParent, wrapContent)
                 swipeRefreshLayout {
                     val webView = NestedScrollAdblockWebView(context)
@@ -102,6 +107,9 @@ class WebViewActivity : BaseActivity() {
                                 .setWebChromeClient(object : WebChromeClient() {
                                     override fun onReceivedTitle(view: WebView, title: String) {
                                         this@WebViewActivity.title = title
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                            setTaskDescription(ActivityManager.TaskDescription(title, null, resources.getColor(R.color.colorPrimary)))
+                                        }
                                     }
                                 })
                                 .createAgentWeb()

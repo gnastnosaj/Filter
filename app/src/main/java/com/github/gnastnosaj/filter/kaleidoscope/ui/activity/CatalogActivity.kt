@@ -1,7 +1,9 @@
 package com.github.gnastnosaj.filter.kaleidoscope.ui.activity
 
+import android.app.ActivityManager
 import android.content.Intent
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.TabLayout
 import android.support.v4.app.ActivityCompat
@@ -92,6 +94,9 @@ class CatalogActivity : BaseActivity() {
                                 .color(Color.WHITE).sizeDp(14))
                     }
                     title = plugin?.name
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        setTaskDescription(ActivityManager.TaskDescription(title.toString(), null, resources.getColor(R.color.colorPrimary)))
+                    }
                     progressBar = horizontalProgressBar(R.style.Widget_AppCompat_ProgressBar_Horizontal) {
                         scaleY = 0.5f
                         isIndeterminate = true
@@ -208,16 +213,17 @@ class CatalogActivity : BaseActivity() {
                     }
         }
 
-        ActivityCompat.setExitSharedElementCallback(this, object : SharedElementCallback() {
-            override fun onSharedElementEnd(sharedElementNames: MutableList<String>?, sharedElements: MutableList<View>?, sharedElementSnapshots: MutableList<View>?) {
-                super.onSharedElementEnd(sharedElementNames, sharedElements, sharedElementSnapshots)
-                sharedElements?.forEach {
-                    it.findViewById<SimpleDraweeView>(R.id.thumbnail)?.apply {
-                        drawable.setVisible(true, true)
+        ActivityCompat.setExitSharedElementCallback(this,
+                object : SharedElementCallback() {
+                    override fun onSharedElementEnd(sharedElementNames: MutableList<String>?, sharedElements: MutableList<View>?, sharedElementSnapshots: MutableList<View>?) {
+                        super.onSharedElementEnd(sharedElementNames, sharedElements, sharedElementSnapshots)
+                        sharedElements?.forEach {
+                            it.findViewById<SimpleDraweeView>(R.id.thumbnail)?.apply {
+                                drawable.setVisible(true, true)
+                            }
+                        }
                     }
-                }
-            }
-        })
+                })
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

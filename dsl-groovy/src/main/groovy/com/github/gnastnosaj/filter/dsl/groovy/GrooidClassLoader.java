@@ -181,7 +181,7 @@ public class GrooidClassLoader extends GroovyClassLoader {
     private static Map<String, Class> defineDynamic(Context context, File dex) {
         Map<String, Class> result = new LinkedHashMap<>();
         try {
-            dalvik.system.DexFile dexFile = new dalvik.system.DexFile(dex);
+            dalvik.system.DexFile dexFile = dalvik.system.DexFile.loadDex(dex.getAbsolutePath(), dex.getAbsolutePath().replace(".jar", ".odex"), 0);
             Enumeration<String> entries = dexFile.entries();
             while (entries.hasMoreElements()) {
                 String className = entries.nextElement();
