@@ -88,7 +88,7 @@ class WaterfallActivity : BaseActivity() {
                                                 val data = waterfallAdapter.data[position]
                                                 connection?.execute("page", data["href"]!!)?.let {
                                                     val optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                                                            context as Activity, childView, GalleryActivity.TRANSITION_NAME
+                                                            this@WaterfallActivity, childView, GalleryActivity.TRANSITION_NAME
                                                     )
                                                     ActivityCompat.startActivity(context as Activity, intentFor<GalleryActivity>(
                                                             GalleryActivity.EXTRA_ID to (data["id"] ?: data["title"]),

@@ -71,6 +71,7 @@ dependencies {
     implementation("com.android.support:multidex:1.0.3")
     implementation("com.android.support:appcompat-v7:$supportLibraryVersion")
     implementation("com.android.support:cardview-v7:$supportLibraryVersion")
+    implementation("com.android.support:customtabs:$supportLibraryVersion")
 
     implementation("com.google.code.gson:gson:+")
     implementation("com.squareup.retrofit2:converter-gson:+")
