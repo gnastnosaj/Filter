@@ -36,7 +36,7 @@ object PluginInterceptor : Interceptor {
                     }) {
                 chain.proceed(request)
             } else {
-                chain.withConnectTimeout(5, TimeUnit.SECONDS).proceed(request)
+                chain.withConnectTimeout(6, TimeUnit.SECONDS).proceed(request)
             }
         } catch (throwable: Throwable) {
             snapshot = throwable
@@ -53,7 +53,7 @@ object PluginInterceptor : Interceptor {
                     Timber.d("replace $host of $url with $ip")
                     url = url.replace(host, ip)
                     request = request.newBuilder().url(url).build()
-                    response = chain.withConnectTimeout(5, TimeUnit.SECONDS).proceed(request)
+                    response = chain.withConnectTimeout(15, TimeUnit.SECONDS).proceed(request)
                 } catch (throwable: Throwable) {
                     snapshot = throwable
                 }
@@ -74,7 +74,7 @@ object PluginInterceptor : Interceptor {
                             Timber.d("replace $origin of $url with $reserve")
                             url = url.replace(if (option.isNullOrBlank()) Regex(origin) else Regex(origin, RegexOption.valueOf(option!!)), reserve)
                             request = request.newBuilder().url(url).build()
-                            response = chain.withConnectTimeout(5, TimeUnit.SECONDS).proceed(request)
+                            response = chain.withConnectTimeout(15, TimeUnit.SECONDS).proceed(request)
                         } catch (throwable: Throwable) {
                             snapshot = throwable
                         }

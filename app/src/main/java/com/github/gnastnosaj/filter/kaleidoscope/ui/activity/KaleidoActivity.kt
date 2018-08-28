@@ -430,6 +430,7 @@ class KaleidoActivity : BaseActivity() {
                                     projects?.put(plugin.id!!, project)
                                     project
                                 }
+                                .retry(3)
                                 .timeout(1, TimeUnit.MINUTES)
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .doOnNext {
