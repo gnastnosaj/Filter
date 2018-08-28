@@ -6,6 +6,7 @@ import okhttp3.Interceptor
 import okhttp3.Response
 import timber.log.Timber
 import java.net.InetAddress
+import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 
 object PluginInterceptor : Interceptor {
@@ -30,7 +31,7 @@ object PluginInterceptor : Interceptor {
         var response: Response? = null
         var snapshot: Throwable? = null
         try {
-            response = chain.proceed(request)
+            response = chain.withConnectTimeout(5, TimeUnit.SECONDS).proceed(request)
         } catch (throwable: Throwable) {
             snapshot = throwable
         }
@@ -46,7 +47,7 @@ object PluginInterceptor : Interceptor {
                     Timber.d("replace $host of $url with $ip")
                     url = url.replace(host, ip)
                     request = request.newBuilder().url(url).build()
-                    response = chain.proceed(request)
+                    response = chain.withConnectTimeout(5, TimeUnit.SECONDS).proceed(request)
                 } catch (throwable: Throwable) {
                     snapshot = throwable
                 }
@@ -58,7 +59,7 @@ object PluginInterceptor : Interceptor {
                 try {
                     val origin = processor.args?.get("origin") as String
                     val option = processor.args?.get("option") as? String
-                    val reserves = processor.args?.get("reserves") as Array<String>
+                    val reserves = processor.args?.get("reserves") as List<String>
                     val iterator = reserves.iterator()
                     while ((response == null || response?.isSuccessful == false) && iterator.hasNext()) {
                         try {
@@ -67,7 +68,7 @@ object PluginInterceptor : Interceptor {
                             Timber.d("replace $origin of $url with $reserve")
                             url = url.replace(if (option.isNullOrBlank()) Regex(origin) else Regex(origin, RegexOption.valueOf(option!!)), reserve)
                             request = request.newBuilder().url(url).build()
-                            response = chain.proceed(request)
+                            response = chain.withConnectTimeout(5, TimeUnit.SECONDS).proceed(request)
                         } catch (throwable: Throwable) {
                             snapshot = throwable
                         }
