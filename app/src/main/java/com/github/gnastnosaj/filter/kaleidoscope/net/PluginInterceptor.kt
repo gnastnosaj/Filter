@@ -15,24 +15,30 @@ object PluginInterceptor : Interceptor {
         var args: Map<String, Any>? = null
     }
 
-    private val processors = mutableMapOf<Plugin, Processor>()
+    private val processors = mutableListOf<Processor>()
 
     override fun intercept(chain: Interceptor.Chain): Response {
         var request = chain.request()
-        processors.entries.firstOrNull {
-            val processor = it.value
+        processors.firstOrNull { processor ->
             processor.type == "header" && processor.regexp != null && Pattern.compile(processor.regexp).matcher(request.url().toString()).find()
-        }?.value?.let {
+        }?.let {
             (it.args?.get("headers") as? Map<String, String>)?.let { headers ->
                 request = request.newBuilder().headers(Headers.of(headers)).build()
             }
         }
-        var response = chain.proceed(request)
-        if (!response.isSuccessful) {
-            processors.entries.firstOrNull {
-                val processor = it.value
+
+        var response: Response? = null
+        var snapshot: Throwable? = null
+        try {
+            response = chain.proceed(request)
+        } catch (throwable: Throwable) {
+            snapshot = throwable
+        }
+
+        if (response == null || !response.isSuccessful) {
+            processors.firstOrNull { processor ->
                 processor.type == "ip" && processor.regexp != null && Pattern.compile(processor.regexp).matcher(request.url().toString()).find()
-            }?.value?.let {
+            }?.let {
                 try {
                     val host = request.url().host()
                     val ip = InetAddress.getByName(host).toString().split("/")[1]
@@ -42,11 +48,43 @@ object PluginInterceptor : Interceptor {
                     request = request.newBuilder().url(url).build()
                     response = chain.proceed(request)
                 } catch (throwable: Throwable) {
+                    snapshot = throwable
+                }
+            }
+
+            processors.firstOrNull { processor ->
+                processor.type == "reserve" && processor.regexp != null && Pattern.compile(processor.regexp).matcher(request.url().toString()).find()
+            }?.let { processor ->
+                try {
+                    val origin = processor.args?.get("origin") as String
+                    val option = processor.args?.get("option") as? String
+                    val reserves = processor.args?.get("reserves") as Array<String>
+                    val iterator = reserves.iterator()
+                    while ((response == null || response?.isSuccessful == false) && iterator.hasNext()) {
+                        try {
+                            var url = request.url().toString()
+                            val reserve = iterator.next()
+                            Timber.d("replace $origin of $url with $reserve")
+                            url = url.replace(if (option.isNullOrBlank()) Regex(origin) else Regex(origin, RegexOption.valueOf(option!!)), reserve)
+                            request = request.newBuilder().url(url).build()
+                            response = chain.proceed(request)
+                        } catch (throwable: Throwable) {
+                            snapshot = throwable
+                        }
+                    }
+                } catch (throwable: Throwable) {
                     Timber.e(throwable)
                 }
             }
         }
-        return response
+
+        response?.let {
+            return it
+        }
+        snapshot?.let {
+            throw it
+        }
+        throw IllegalStateException()
     }
 
     fun plugins(vararg plugins: Plugin) {
@@ -60,7 +98,7 @@ object PluginInterceptor : Interceptor {
                 processor.type = it["type"] as? String
                 processor.regexp = it["regexp"] as? String
                 processor.args = it["args"] as? Map<String, Any>
-                processors[plugin] = processor
+                processors.add(processor)
             }
         }
     }

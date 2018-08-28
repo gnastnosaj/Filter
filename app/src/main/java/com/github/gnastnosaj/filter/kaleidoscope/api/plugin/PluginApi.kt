@@ -4,6 +4,7 @@ import android.content.Context
 import com.github.gnastnosaj.boilerplate.Boilerplate
 import com.github.gnastnosaj.filter.kaleidoscope.api.KaleidoscopeRetrofit
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
+import com.github.gnastnosaj.filter.kaleidoscope.net.PluginInterceptor
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import io.rx_cache2.EvictProvider
@@ -23,6 +24,7 @@ class PluginApi {
                 Observable
                         .zip(local(), remote(), BiFunction<List<Plugin>, List<Plugin>, List<Plugin>> { local, remote -> local + remote })
                         .doOnNext {
+                            PluginInterceptor.plugins(it)
                             plugins = it
                         }
             } else {

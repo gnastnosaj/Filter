@@ -30,7 +30,6 @@ import com.github.gnastnosaj.filter.kaleidoscope.api.KaleidoscopeRetrofit
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
 import com.github.gnastnosaj.filter.kaleidoscope.api.plugin.PluginApi
 import com.github.gnastnosaj.filter.kaleidoscope.api.search.search
-import com.github.gnastnosaj.filter.kaleidoscope.net.PluginInterceptor
 import com.github.gnastnosaj.filter.kaleidoscope.ui.view.materialSearchView
 import com.github.gnastnosaj.filter.kaleidoscope.util.ShareHelper
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
@@ -373,8 +372,6 @@ class KaleidoActivity : BaseActivity() {
                     }
                     .compose(bindUntilEvent(ActivityEvent.DESTROY))
                     .flatMap {
-                        PluginInterceptor.plugins(it)
-
                         it.firstOrNull {
                             it.id == keyword
                         }?.let { plugin ->
@@ -433,6 +430,7 @@ class KaleidoActivity : BaseActivity() {
                                     projects?.put(plugin.id!!, project)
                                     project
                                 }
+                                .timeout(1, TimeUnit.MINUTES)
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .doOnNext {
                                     progressBar?.visibility = View.GONE
