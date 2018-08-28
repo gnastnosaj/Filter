@@ -31,7 +31,13 @@ object PluginInterceptor : Interceptor {
         var response: Response? = null
         var snapshot: Throwable? = null
         try {
-            response = chain.withConnectTimeout(5, TimeUnit.SECONDS).proceed(request)
+            response = if (processors.none { processor ->
+                        processor.regexp != null && Pattern.compile(processor.regexp).matcher(request.url().toString()).find()
+                    }) {
+                chain.proceed(request)
+            } else {
+                chain.withConnectTimeout(5, TimeUnit.SECONDS).proceed(request)
+            }
         } catch (throwable: Throwable) {
             snapshot = throwable
         }
