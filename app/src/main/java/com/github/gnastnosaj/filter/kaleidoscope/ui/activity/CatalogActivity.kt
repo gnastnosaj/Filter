@@ -20,10 +20,12 @@ import android.widget.ProgressBar
 import br.com.mauker.materialsearchview.MaterialSearchView
 import com.bilibili.socialize.share.core.shareparam.ShareParamText
 import com.facebook.drawee.view.SimpleDraweeView
+import com.github.gnastnosaj.boilerplate.Boilerplate
 import com.github.gnastnosaj.boilerplate.rxbus.RxHelper
 import com.github.gnastnosaj.boilerplate.ui.activity.BaseActivity
 import com.github.gnastnosaj.filter.dsl.core.Catalog
 import com.github.gnastnosaj.filter.dsl.core.Category
+import com.github.gnastnosaj.filter.dsl.groovy.GrooidClassLoader
 import com.github.gnastnosaj.filter.dsl.groovy.api.Project
 import com.github.gnastnosaj.filter.kaleidoscope.Kaleidoscope
 import com.github.gnastnosaj.filter.kaleidoscope.R
@@ -38,6 +40,7 @@ import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.material_design_iconic_typeface_library.MaterialDesignIconic
 import com.trello.rxlifecycle2.android.ActivityEvent
+import groovy.lang.Script
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import org.jetbrains.anko.*
@@ -179,23 +182,40 @@ class CatalogActivity : BaseActivity() {
         catalog?.let {
             observable = Observable.just(it)
         }
-        plugin?.id?.let { id ->
-            observable = KaleidoscopeRetrofit.instance.service
-                    .plugin(id)
-                    .map { script ->
-                        Project(script)
-                    }
-                    .map { project ->
-                        project.execute("area", resources.getString(R.string.area))
-                        project.execute("build")
-                        project.catalog?.connections?.let {
-                            if (it.isNotEmpty()) {
-                                return@map project.catalog!!
+        if (observable == null) {
+            plugin?.let { plugin ->
+                observable = Observable
+                        .just(plugin)
+                        .switchMap {
+                            if (plugin.script != null) {
+                                Observable.create<Script> { emitter ->
+                                    emitter.onNext(GrooidClassLoader.loadAndCreateGroovyObject(Boilerplate.getInstance(), plugin.script) as Script)
+                                    emitter.onComplete()
+                                }
+                            } else {
+                                KaleidoscopeRetrofit.instance.service.plugin(plugin.id!!)
                             }
                         }
-                        throw IllegalStateException()
-                    }
+                        .map { script ->
+                            Project(script)
+                        }
+                        .map { project ->
+                            project.execute("area", resources.getString(R.string.area))
+                            project.execute("build")
+                            project.catalog?.connections?.let {
+                                if (it.isNotEmpty()) {
+                                    return@map project.catalog!!
+                                }
+                            }
+                            throw IllegalStateException()
+                        }
+                        .doOnNext {
+                            catalog = it
+                        }
+                        .retry(3)
+            }
         }
+
         observable?.apply {
             compose(RxHelper.rxSchedulerHelper())
                     .compose(bindUntilEvent(ActivityEvent.DESTROY))

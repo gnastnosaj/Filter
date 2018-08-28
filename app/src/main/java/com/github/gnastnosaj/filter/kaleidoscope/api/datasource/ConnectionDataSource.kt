@@ -35,7 +35,7 @@ class ConnectionDataSource(context: Context, private val connection: Connection)
                 return@create
             }
             throw IllegalStateException()
-        }
+        }.retry(3)
     }
 }
 
