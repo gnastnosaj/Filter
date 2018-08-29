@@ -62,10 +62,6 @@ val boilerplateVersion: String by rootProject.ext
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    implementation("", "adblock-android-abi_all-release", null, null, null, "aar")
-    implementation("", "adblock-android-settings-release", null, null, null, "aar")
-    implementation("", "adblock-android-webview-release", null, null, null, "aar")
-
     implementation(kotlin("stdlib", kotlinVersion))
 
     implementation("com.android.support:multidex:1.0.3")
@@ -109,16 +105,19 @@ dependencies {
 
     implementation("com.github.gnastnosaj:MaterialSearchView:4463cd3949")
     implementation("com.github.Yalantis:Context-Menu.Android:1.0.8")
+    implementation("org.adblockplus:adblock-android:3.0")
+    implementation("org.adblockplus:adblock-android-settings:3.0")
+    implementation("org.adblockplus:adblock-android-webview:3.0")
     implementation("com.just.agentweb:agentweb:+")
     implementation("com.just.agentweb:download:+")
     implementation("com.just.agentweb:filechooser:+")
-    implementation("me.drakeet.support:about:+")
     implementation("com.yqritc:recyclerview-flexibledivider:+")
     implementation("com.github.piasy:BigImageViewer:+")
     implementation("com.github.piasy:FrescoImageLoader:+")
     implementation("com.github.piasy:FrescoImageViewFactory:+")
     implementation("com.github.gnastnosaj:AndroidTagGroup:743b9e1175")
     implementation("net.qiujuer.genius:graphics:+")
+    implementation("me.drakeet.support:about:+")
 
     implementation(project(":dsl"))
     implementation(project(":dsl-groovy"))
