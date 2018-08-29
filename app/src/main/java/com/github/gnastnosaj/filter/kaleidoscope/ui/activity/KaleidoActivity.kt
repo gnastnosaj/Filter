@@ -509,7 +509,7 @@ class KaleidoActivity : BaseActivity() {
                                         .setMessage(R.string.adult_warning)
                                         .setNegativeButton(R.string.adult_warning_not_18) { dialog, _ -> dialog.dismiss() }
                                         .setPositiveButton(R.string.adult_warning_continue) { dialog, _ ->
-                                            startActivity(intentFor<CatalogActivity>(CatalogActivity.EXTRA_PLUGIN to plugin, CatalogActivity.EXTRA_CATALOG_HASH_CODE to Kaleidoscope.saveInstanceState(project.catalog!!)))
+                                            ActivityCompat.startActivity(this, intentFor<CatalogActivity>(CatalogActivity.EXTRA_PLUGIN to plugin, CatalogActivity.EXTRA_CATALOG_HASH_CODE to Kaleidoscope.saveInstanceState(project.catalog!!)).setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_MULTIPLE_TASK), null)
                                             dialog.dismiss()
                                         }.show()
                             } else {
