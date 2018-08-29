@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.AppBarLayout
 import android.view.KeyEvent
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.webkit.WebChromeClient
@@ -52,9 +53,6 @@ class WebViewActivity : BaseActivity() {
                     })
                     supportActionBar?.apply {
                         setDisplayHomeAsUpEnabled(true)
-                        setHomeAsUpIndicator(IconicsDrawable(context)
-                                .icon(CommunityMaterial.Icon.cmd_window_close)
-                                .color(Color.WHITE).sizeDp(14))
                     }
                     title = if (intent.hasExtra(EXTRA_KEYWORD)) intent.getStringExtra(EXTRA_KEYWORD) else ""
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -132,10 +130,22 @@ class WebViewActivity : BaseActivity() {
         agentWeb?.webLifeCycle?.onResume()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_webview, menu)
+        menu?.findItem(R.id.action_close)?.icon = IconicsDrawable(this)
+                .icon(CommunityMaterial.Icon.cmd_window_close)
+                .color(Color.WHITE).sizeDp(14)
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
                 onBackPressed()
+                true
+            }
+            R.id.action_close -> {
+                finish()
                 true
             }
             else -> {
@@ -149,6 +159,13 @@ class WebViewActivity : BaseActivity() {
             return true
         }
         return super.onKeyDown(keyCode, event)
+    }
+
+    override fun onBackPressed() {
+        if (agentWeb?.back() == true) {
+            return
+        }
+        super.onBackPressed()
     }
 
     override fun onPause() {
