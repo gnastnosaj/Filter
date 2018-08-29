@@ -3,11 +3,6 @@
     <string name="app_name">Kaleidoscope</string>
     <string name="slogan">A girl with kaleidoscope eyes</string>
 
-    <string name="tab_title">新しいタブ</string>
-    <string name="undo">取り消す</string>
-    <string name="removed_tab_snackbar">閉鎖された %1$s</string>
-    <string name="cleared_tabs_snackbar">すべてのタブを閉じた</string>
-
     <string name="action_search">検索</string>
     <string name="action_share">分かち合う</string>
     <string name="share_kaleidoscope">発見した一本の福祉アプリ「Kaleidoscope」、性感美女写真唯美の大本営が隠し福祉待って発掘し、かっこよかった！推薦～：http://fir.im/vrbx
@@ -16,10 +11,9 @@
     <string name="action_favourite">私の一番好きなのは</string>
     <string name="action_settings">設定</string>
     <string name="action_about">について</string>
-    <string name="action_toggle_tab_switcher">Toggle switcher</string>
-    <string name="action_add_tab">新しいタブを開く</string>
-    <string name="action_clear_tabs">すべてのタブをクリア</string>
-    <string name="action_exit">出口</string>
+    <string name="action_plugin">プラグイン</string>
+
+    <string name="crazy_mode">＾(￣）￣)《(￣）￣)＾へへへ、狂ったモードを開いていたので、車で安全に気をつけてくださいね～</string>
 
     <string name="searching">╭ (′▽`)╭(′▽`)╭(′▽`)╯狂っている中で、先にぶらぶらしてください～</string>
     <string name="search_result_not_found">⊙﹏⊙‖∣° 悲劇、未利用の資源を探し当てて、再試して下さい...</string>

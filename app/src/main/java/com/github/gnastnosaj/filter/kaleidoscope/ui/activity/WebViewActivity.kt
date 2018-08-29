@@ -132,13 +132,6 @@ class WebViewActivity : BaseActivity() {
         agentWeb?.webLifeCycle?.onResume()
     }
 
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (agentWeb?.handleKeyEvent(keyCode, event) == true) {
-            return true
-        }
-        return super.onKeyDown(keyCode, event)
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
@@ -149,6 +142,13 @@ class WebViewActivity : BaseActivity() {
                 super.onOptionsItemSelected(item)
             }
         }
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (agentWeb?.handleKeyEvent(keyCode, event) == true) {
+            return true
+        }
+        return super.onKeyDown(keyCode, event)
     }
 
     override fun onPause() {

@@ -3,11 +3,6 @@
     <string name="app_name">萬花筒</string>
     <string name="slogan">A girl with kaleidoscope eyes</string>
 
-    <string name="tab_title">新打開的標籤頁</string>
-    <string name="undo">撤銷</string>
-    <string name="removed_tab_snackbar">已關閉 %1$s</string>
-    <string name="cleared_tabs_snackbar">已關閉所有的標籤頁</string>
-
     <string name="action_search">蒐索</string>
     <string name="action_share">分享</string>
     <string name="share_kaleidoscope">發現了一款福利App「萬花筒」，免費觀看熱門影片，更有隱藏福利等你來挖掘，太贊了！推薦~：http://fir.im/vrbx</string>
@@ -15,10 +10,9 @@
     <string name="action_favourite">我的最愛</string>
     <string name="action_settings">設定</string>
     <string name="action_about">關於</string>
-    <string name="action_toggle_tab_switcher">Toggle switcher</string>
-    <string name="action_add_tab">打開新的標籤頁</string>
-    <string name="action_clear_tabs">關閉所有標籤頁</string>
-    <string name="action_exit">退出</string>
+    <string name="action_plugin">挿件</string>
+
+    <string name="crazy_mode">＾(￣）￣)《(￣）￣)＾嘿嘿，已開啟狂暴模式，開車注意安全喲～</string>
 
     <string name="searching">╭ (′▽`)╭(′▽`)╭(′▽`)╯正在瘋狂蒐索中，請先隨便逛逛吧～</string>
     <string name="search_result_not_found">⊙﹏⊙‖∣° 悲劇，未找到可用的資源，請重新試試吧...</string>

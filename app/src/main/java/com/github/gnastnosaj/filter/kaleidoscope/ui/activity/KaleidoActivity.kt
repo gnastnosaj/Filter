@@ -3,9 +3,14 @@ package com.github.gnastnosaj.filter.kaleidoscope.ui.activity
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.os.PersistableBundle
+import android.os.SystemClock
+import android.preference.PreferenceManager
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.view.Gravity
@@ -62,8 +67,13 @@ class KaleidoActivity : BaseActivity() {
     private var searchDisposable: Disposable? = null
     private var pluginDisposable: Disposable? = null
 
+    private val kaleidoHits = LongArray(5)
+    private var crazy = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        crazy = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("crazy", false)
 
         savedInstanceState?.let {
             projects = Kaleidoscope.restoreInstanceState(it.getInt("projects"))
@@ -76,7 +86,17 @@ class KaleidoActivity : BaseActivity() {
                 themedAppBarLayout(R.style.AppTheme_AppBarOverlay) {
                     setSupportActionBar(toolbar {
                         popupTheme = R.style.AppTheme_PopupOverlay
+                        imageView {
+                            setImageResource(R.drawable.slogan)
+                        }
                     })
+                    supportActionBar?.apply {
+                        setDisplayHomeAsUpEnabled(true)
+                        val old = BitmapFactory.decodeResource(resources, R.drawable.ic_launcher)
+                        val new = Bitmap.createScaledBitmap(old, dip(25), dip(25), true)
+                        val drawable = BitmapDrawable(resources, new)
+                        setHomeAsUpIndicator(drawable)
+                    }
                 }
                 frameLayout {
                     backgroundColorResource = R.color.colorPrimary
@@ -270,6 +290,19 @@ class KaleidoActivity : BaseActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            android.R.id.home -> {
+                if (!crazy) {
+                    System.arraycopy(kaleidoHits, 1, kaleidoHits, 0, kaleidoHits.size - 1)
+                    kaleidoHits[kaleidoHits.size - 1] = SystemClock.uptimeMillis()
+                    if (kaleidoHits[0] >= (SystemClock.uptimeMillis() - 1000)) {
+                        crazy = true
+                        createContextMenu()
+                        PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("crazy", crazy).apply()
+                        Snackbar.make(findViewById(android.R.id.content), R.string.crazy_mode, Snackbar.LENGTH_SHORT).show()
+                    }
+                }
+                true
+            }
             R.id.action_kaleido -> {
                 if (fragmentManager.findFragmentByTag(ContextMenuDialogFragment.TAG) == null) {
                     contextMenuDialogFragment?.show(supportFragmentManager, ContextMenuDialogFragment.TAG)
@@ -278,6 +311,10 @@ class KaleidoActivity : BaseActivity() {
             }
             R.id.action_share -> {
                 ShareHelper.share(this, ShareParamText(resources.getString(R.string.action_share), resources.getString(R.string.share_kaleidoscope)))
+                true
+            }
+            R.id.action_plugin -> {
+                startActivity(intentFor<PluginActivity>())
                 true
             }
             R.id.action_settings -> {
@@ -317,6 +354,18 @@ class KaleidoActivity : BaseActivity() {
 
     private fun createContextMenu() {
         PluginApi.plugins().retry(3)
+                .map {
+                    if (!crazy) {
+                        it.filter {
+                            (it.args?.get("adult_warning") as? Boolean)?.let {
+                                return@filter !it
+                            }
+                            return@filter true
+                        }
+                    } else {
+                        it
+                    }
+                }
                 .flatMap { plugins ->
                     Observable.just(plugins)
                             .map {
