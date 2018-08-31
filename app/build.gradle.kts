@@ -116,6 +116,7 @@ dependencies {
     implementation("com.github.piasy:FrescoImageLoader:+")
     implementation("com.github.piasy:FrescoImageViewFactory:+")
     implementation("com.github.gnastnosaj:AndroidTagGroup:743b9e1175")
+    implementation("com.github.developer-shivam:Crescento:+")
     implementation("net.qiujuer.genius:graphics:+")
     implementation("me.drakeet.support:about:+")
 

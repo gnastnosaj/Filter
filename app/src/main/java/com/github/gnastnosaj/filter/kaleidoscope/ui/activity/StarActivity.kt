@@ -89,15 +89,30 @@ class StarActivity : BaseActivity() {
                                             if (-1 < position && position < waterfallAdapter.data.size) {
                                                 val data = waterfallAdapter.data[position]
                                                 connect(data["entrance"]!!)?.execute("page", data["href"]!!)?.let {
-                                                    val optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                                                            this@StarActivity, childView, GalleryActivity.TRANSITION_NAME
-                                                    )
-                                                    ActivityCompat.startActivity(context as Activity, intentFor<GalleryActivity>(
-                                                            GalleryActivity.EXTRA_ID to (data["id"] ?: data["title"]),
-                                                            GalleryActivity.EXTRA_TITLE to data["title"],
-                                                            GalleryActivity.EXTRA_PLUGIN to plugin,
-                                                            GalleryActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(it)
-                                                    ), optionsCompat.toBundle())
+                                                    when ((it as? com.github.gnastnosaj.filter.dsl.core.Connection)?.execute("layout")
+                                                            ?: "gallery") {
+                                                        "gallery" -> {
+                                                            val optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                                                                    this@StarActivity, childView, GalleryActivity.TRANSITION_NAME
+                                                            )
+                                                            ActivityCompat.startActivity(context as Activity, intentFor<GalleryActivity>(
+                                                                    GalleryActivity.EXTRA_ID to (data["id"]
+                                                                            ?: data["title"]),
+                                                                    GalleryActivity.EXTRA_TITLE to data["title"],
+                                                                    GalleryActivity.EXTRA_PLUGIN to plugin,
+                                                                    GalleryActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(it)
+                                                            ), optionsCompat.toBundle())
+                                                        }
+                                                        "detail" -> {
+                                                            ActivityCompat.startActivity(context as Activity, intentFor<DetailActivity>(
+                                                                    DetailActivity.EXTRA_ID to (data["id"]
+                                                                            ?: data["title"]),
+                                                                    DetailActivity.EXTRA_TITLE to data["title"],
+                                                                    DetailActivity.EXTRA_PLUGIN to plugin,
+                                                                    DetailActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(it)
+                                                            ), null)
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }

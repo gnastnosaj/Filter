@@ -92,5 +92,10 @@
                 android:screenOrientation="portrait"
                 android:theme="@style/AppTheme.NoActionBar"/>
 
+        <activity
+                android:name=".ui.activity.DetailActivity"
+                android:screenOrientation="portrait"
+                android:theme="@style/AppTheme.NoActionBar"/>
+
     </application>
 </manifest>
