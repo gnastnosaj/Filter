@@ -1,22 +1,37 @@
 package com.github.gnastnosaj.filter.kaleidoscope.ui.activity
 
+import android.content.Intent
+import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.AppBarLayout
 import android.support.design.widget.CollapsingToolbarLayout
+import android.support.transition.Slide
+import android.support.transition.TransitionManager
 import android.support.v4.view.ViewCompat
+import android.transition.ChangeBounds
+import android.view.Gravity
+import android.view.Menu
 import android.view.MenuItem
+import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.TextView
+import com.airbnb.lottie.LottieAnimationView
+import com.airbnb.lottie.LottieDrawable
 import com.facebook.drawee.drawable.ScalingUtils
 import com.github.gnastnosaj.boilerplate.rxbus.RxHelper
 import com.github.gnastnosaj.boilerplate.ui.activity.BaseActivity
-import com.github.gnastnosaj.filter.dsl.groovy.api.Connection
+import com.github.gnastnosaj.filter.dsl.core.Connection
 import com.github.gnastnosaj.filter.kaleidoscope.Kaleidoscope
 import com.github.gnastnosaj.filter.kaleidoscope.R
 import com.github.gnastnosaj.filter.kaleidoscope.api.datasource.ConnectionDataSource
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
+import com.github.gnastnosaj.filter.kaleidoscope.api.model.Star
 import com.github.gnastnosaj.filter.kaleidoscope.api.plugin.StarApi
-import com.github.gnastnosaj.filter.kaleidoscope.ui.view.RatioImageView
-import com.github.gnastnosaj.filter.kaleidoscope.ui.view.crescentoContainer
-import com.github.gnastnosaj.filter.kaleidoscope.ui.view.ratioImageView
+import com.github.gnastnosaj.filter.kaleidoscope.ui.view.*
+import com.mikepenz.iconics.IconicsDrawable
+import com.mikepenz.material_design_iconic_typeface_library.MaterialDesignIconic
+import com.trello.rxlifecycle2.android.ActivityEvent
 import org.jetbrains.anko.*
 import org.jetbrains.anko.appcompat.v7.toolbar
 import org.jetbrains.anko.design.collapsingToolbarLayout
@@ -25,6 +40,8 @@ import org.jetbrains.anko.design.themedAppBarLayout
 import org.jetbrains.anko.support.v4.nestedScrollView
 
 class DetailActivity : BaseActivity() {
+
+    private var menu: Menu? = null
 
     private var id: String? = null
     private var plugin: Plugin? = null
@@ -35,6 +52,8 @@ class DetailActivity : BaseActivity() {
     private var star: Boolean = false
 
     private var cover: RatioImageView? = null
+    private var details: LinearLayout? = null
+    private var loading: LottieAnimationView? = null
 
     companion object {
         const val EXTRA_ID = "id"
@@ -47,6 +66,10 @@ class DetailActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.sharedElementEnterTransition = ChangeBounds()
+        }
 
         id = intent.getStringExtra(GalleryActivity.EXTRA_ID)
         title = intent.getStringExtra(GalleryActivity.EXTRA_TITLE)
@@ -75,10 +98,11 @@ class DetailActivity : BaseActivity() {
                     relativeLayout {
                         crescentoContainer {
                             cover = ratioImageView {
+                                ViewCompat.setTransitionName(this, TRANSITION_NAME)
+                                aspectRatio = 1f
                                 hierarchy.setPlaceholderImage(R.drawable.slogan_dark)
                                 hierarchy.actualImageScaleType = ScalingUtils.ScaleType.CENTER_CROP
                             }.lparams(matchParent, wrapContent)
-                            cover?.setOriginalSize(1, 1)
                             ViewCompat.setElevation(this, dip(5).toFloat())
                         }.lparams(matchParent, wrapContent) {
                             bottomMargin = dip(10)
@@ -97,9 +121,20 @@ class DetailActivity : BaseActivity() {
                 }
                 supportActionBar?.setDisplayHomeAsUpEnabled(true)
             }.lparams(matchParent, wrapContent)
-            nestedScrollView {
-
-            }.lparams(matchParent, matchParent)
+            frameLayout {
+                loading = lottieAnimationView {
+                    setAnimation("lottie/skeleton_frame_loading.json")
+                    repeatCount = LottieDrawable.INFINITE
+                    playAnimation()
+                }.lparams(matchParent, matchParent)
+                nestedScrollView {
+                    details = linearLayout {
+                        orientation = LinearLayout.VERTICAL
+                    }.lparams(matchParent, wrapContent)
+                }.lparams(matchParent, matchParent)
+            }.lparams(matchParent, matchParent) {
+                behavior = AppBarLayout.ScrollingViewBehavior()
+            }
         }
 
         connection?.let {
@@ -113,9 +148,96 @@ class DetailActivity : BaseActivity() {
                             it["cover"]?.let {
                                 cover?.setImageURI(it)
                             }
+                            (it["details"] as? Map<String, Map<String, Connection>>)?.forEach { k, v ->
+                                val item = LinearLayout(this)
+                                item.orientation = LinearLayout.HORIZONTAL
+                                val key = TextView(this)
+                                key.apply {
+                                    textSize = 18f
+                                    textColorResource = R.color.colorPrimary
+                                    text = k
+                                }
+                                item.addView(key)
+                                v.filterKeys {
+                                    it.isNotBlank()
+                                }.let {
+                                    val tagGroup = with(AnkoContext.create(this)) {
+                                        tagGroup(theme = R.style.TagGroup_Beauty_Red_Detail) {
+                                            setTags(it.keys.toList())
+                                            setOnTagClickListener { tag ->
+                                                it[tag]?.let {
+                                                    startActivity(Intent(intentFor<WaterfallActivity>(WaterfallActivity.EXTRA_TITLE to tag, WaterfallActivity.EXTRA_PLUGIN to plugin, WaterfallActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(it))))
+                                                }
+                                            }
+                                        }
+                                    }
+                                    val layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT)
+                                    layoutParams.apply {
+                                        leftMargin = dip(10)
+                                        rightMargin = dip(10)
+                                        weight = 1f
+                                    }
+                                    item.addView(tagGroup, layoutParams)
+                                }
+                                details?.apply {
+                                    val layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                                    layoutParams.apply {
+                                        leftMargin = dip(16)
+                                        topMargin = dip(6)
+                                        rightMargin = dip(16)
+                                        bottomMargin = dip(6)
+                                    }
+                                    val transition = Slide(Gravity.END)
+                                    transition.duration = 1000
+                                    TransitionManager.beginDelayedTransition(this, transition)
+                                    addView(item, layoutParams)
+                                }
+                            }
+                            loading?.apply {
+                                animate().alpha(0f).withEndAction {
+                                    cancelAnimation()
+                                    (parent as ViewGroup).removeView(this)
+                                }.start()
+                            }
                         }
                     }
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        this.menu = menu
+        menuInflater.inflate(R.menu.menu_page, menu)
+        menu?.findItem(R.id.action_share)?.icon = IconicsDrawable(this)
+                .icon(MaterialDesignIconic.Icon.gmi_share)
+                .color(Color.WHITE).sizeDp(18)
+        menu?.findItem(R.id.action_search)?.icon = IconicsDrawable(this)
+                .icon(MaterialDesignIconic.Icon.gmi_search)
+                .color(Color.WHITE).sizeDp(18)
+        menu?.findItem(R.id.action_favourite)?.apply {
+            isVisible = false
+            if (entrance != null) {
+                val star = Star()
+                star.href = connection?.url
+                starApi?.contains(star)?.apply {
+                    compose(RxHelper.rxSchedulerHelper())
+                            .compose(bindUntilEvent(ActivityEvent.DESTROY))
+                            .doOnNext {
+                                this@DetailActivity.star = it
+                            }
+                            .subscribe {
+                                icon = IconicsDrawable(this@DetailActivity)
+                                        .icon(MaterialDesignIconic.Icon.gmi_label_heart)
+                                        .colorRes(if (this@DetailActivity.star) R.color.colorAccent else R.color.white)
+                                        .sizeDp(18)
+                                isVisible = true
+                            }
+                }
+            }
+        }
+        menu?.findItem(R.id.action_mosaic)?.icon = IconicsDrawable(this)
+                .icon(MaterialDesignIconic.Icon.gmi_blur_linear)
+                .color(Color.WHITE).sizeDp(18)
+        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

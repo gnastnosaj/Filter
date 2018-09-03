@@ -16,4 +16,8 @@
         <item name="atg_pressedBackgroundColor">#FF3D7F</item>
     </style>
 
+    <style name="TagGroup.Beauty_Red.Detail" parent="TagGroup.Beauty_Red.Inverse.Hacky">
+        <item name="atg_textSize">@dimen/font_16</item>
+    </style>
+
 </resources>

@@ -102,13 +102,16 @@ class WaterfallActivity : BaseActivity() {
                                                             ), optionsCompat.toBundle())
                                                         }
                                                         "detail" -> {
+                                                            val optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                                                                    this@WaterfallActivity, childView.findViewById(R.id.thumbnail), DetailActivity.TRANSITION_NAME
+                                                            )
                                                             ActivityCompat.startActivity(context as Activity, intentFor<DetailActivity>(
                                                                     DetailActivity.EXTRA_ID to (data["id"]
                                                                             ?: data["title"]),
                                                                     DetailActivity.EXTRA_TITLE to data["title"],
                                                                     DetailActivity.EXTRA_PLUGIN to plugin,
                                                                     DetailActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(it)
-                                                            ), null)
+                                                            ), optionsCompat.toBundle())
                                                         }
                                                     }
                                                 }
