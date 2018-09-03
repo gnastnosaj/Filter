@@ -10,14 +10,14 @@ import android.support.transition.Slide
 import android.support.transition.TransitionManager
 import android.support.v4.view.ViewCompat
 import android.transition.ChangeBounds
-import android.view.Gravity
-import android.view.Menu
-import android.view.MenuItem
-import android.view.ViewGroup
+import android.view.*
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import com.airbnb.lottie.LottieAnimationView
 import com.airbnb.lottie.LottieDrawable
+import com.bilibili.socialize.share.core.shareparam.ShareImage
+import com.bilibili.socialize.share.core.shareparam.ShareParamImage
 import com.facebook.drawee.drawable.ScalingUtils
 import com.github.gnastnosaj.boilerplate.rxbus.RxHelper
 import com.github.gnastnosaj.boilerplate.ui.activity.BaseActivity
@@ -28,10 +28,13 @@ import com.github.gnastnosaj.filter.kaleidoscope.api.datasource.ConnectionDataSo
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Star
 import com.github.gnastnosaj.filter.kaleidoscope.api.plugin.StarApi
+import com.github.gnastnosaj.filter.kaleidoscope.api.search.search
 import com.github.gnastnosaj.filter.kaleidoscope.ui.view.*
+import com.github.gnastnosaj.filter.kaleidoscope.util.ShareHelper
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.material_design_iconic_typeface_library.MaterialDesignIconic
 import com.trello.rxlifecycle2.android.ActivityEvent
+import io.reactivex.disposables.Disposable
 import org.jetbrains.anko.*
 import org.jetbrains.anko.appcompat.v7.toolbar
 import org.jetbrains.anko.design.collapsingToolbarLayout
@@ -42,18 +45,21 @@ import org.jetbrains.anko.support.v4.nestedScrollView
 class DetailActivity : BaseActivity() {
 
     private var menu: Menu? = null
+    private var progressBar: ProgressBar? = null
+    private var cover: RatioImageView? = null
+    private var details: LinearLayout? = null
+    private var loading: LottieAnimationView? = null
+
+    private var searchDisposable: Disposable? = null
 
     private var id: String? = null
     private var plugin: Plugin? = null
     private var connection: Connection? = null
 
+    private var thumbnail: String? = null
     private var entrance: String? = null
     private var starApi: StarApi? = null
     private var star: Boolean = false
-
-    private var cover: RatioImageView? = null
-    private var details: LinearLayout? = null
-    private var loading: LottieAnimationView? = null
 
     companion object {
         const val EXTRA_ID = "id"
@@ -86,7 +92,6 @@ class DetailActivity : BaseActivity() {
         }
         connection?.let {
             entrance = it.execute("entrance") as? String
-            //tagEventObservable = RxBus.getInstance().register(it, TagEvent::class.java)
         }
 
         coordinatorLayout {
@@ -116,6 +121,15 @@ class DetailActivity : BaseActivity() {
                     }.lparams(matchParent, wrapContent) {
                         collapseMode = CollapsingToolbarLayout.LayoutParams.COLLAPSE_MODE_PIN
                     })
+                    progressBar = horizontalProgressBar(R.style.Widget_AppCompat_ProgressBar_Horizontal) {
+                        scaleY = 0.5f
+                        isIndeterminate = true
+                        visibility = View.GONE
+                    }.lparams(matchParent, wrapContent) {
+                        topMargin = obtainStyledAttributes(intArrayOf(android.R.attr.actionBarSize)).getDimension(0, 0f).toInt()
+                        bottomMargin = -dip(7)
+                        collapseMode = CollapsingToolbarLayout.LayoutParams.COLLAPSE_MODE_PIN
+                    }
                 }.lparams(matchParent, wrapContent) {
                     scrollFlags = AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL or AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED
                 }
@@ -146,6 +160,7 @@ class DetailActivity : BaseActivity() {
                     .subscribe {
                         it.firstOrNull()?.let {
                             it["cover"]?.let {
+                                thumbnail = it
                                 cover?.setImageURI(it)
                             }
                             (it["details"] as? Map<String, Map<String, Connection>>)?.forEach { k, v ->
@@ -244,6 +259,69 @@ class DetailActivity : BaseActivity() {
         return when (item.itemId) {
             android.R.id.home -> {
                 onBackPressed()
+                true
+            }
+            R.id.action_share -> {
+                thumbnail?.let {
+                    val shareParamImage = ShareParamImage(title.toString(), it, connection!!.url)
+                    shareParamImage.image = ShareImage(it)
+                    ShareHelper.share(this, shareParamImage)
+                }
+                true
+            }
+            R.id.action_search -> {
+                id?.let {
+                    progressBar?.visibility = View.VISIBLE
+                    searchDisposable?.apply {
+                        if (!isDisposed) {
+                            dispose()
+                        }
+                    }
+                    searchDisposable = search(it, title.toString()).subscribe({
+                        progressBar?.visibility = View.GONE
+                    }, {
+                        progressBar?.visibility = View.GONE
+                    })
+                }
+                true
+            }
+            R.id.action_favourite -> {
+                val star = Star()
+                star.href = connection?.url
+                id?.let {
+                    star.data["id"] = it
+                }
+                star.data["title"] = title.toString()
+                thumbnail?.let {
+                    star.data["thumbnail"] = it
+                }
+                entrance?.let {
+                    star.data["entrance"] = it
+                }
+                menu?.findItem(R.id.action_favourite)?.apply {
+                    val starAction = if (this@DetailActivity.star) {
+                        starApi?.delete(star)
+                    } else {
+                        starApi?.insertOrUpdate(star)
+                    }
+                    starAction?.apply {
+                        compose(RxHelper.rxSchedulerHelper())
+                        compose(bindUntilEvent(ActivityEvent.DESTROY))
+                                .subscribe {
+                                    this@DetailActivity.star = !this@DetailActivity.star
+                                    icon = IconicsDrawable(this@DetailActivity)
+                                            .icon(MaterialDesignIconic.Icon.gmi_label_heart)
+                                            .colorRes(if (this@DetailActivity.star) R.color.colorAccent else R.color.white)
+                                            .sizeDp(18)
+                                }
+                    }
+                }
+                true
+            }
+            R.id.action_mosaic -> {
+                thumbnail?.let {
+                    startActivity(Intent(intentFor<MosaicActivity>(MosaicActivity.EXTRA_TITLE to title, MosaicActivity.EXTRA_URL to it)))
+                }
                 true
             }
             else -> {
