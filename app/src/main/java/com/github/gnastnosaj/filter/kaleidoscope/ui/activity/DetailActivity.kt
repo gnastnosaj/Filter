@@ -41,6 +41,7 @@ import org.jetbrains.anko.design.collapsingToolbarLayout
 import org.jetbrains.anko.design.coordinatorLayout
 import org.jetbrains.anko.design.themedAppBarLayout
 import org.jetbrains.anko.support.v4.nestedScrollView
+import tm.charlie.expandabletextview.expandableTextView
 
 class DetailActivity : BaseActivity() {
 
@@ -95,6 +96,7 @@ class DetailActivity : BaseActivity() {
         }
 
         coordinatorLayout {
+            backgroundColorResource = R.color.white
             themedAppBarLayout(R.style.AppTheme_AppBarOverlay) {
                 backgroundColorResource = R.color.transparent
                 collapsingToolbarLayout {
@@ -163,13 +165,37 @@ class DetailActivity : BaseActivity() {
                                 thumbnail = it
                                 cover?.setImageURI(it)
                             }
+                            it["description"]?.let {
+                                val description = with(AnkoContext.create(this)) {
+                                    expandableTextView {
+                                        collapsedLines = 3
+                                        textSize = 16f
+                                        text = it
+                                        setOnClickListener {
+                                            toggle()
+                                        }
+                                    }
+                                }
+                                details?.apply {
+                                    val layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                                    layoutParams.apply {
+                                        leftMargin = dip(16)
+                                        topMargin = dip(6)
+                                        rightMargin = dip(16)
+                                        bottomMargin = dip(16)
+                                    }
+                                    val transition = Slide(Gravity.END)
+                                    transition.duration = 1000
+                                    TransitionManager.beginDelayedTransition(this, transition)
+                                    addView(description, layoutParams)
+                                }
+                            }
                             (it["details"] as? Map<String, Map<String, Connection>>)?.forEach { k, v ->
                                 val item = LinearLayout(this)
                                 item.orientation = LinearLayout.HORIZONTAL
                                 val key = TextView(this)
                                 key.apply {
-                                    textSize = 18f
-                                    textColorResource = R.color.colorPrimary
+                                    textSize = 16f
                                     text = k
                                 }
                                 item.addView(key)
