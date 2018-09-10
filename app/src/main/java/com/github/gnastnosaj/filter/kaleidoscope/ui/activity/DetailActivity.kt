@@ -170,10 +170,10 @@ class DetailActivity : BaseActivity() {
             }
         }
 
-        imageWatcherHelper = ImageWatcherHelper.with(this) { context, uri, loadCallback ->
+        imageWatcherHelper = ImageWatcherHelper.with(this) { _, uri, loadCallback ->
             loadCallback.onLoadStarted(resources.getDrawable(R.drawable.ic_placeholder_dark))
             val request = ImageRequest.fromUri(uri)
-            val dataSource = Fresco.getImagePipeline().fetchDecodedImage(request, context)
+            val dataSource = Fresco.getImagePipeline().fetchDecodedImage(request, null)
             dataSource.subscribe(object : BaseBitmapDataSubscriber() {
                 override fun onNewResultImpl(bitmap: Bitmap?) {
                     bitmap?.let {
