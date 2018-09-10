@@ -118,6 +118,8 @@ dependencies {
     implementation("com.github.gnastnosaj:AndroidTagGroup:743b9e1175")
     implementation("com.github.developer-shivam:Crescento:+")
     implementation("tm.charlie.androidlib:expandable-textview:+")
+    implementation("com.jaeger.ninegridimageview:library:+")
+    implementation("com.github.iielse:ImageWatcher:+")
     implementation("net.qiujuer.genius:graphics:+")
     implementation("me.drakeet.support:about:+")
 

@@ -1,7 +1,11 @@
 package com.github.gnastnosaj.filter.kaleidoscope.ui.activity
 
+import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.AppBarLayout
@@ -10,7 +14,9 @@ import android.support.transition.Slide
 import android.support.transition.TransitionManager
 import android.support.v4.view.ViewCompat
 import android.transition.ChangeBounds
+import android.util.SparseArray
 import android.view.*
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -18,7 +24,15 @@ import com.airbnb.lottie.LottieAnimationView
 import com.airbnb.lottie.LottieDrawable
 import com.bilibili.socialize.share.core.shareparam.ShareImage
 import com.bilibili.socialize.share.core.shareparam.ShareParamImage
+import com.facebook.common.executors.UiThreadImmediateExecutorService
+import com.facebook.common.references.CloseableReference
+import com.facebook.datasource.DataSource
+import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.drawable.ScalingUtils
+import com.facebook.drawee.view.SimpleDraweeView
+import com.facebook.imagepipeline.datasource.BaseBitmapDataSubscriber
+import com.facebook.imagepipeline.image.CloseableImage
+import com.facebook.imagepipeline.request.ImageRequest
 import com.github.gnastnosaj.boilerplate.rxbus.RxHelper
 import com.github.gnastnosaj.boilerplate.ui.activity.BaseActivity
 import com.github.gnastnosaj.filter.dsl.core.Connection
@@ -31,6 +45,9 @@ import com.github.gnastnosaj.filter.kaleidoscope.api.plugin.StarApi
 import com.github.gnastnosaj.filter.kaleidoscope.api.search.search
 import com.github.gnastnosaj.filter.kaleidoscope.ui.view.*
 import com.github.gnastnosaj.filter.kaleidoscope.util.ShareHelper
+import com.github.ielse.imagewatcher.ImageWatcherHelper
+import com.jaeger.ninegridimageview.NineGridImageView
+import com.jaeger.ninegridimageview.NineGridImageViewAdapter
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.material_design_iconic_typeface_library.MaterialDesignIconic
 import com.trello.rxlifecycle2.android.ActivityEvent
@@ -44,7 +61,6 @@ import org.jetbrains.anko.support.v4.nestedScrollView
 import tm.charlie.expandabletextview.expandableTextView
 
 class DetailActivity : BaseActivity() {
-
     private var menu: Menu? = null
     private var progressBar: ProgressBar? = null
     private var cover: RatioImageView? = null
@@ -52,6 +68,7 @@ class DetailActivity : BaseActivity() {
     private var loading: LottieAnimationView? = null
 
     private var searchDisposable: Disposable? = null
+    private var imageWatcherHelper: ImageWatcherHelper? = null
 
     private var id: String? = null
     private var plugin: Plugin? = null
@@ -153,18 +170,38 @@ class DetailActivity : BaseActivity() {
             }
         }
 
+        imageWatcherHelper = ImageWatcherHelper.with(this) { context, uri, loadCallback ->
+            loadCallback.onLoadStarted(resources.getDrawable(R.drawable.ic_placeholder_dark))
+            val request = ImageRequest.fromUri(uri)
+            val dataSource = Fresco.getImagePipeline().fetchDecodedImage(request, context)
+            dataSource.subscribe(object : BaseBitmapDataSubscriber() {
+                override fun onNewResultImpl(bitmap: Bitmap?) {
+                    bitmap?.let {
+                        loadCallback.onResourceReady(BitmapDrawable(it))
+                    }
+
+                    dataSource.close()
+                }
+
+                override fun onFailureImpl(dataSource: DataSource<CloseableReference<CloseableImage>>) {
+                    dataSource.close()
+                }
+            }, UiThreadImmediateExecutorService.getInstance())
+        }
+
         connection?.let {
             val connectionDataSource = ConnectionDataSource(this, it)
             connectionDataSource
                     .refresh()
                     .compose(RxHelper.rxSchedulerHelper())
                     .compose(bindToLifecycle())
-                    .subscribe {
-                        it.firstOrNull()?.let {
+                    .subscribe { data ->
+                        data.firstOrNull()?.let {
                             it["cover"]?.let {
                                 thumbnail = it
                                 cover?.setImageURI(it)
                             }
+
                             it["description"]?.let {
                                 val description = with(AnkoContext.create(this)) {
                                     expandableTextView {
@@ -190,6 +227,47 @@ class DetailActivity : BaseActivity() {
                                     addView(description, layoutParams)
                                 }
                             }
+
+                            val thumbnails = data.filterIndexed { index, item -> index != 0 && item.containsKey("thumbnail") }
+                                    .map { it["thumbnail"]!! }
+                            val nineGridImageView = NineGridImageView<String>(this)
+                            nineGridImageView.setMaxSize(9)
+                            nineGridImageView.setGap(dip(4))
+                            nineGridImageView.setAdapter(object : NineGridImageViewAdapter<String>() {
+                                override fun generateImageView(context: Context?): ImageView {
+                                    val simpleDraweeView = SimpleDraweeView(context)
+                                    simpleDraweeView.hierarchy.apply {
+                                        actualImageScaleType = ScalingUtils.ScaleType.CENTER_CROP
+                                        setPlaceholderImage(R.color.grey_300, ScalingUtils.ScaleType.FIT_XY)
+                                    }
+                                    return simpleDraweeView
+                                }
+
+                                override fun onDisplayImage(context: Context, imageView: ImageView, uri: String) {
+                                    (imageView as? SimpleDraweeView)?.setImageURI(uri)
+                                }
+
+                                override fun onItemImageClick(context: Context, imageView: ImageView, index: Int, list: MutableList<String>) {
+                                    val mapping = SparseArray<ImageView>()
+                                    mapping.put(index, imageView)
+                                    imageWatcherHelper?.show(imageView, mapping, list.map { Uri.parse(it) })
+                                }
+                            })
+                            nineGridImageView.setImagesData(thumbnails)
+                            details?.apply {
+                                val layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                                layoutParams.apply {
+                                    leftMargin = dip(16)
+                                    topMargin = dip(6)
+                                    rightMargin = dip(16)
+                                    bottomMargin = dip(16)
+                                }
+                                val transition = Slide(Gravity.END)
+                                transition.duration = 1000
+                                TransitionManager.beginDelayedTransition(this, transition)
+                                addView(nineGridImageView, layoutParams)
+                            }
+
                             (it["details"] as? Map<String, Map<String, Connection>>)?.forEach { k, v ->
                                 val item = LinearLayout(this)
                                 item.orientation = LinearLayout.HORIZONTAL
@@ -354,6 +432,15 @@ class DetailActivity : BaseActivity() {
                 super.onOptionsItemSelected(item)
             }
         }
+    }
+
+    override fun onBackPressed() {
+        imageWatcherHelper?.apply {
+            if (handleBackPressed()) {
+                return
+            }
+        }
+        super.onBackPressed()
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {

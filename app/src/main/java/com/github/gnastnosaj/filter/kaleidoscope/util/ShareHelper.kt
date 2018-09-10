@@ -105,10 +105,14 @@ object ShareHelper {
                     } else {
                         listener?.onFailed(imageUrl)
                     }
+
+                    dataSource.close()
                 }
 
                 override fun onFailureImpl(dataSource: DataSource<CloseableReference<CloseableImage>>) {
                     listener?.onFailed(imageUrl)
+
+                    dataSource.close()
                 }
 
             }, UiThreadImmediateExecutorService.getInstance())

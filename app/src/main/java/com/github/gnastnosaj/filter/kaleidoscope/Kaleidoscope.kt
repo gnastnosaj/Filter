@@ -3,6 +3,7 @@ package com.github.gnastnosaj.filter.kaleidoscope
 import android.app.Application
 import android.content.Context
 import android.os.Build
+import android.os.StrictMode
 import android.support.multidex.MultiDex
 import android.util.Log
 import android.webkit.WebView
@@ -117,6 +118,11 @@ class Kaleidoscope : Application() {
                                 .build()
                 )) {
             logger.isDebug = Boilerplate.DEBUG
+
+            if (Boilerplate.DEBUG) {
+                StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build())
+                StrictMode.setVmPolicy(StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build())
+            }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 WebView.setWebContentsDebuggingEnabled(Boilerplate.DEBUG)
