@@ -230,42 +230,44 @@ class DetailActivity : BaseActivity() {
 
                             val thumbnails = data.filterIndexed { index, item -> index != 0 && item.containsKey("thumbnail") }
                                     .map { it["thumbnail"]!! }
-                            val nineGridImageView = NineGridImageView<String>(this)
-                            nineGridImageView.setMaxSize(9)
-                            nineGridImageView.setGap(dip(4))
-                            nineGridImageView.setAdapter(object : NineGridImageViewAdapter<String>() {
-                                override fun generateImageView(context: Context?): ImageView {
-                                    val simpleDraweeView = SimpleDraweeView(context)
-                                    simpleDraweeView.hierarchy.apply {
-                                        actualImageScaleType = ScalingUtils.ScaleType.CENTER_CROP
-                                        setPlaceholderImage(R.color.grey_300, ScalingUtils.ScaleType.FIT_XY)
+                            if (thumbnails.isNotEmpty()) {
+                                val nineGridImageView = NineGridImageView<String>(this)
+                                nineGridImageView.setMaxSize(9)
+                                nineGridImageView.setGap(dip(4))
+                                nineGridImageView.setAdapter(object : NineGridImageViewAdapter<String>() {
+                                    override fun generateImageView(context: Context?): ImageView {
+                                        val simpleDraweeView = SimpleDraweeView(context)
+                                        simpleDraweeView.hierarchy.apply {
+                                            actualImageScaleType = ScalingUtils.ScaleType.CENTER_CROP
+                                            setPlaceholderImage(R.color.grey_300, ScalingUtils.ScaleType.FIT_XY)
+                                        }
+                                        return simpleDraweeView
                                     }
-                                    return simpleDraweeView
-                                }
 
-                                override fun onDisplayImage(context: Context, imageView: ImageView, uri: String) {
-                                    (imageView as? SimpleDraweeView)?.setImageURI(uri)
-                                }
+                                    override fun onDisplayImage(context: Context, imageView: ImageView, uri: String) {
+                                        (imageView as? SimpleDraweeView)?.setImageURI(uri)
+                                    }
 
-                                override fun onItemImageClick(context: Context, imageView: ImageView, index: Int, list: MutableList<String>) {
-                                    val mapping = SparseArray<ImageView>()
-                                    mapping.put(index, imageView)
-                                    imageWatcherHelper?.show(imageView, mapping, list.map { Uri.parse(it) })
+                                    override fun onItemImageClick(context: Context, imageView: ImageView, index: Int, list: MutableList<String>) {
+                                        val mapping = SparseArray<ImageView>()
+                                        mapping.put(index, imageView)
+                                        imageWatcherHelper?.show(imageView, mapping, list.map { Uri.parse(it) })
+                                    }
+                                })
+                                nineGridImageView.setImagesData(thumbnails)
+                                details?.apply {
+                                    val layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                                    layoutParams.apply {
+                                        leftMargin = dip(16)
+                                        topMargin = dip(6)
+                                        rightMargin = dip(16)
+                                        bottomMargin = dip(16)
+                                    }
+                                    val transition = Slide(Gravity.END)
+                                    transition.duration = 1000
+                                    TransitionManager.beginDelayedTransition(this, transition)
+                                    addView(nineGridImageView, layoutParams)
                                 }
-                            })
-                            nineGridImageView.setImagesData(thumbnails)
-                            details?.apply {
-                                val layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                                layoutParams.apply {
-                                    leftMargin = dip(16)
-                                    topMargin = dip(6)
-                                    rightMargin = dip(16)
-                                    bottomMargin = dip(16)
-                                }
-                                val transition = Slide(Gravity.END)
-                                transition.duration = 1000
-                                TransitionManager.beginDelayedTransition(this, transition)
-                                addView(nineGridImageView, layoutParams)
                             }
 
                             (it["details"] as? Map<String, Map<String, Connection>>)?.forEach { k, v ->
