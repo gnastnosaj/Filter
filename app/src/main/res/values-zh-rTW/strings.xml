@@ -5,7 +5,7 @@
 
     <string name="action_search">蒐索</string>
     <string name="action_share">分享</string>
-    <string name="share_kaleidoscope">發現了一款福利App「萬花筒」，免費觀看熱門影片，更有隱藏福利等你來挖掘，太贊了！推薦~：http://fir.im/vrbx</string>
+    <string name="share_kaleidoscope">發現了一款福利App「萬花筒」，免費觀看熱門影片，更有隱藏福利等你來挖掘，太贊了！推薦~：%s</string>
     <string name="action_kaleido">Kaleido</string>
     <string name="action_favourite">我的最愛</string>
     <string name="action_settings">設定</string>

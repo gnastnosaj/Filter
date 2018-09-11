@@ -1,3 +1,7 @@
+import com.android.build.gradle.internal.api.BaseVariantOutputImpl
+import java.text.SimpleDateFormat
+import java.util.Date
+
 plugins {
     id("com.android.application")
     kotlin("android")
@@ -36,6 +40,23 @@ android {
         getByName("release") {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+
+            applicationVariants.all {
+                outputs.filter {
+                    it.outputFile.name.endsWith(".apk")
+                }.forEach {
+                    (it as BaseVariantOutputImpl).outputFileName = "Filter_v${defaultConfig.versionName}_${SimpleDateFormat("yyyy-MM-dd").format(Date())}_${productFlavors[0].name}.apk"
+                }
+            }
+        }
+    }
+
+    flavorDimensions("version")
+
+    productFlavors {
+        create("pgyer") {
+            setDimension("version")
+            buildConfigField("String", "SHARE_URI", "\"https://www.pgyer.com/D7r4\"")
         }
     }
 

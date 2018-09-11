@@ -27,6 +27,7 @@ import com.github.gnastnosaj.filter.dsl.core.Catalog
 import com.github.gnastnosaj.filter.dsl.core.Category
 import com.github.gnastnosaj.filter.dsl.groovy.GrooidClassLoader
 import com.github.gnastnosaj.filter.dsl.groovy.api.Project
+import com.github.gnastnosaj.filter.kaleidoscope.BuildConfig
 import com.github.gnastnosaj.filter.kaleidoscope.Kaleidoscope
 import com.github.gnastnosaj.filter.kaleidoscope.R
 import com.github.gnastnosaj.filter.kaleidoscope.api.KaleidoscopeRetrofit
@@ -271,7 +272,7 @@ class CatalogActivity : BaseActivity() {
                 true
             }
             R.id.action_share -> {
-                ShareHelper.share(this, ShareParamText(resources.getString(R.string.action_share), resources.getString(R.string.share_kaleidoscope)))
+                ShareHelper.share(this, ShareParamText(resources.getString(R.string.action_share), resources.getString(R.string.share_kaleidoscope, BuildConfig.SHARE_URI)))
                 true
             }
             R.id.action_favourite -> {
