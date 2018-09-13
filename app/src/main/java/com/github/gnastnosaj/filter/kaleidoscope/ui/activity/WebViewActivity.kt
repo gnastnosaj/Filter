@@ -14,6 +14,7 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
+import com.github.gnastnosaj.boilerplate.Boilerplate
 import com.github.gnastnosaj.boilerplate.util.keyboard.BaseActivity
 import com.github.gnastnosaj.filter.kaleidoscope.R
 import com.github.gnastnosaj.filter.kaleidoscope.ui.view.NestedScrollAdblockWebView
@@ -63,6 +64,7 @@ class WebViewActivity : BaseActivity() {
                 swipeRefreshLayout {
                     val webView = NestedScrollAdblockWebView(context)
                     webView.apply {
+                        isDebugMode = Boilerplate.DEBUG
                         setProvider(AdblockHelper.get().provider)
                         settings.userAgentString = "${settings.userAgentString} SearchCraft/2.6.2 (Baidu; P1 7.0)"
                         settings.setAppCacheEnabled(true)

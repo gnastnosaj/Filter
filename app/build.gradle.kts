@@ -143,6 +143,7 @@ dependencies {
     implementation("com.github.iielse:ImageWatcher:+")
     implementation("net.qiujuer.genius:graphics:+")
     implementation("me.drakeet.support:about:+")
+    implementation("me.weishu:epic:0.3.6")
 
     implementation(project(":dsl"))
     implementation(project(":dsl-groovy"))
