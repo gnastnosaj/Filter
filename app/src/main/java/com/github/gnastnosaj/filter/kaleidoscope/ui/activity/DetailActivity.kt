@@ -95,16 +95,16 @@ class DetailActivity : BaseActivity() {
             window.sharedElementEnterTransition = ChangeBounds()
         }
 
-        id = intent.getStringExtra(GalleryActivity.EXTRA_ID)
-        title = intent.getStringExtra(GalleryActivity.EXTRA_TITLE)
-        plugin = intent.getParcelableExtra(GalleryActivity.EXTRA_PLUGIN)
+        id = intent.getStringExtra(EXTRA_ID)
+        title = intent.getStringExtra(EXTRA_TITLE)
+        plugin = intent.getParcelableExtra(EXTRA_PLUGIN)
         plugin?.let {
             starApi = StarApi(it)
         }
-        connection = Kaleidoscope.restoreInstanceState(intent.getIntExtra(GalleryActivity.EXTRA_CONNECTION_HASH_CODE, -1))
+        connection = Kaleidoscope.restoreInstanceState(intent.getIntExtra(EXTRA_CONNECTION_HASH_CODE, -1))
         if (connection == null) {
             savedInstanceState?.apply {
-                val hashCode = getInt(GalleryActivity.EXTRA_CONNECTION_HASH_CODE)
+                val hashCode = getInt(EXTRA_CONNECTION_HASH_CODE)
                 connection = Kaleidoscope.restoreInstanceState(hashCode)
             }
         }

@@ -97,5 +97,11 @@
                 android:screenOrientation="portrait"
                 android:theme="@style/AppTheme.NoActionBar"/>
 
+        <activity
+                android:name=".ui.activity.WebViewPageActivity"
+                android:hardwareAccelerated="true"
+                android:configChanges="orientation|screenSize"
+                android:theme="@style/AppTheme.NoActionBar"/>
+
     </application>
 </manifest>

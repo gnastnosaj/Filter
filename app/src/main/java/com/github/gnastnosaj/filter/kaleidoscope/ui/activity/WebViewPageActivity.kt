@@ -1,10 +1,16 @@
+/*
+ * Copyright (c) 2018, Jason Tsang.(https://github.com/gnastnosaj) All Rights Reserved.
+ */
+
 package com.github.gnastnosaj.filter.kaleidoscope.ui.activity
 
 import android.app.ActivityManager
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.AppBarLayout
+import android.util.Base64
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
@@ -15,7 +21,10 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import com.github.gnastnosaj.boilerplate.util.keyboard.BaseActivity
+import com.github.gnastnosaj.filter.dsl.core.Connection
+import com.github.gnastnosaj.filter.kaleidoscope.Kaleidoscope
 import com.github.gnastnosaj.filter.kaleidoscope.R
+import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
 import com.github.gnastnosaj.filter.kaleidoscope.ui.view.NestedScrollAdblockWebView
 import com.just.agentweb.AgentWeb
 import com.just.agentweb.BaseIndicatorView
@@ -28,20 +37,35 @@ import org.jetbrains.anko.design.coordinatorLayout
 import org.jetbrains.anko.design.themedAppBarLayout
 import org.jetbrains.anko.support.v4.swipeRefreshLayout
 
-class WebViewActivity : BaseActivity() {
+class WebViewPageActivity : BaseActivity() {
     companion object {
-        const val EXTRA_URL = "url"
-        const val EXTRA_KEYWORD = "keyword"
+        const val EXTRA_ID = "id"
+        const val EXTRA_TITLE = "title"
+        const val EXTRA_PLUGIN = "plugin"
+        const val EXTRA_CONNECTION_HASH_CODE = "connectionHashCode"
 
-        const val DEFAULT_URL = "https://www.baidu.com/"
+        const val DEFAULT_URL = "about:blank"
     }
+
+    private var id: String? = null
+    private var plugin: Plugin? = null
+    private var connection: Connection? = null
 
     private var agentWeb: AgentWeb? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val url = if (intent.hasExtra(EXTRA_URL)) intent.getStringExtra(EXTRA_URL) else DEFAULT_URL
+        id = intent.getStringExtra(EXTRA_ID)
+        title = intent.getStringExtra(EXTRA_TITLE)
+        plugin = intent.getParcelableExtra(EXTRA_PLUGIN)
+        connection = Kaleidoscope.restoreInstanceState(intent.getIntExtra(EXTRA_CONNECTION_HASH_CODE, -1))
+        if (connection == null) {
+            savedInstanceState?.apply {
+                val hashCode = getInt(EXTRA_CONNECTION_HASH_CODE)
+                connection = Kaleidoscope.restoreInstanceState(hashCode)
+            }
+        }
 
         frameLayout {
             fitsSystemWindows = true
@@ -55,7 +79,6 @@ class WebViewActivity : BaseActivity() {
                     supportActionBar?.apply {
                         setDisplayHomeAsUpEnabled(true)
                     }
-                    title = if (intent.hasExtra(EXTRA_KEYWORD)) intent.getStringExtra(EXTRA_KEYWORD) else ""
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         setTaskDescription(ActivityManager.TaskDescription(title.toString(), null, resources.getColor(R.color.colorPrimary)))
                     }
@@ -79,48 +102,55 @@ class WebViewActivity : BaseActivity() {
                         }.lparams(matchParent, wrapContent) {
                             topMargin = -dip(7)
                         }
-                        agentWeb = AgentWeb.with(this@WebViewActivity)
-                                .setAgentWebParent(this, 0, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
-                                .setCustomIndicator(object : BaseIndicatorView(context) {
-                                    override fun offerLayoutParams(): LayoutParams {
-                                        return LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
-                                    }
-
-                                    override fun reset() {
-                                        progressBar.progress = 0
-                                    }
-
-                                    override fun show() {
-                                        progressBar.visibility = View.VISIBLE
-                                    }
-
-                                    override fun hide() {
-                                        progressBar.visibility = View.GONE
-                                    }
-
-                                    override fun setProgress(newProgress: Int) {
-                                        progressBar.progress = newProgress
-                                    }
-                                })
-                                .setWebView(webView)
-                                .setWebViewClient(object : WebViewClient() {
-                                    override fun onPageFinished(view: WebView?, newUrl: String?) {
-                                        if (newUrl == url || newUrl == DEFAULT_URL) {
-                                            view?.clearHistory()
+                        connection?.let {
+                            agentWeb = AgentWeb.with(this@WebViewPageActivity)
+                                    .setAgentWebParent(this, 0, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
+                                    .setCustomIndicator(object : BaseIndicatorView(context) {
+                                        override fun offerLayoutParams(): LayoutParams {
+                                            return LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
                                         }
-                                    }
-                                })
-                                .setWebChromeClient(object : WebChromeClient() {
-                                    override fun onReceivedTitle(view: WebView, title: String) {
-                                        this@WebViewActivity.title = title
-                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                            setTaskDescription(ActivityManager.TaskDescription(title, null, resources.getColor(R.color.colorPrimary)))
+
+                                        override fun reset() {
+                                            progressBar.progress = 0
                                         }
-                                    }
-                                })
-                                .createAgentWeb()
-                                .ready()
-                                .go(url)
+
+                                        override fun show() {
+                                            progressBar.visibility = View.VISIBLE
+                                        }
+
+                                        override fun hide() {
+                                            progressBar.visibility = View.GONE
+                                        }
+
+                                        override fun setProgress(newProgress: Int) {
+                                            progressBar.progress = newProgress
+                                        }
+                                    })
+                                    .setWebView(webView)
+                                    .setWebViewClient(object : WebViewClient() {
+                                        override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                                            injectJS(url)
+                                        }
+
+                                        override fun onPageFinished(view: WebView?, url: String?) {
+                                            injectJS(url)
+                                            if (url == it.url || url == DEFAULT_URL) {
+                                                view?.clearHistory()
+                                            }
+                                        }
+                                    })
+                                    .setWebChromeClient(object : WebChromeClient() {
+                                        override fun onReceivedTitle(view: WebView, title: String) {
+                                            this@WebViewPageActivity.title = title
+                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                                setTaskDescription(ActivityManager.TaskDescription(title, null, resources.getColor(R.color.colorPrimary)))
+                                            }
+                                        }
+                                    })
+                                    .createAgentWeb()
+                                    .ready()
+                                    .go(it.url ?: DEFAULT_URL)
+                        }
                     }
                     setOnRefreshListener {
                         webView.reload()
@@ -157,7 +187,7 @@ class WebViewActivity : BaseActivity() {
             }
             R.id.action_home -> {
                 agentWeb?.webCreator?.webView?.apply {
-                    loadUrl(if (intent.hasExtra(EXTRA_URL)) intent.getStringExtra(EXTRA_URL) else DEFAULT_URL)
+                    loadUrl(connection?.url ?: DEFAULT_URL)
                 }
                 true
             }
@@ -185,6 +215,13 @@ class WebViewActivity : BaseActivity() {
         super.onBackPressed()
     }
 
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        connection?.let {
+            outState?.putInt(DetailActivity.EXTRA_CONNECTION_HASH_CODE, Kaleidoscope.saveInstanceState(it))
+        }
+    }
+
     override fun onPause() {
         agentWeb?.webLifeCycle?.onPause()
         super.onPause()
@@ -193,5 +230,23 @@ class WebViewActivity : BaseActivity() {
     override fun onDestroy() {
         agentWeb?.webLifeCycle?.onDestroy()
         super.onDestroy()
+    }
+
+    private fun injectJS(url: String?) {
+        url?.let {
+            val injectCSS = connection?.execute("injectCSS", it) as? String
+            val injectJS = if (injectCSS != null) """
+                                javascript:(function() {
+                                    var parent = document.getElementsByTagName('head').item(0);
+                                    var style = document.createElement('style');
+                                    style.type = 'text/css';
+                                    style.innerHTML = window.atob('${Base64.encodeToString(injectCSS.toByteArray(), Base64.NO_WRAP)}');
+                                    parent.appendChild(style);
+                                })()
+                            """ else null
+            injectJS?.let {
+                agentWeb?.jsAccessEntrace?.callJs(it)
+            }
+        }
     }
 }

@@ -15,6 +15,7 @@ import com.github.gnastnosaj.filter.kaleidoscope.api.datasource.ConnectionDataSo
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
 import com.github.gnastnosaj.filter.kaleidoscope.ui.activity.DetailActivity
 import com.github.gnastnosaj.filter.kaleidoscope.ui.activity.GalleryActivity
+import com.github.gnastnosaj.filter.kaleidoscope.ui.activity.WebViewPageActivity
 import com.github.gnastnosaj.filter.kaleidoscope.ui.adapter.WaterfallAdapter
 import com.shizhefei.mvc.MVCHelper
 import com.shizhefei.mvc.MVCSwipeRefreshHelper
@@ -96,6 +97,19 @@ class WaterfallFragment : Fragment() {
                                                                         DetailActivity.EXTRA_PLUGIN to plugin,
                                                                         DetailActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(it)
                                                                 ), optionsCompat.toBundle())
+                                                            }
+                                                            "webview" -> {
+                                                                ActivityCompat.startActivity(
+                                                                        context as Activity,
+                                                                        intentFor<WebViewPageActivity>(
+                                                                                WebViewPageActivity.EXTRA_ID to (data["id"]
+                                                                                        ?: data["title"]),
+                                                                                WebViewPageActivity.EXTRA_TITLE to data["title"],
+                                                                                WebViewPageActivity.EXTRA_PLUGIN to plugin,
+                                                                                WebViewPageActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(it)
+                                                                        ),
+                                                                        null
+                                                                )
                                                             }
                                                         }
                                                     }
