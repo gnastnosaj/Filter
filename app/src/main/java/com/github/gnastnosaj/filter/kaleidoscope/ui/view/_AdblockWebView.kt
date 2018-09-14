@@ -30,7 +30,7 @@ class NestedScrollAdblockWebView(context: Context) : AdblockWebView(context), Ne
         init {
             DexposedBridge.findAndHookMethod(AdblockWebView::class.java, "runScript", String::class.java, object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
-                    Timber.i("beforeHookedMethod: %s", param.method.name)
+                    Timber.d("beforeHookedMethod: %s", param.method.name)
                     val webView = param.thisObject as? NestedScrollAdblockWebView
                     webView?.injectJS?.let {
                         it.invoke(param.args[0] as String)

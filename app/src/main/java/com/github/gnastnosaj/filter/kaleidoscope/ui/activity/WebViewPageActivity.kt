@@ -14,10 +14,7 @@ import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.webkit.WebChromeClient
-import android.webkit.WebSettings
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.webkit.*
 import android.widget.FrameLayout
 import com.github.gnastnosaj.boilerplate.Boilerplate
 import com.github.gnastnosaj.boilerplate.util.keyboard.BaseActivity
@@ -30,6 +27,8 @@ import com.just.agentweb.AgentWeb
 import com.just.agentweb.BaseIndicatorView
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.iconics.IconicsDrawable
+import com.taobao.android.dexposed.DexposedBridge
+import com.taobao.android.dexposed.XC_MethodHook
 import org.adblockplus.libadblockplus.android.settings.AdblockHelper
 import org.jetbrains.anko.*
 import org.jetbrains.anko.appcompat.v7.toolbar
@@ -46,6 +45,27 @@ class WebViewPageActivity : BaseActivity() {
         const val EXTRA_CONNECTION_HASH_CODE = "connectionHashCode"
 
         const val DEFAULT_URL = "about:blank"
+
+        const val HOOK_POINT = "console.log('finished injecting css rules');"
+        const val HOOK_MAGIC = "//:)injectCSS"
+
+        init {
+            //this hook is a candidate
+            DexposedBridge.findAndHookMethod(WebView::class.java, "evaluateJavascript", String::class.java, ValueCallback::class.java, object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    Timber.d("beforeHookedMethod: %s", param.method.name)
+                    val webView = param.thisObject as? NestedScrollAdblockWebView
+                    webView?.injectJS?.let {
+                        val injectJS = param.args[0] as String
+                        if (injectJS.contains(HOOK_POINT) && !injectJS.contains(HOOK_MAGIC)) {
+                            //previous hook may fail
+                            it.invoke(param.args[0] as String)
+                            param.result = null
+                        }
+                    }
+                }
+            })
+        }
     }
 
     private var id: String? = null
@@ -95,13 +115,14 @@ class WebViewPageActivity : BaseActivity() {
                                 val injectCSS = connection?.execute("injectCSS", it) as? String
                                 injectCSS?.let {
                                     script = script.replace(
-                                            "console.log('finished injecting css rules');",
+                                            HOOK_POINT,
                                             """
+                                                $HOOK_MAGIC
                                                 style = document.createElement('style');
                                                 style.type = 'text/css';
                                                 style.innerHTML = window.atob('${Base64.encodeToString(it.toByteArray(), Base64.NO_WRAP)}');
                                                 head.appendChild(style);
-                                                console.log('finished injecting css rules');
+                                                $HOOK_POINT
                                             """
                                     )
                                 }
