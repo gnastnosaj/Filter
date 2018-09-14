@@ -7,14 +7,11 @@ import android.support.v4.view.NestedScrollingChildHelper
 import android.support.v4.view.ViewCompat
 import android.view.MotionEvent
 import android.view.ViewManager
-import com.github.gnastnosaj.boilerplate.Boilerplate
 import com.taobao.android.dexposed.DexposedBridge
 import com.taobao.android.dexposed.XC_MethodHook
-import com.taobao.android.dexposed.utility.Logger
 import org.adblockplus.libadblockplus.android.webview.AdblockWebView
 import org.jetbrains.anko.custom.ankoView
-import java.lang.reflect.Field
-import java.lang.reflect.Modifier
+import timber.log.Timber
 
 
 class NestedScrollAdblockWebView(context: Context) : AdblockWebView(context), NestedScrollingChild {
@@ -30,25 +27,17 @@ class NestedScrollAdblockWebView(context: Context) : AdblockWebView(context), Ne
     var injectJS: ((injectJS: String) -> Unit)? = null
 
     companion object {
-        @JvmField
-        val hook = object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                val webView = param.thisObject as? NestedScrollAdblockWebView
-                webView?.injectJS?.let {
-                    it.invoke(param.args[0] as String)
-                    param.result = null
-                }
-            }
-        }
-
         init {
-            val debugField = Logger::class.java.getDeclaredField("DEBUG")
-            val modifiersField = Field::class.java.getDeclaredField("accessFlags")
-            modifiersField.isAccessible = true
-            modifiersField.setInt(debugField, debugField.modifiers and Modifier.FINAL.inv())
-            debugField.isAccessible = true
-            debugField.set(null, Boilerplate.DEBUG)
-            DexposedBridge.findAndHookMethod(AdblockWebView::class.java, "runScript", String::class.java, hook)
+            DexposedBridge.findAndHookMethod(AdblockWebView::class.java, "runScript", String::class.java, object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    Timber.i("beforeHookedMethod: %s", param.method.name)
+                    val webView = param.thisObject as? NestedScrollAdblockWebView
+                    webView?.injectJS?.let {
+                        it.invoke(param.args[0] as String)
+                        param.result = null
+                    }
+                }
+            })
         }
     }
 
