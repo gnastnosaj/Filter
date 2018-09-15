@@ -38,6 +38,31 @@ class NestedScrollAdblockWebView(context: Context) : AdblockWebView(context), Ne
                     }
                 }
             })
+            DexposedBridge.findAndHookMethod(AdblockWebView::class.java, "stopPreventDrawing", object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    Timber.d("beforeHookedMethod: %s", param.method.name)
+                    val webView = param.thisObject as? NestedScrollAdblockWebView
+                    webView?.apply {
+                        val elementsHiddenField = AdblockWebView::class.java.getDeclaredField("elementsHidden")
+                        elementsHiddenField.isAccessible = true
+                        val elementsHidden = elementsHiddenField.get(this) as Boolean
+                        if (!elementsHidden) {
+                            injectJS?.let { injectJS ->
+                                val injectJsField = AdblockWebView::class.java.getDeclaredField("injectJs")
+                                injectJsField.isAccessible = true
+                                (injectJsField.get(this) as? String)?.let { script ->
+                                    injectJS.invoke("""
+                                        $script
+                                        console.log('hideElements();');
+                                        hideElements();
+                                    """)
+                                    param.result = null
+                                }
+                            }
+                        }
+                    }
+                }
+            })
         }
     }
 

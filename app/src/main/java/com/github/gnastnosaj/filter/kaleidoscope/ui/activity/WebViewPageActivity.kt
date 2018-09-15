@@ -29,6 +29,7 @@ import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.iconics.IconicsDrawable
 import com.taobao.android.dexposed.DexposedBridge
 import com.taobao.android.dexposed.XC_MethodHook
+import io.reactivex.Observable
 import org.adblockplus.libadblockplus.android.settings.AdblockHelper
 import org.jetbrains.anko.*
 import org.jetbrains.anko.appcompat.v7.toolbar
@@ -36,6 +37,7 @@ import org.jetbrains.anko.design.coordinatorLayout
 import org.jetbrains.anko.design.themedAppBarLayout
 import org.jetbrains.anko.support.v4.swipeRefreshLayout
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 
 class WebViewPageActivity : BaseActivity() {
     companion object {
@@ -279,8 +281,19 @@ class WebViewPageActivity : BaseActivity() {
     }
 
     private fun callJs(js: String) {
-        agentWeb?.jsAccessEntrace?.callJs(js) {
-            Timber.d(it)
+        agentWeb?.let {
+            Observable
+                    .create<String> { emitter ->
+                        it.jsAccessEntrace.callJs(js) {
+                            emitter.onNext(it)
+                            emitter.onComplete()
+                        }
+                    }
+                    .timeout(500, TimeUnit.MILLISECONDS)
+                    .retry(3)
+                    .subscribe {
+                        Timber.d(it)
+                    }
         }
     }
 }
