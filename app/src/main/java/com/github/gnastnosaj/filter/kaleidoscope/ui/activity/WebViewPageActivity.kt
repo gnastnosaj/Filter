@@ -47,7 +47,10 @@ class WebViewPageActivity : BaseActivity() {
         const val DEFAULT_URL = "about:blank"
 
         const val HOOK_POINT = "console.log('finished injecting css rules');"
-        const val HOOK_MAGIC = "//:)injectCSS"
+        const val HOOK_MAGIC = """
+            //:)hook
+            console.log('prepare for injecting');
+        """
 
         init {
             //this hook is a candidate
@@ -59,7 +62,7 @@ class WebViewPageActivity : BaseActivity() {
                         val injectJS = param.args[0] as String
                         if (injectJS.contains(HOOK_POINT) && !injectJS.contains(HOOK_MAGIC)) {
                             //previous hook may fail
-                            it.invoke(param.args[0] as String)
+                            it.invoke(injectJS)
                             param.result = null
                         }
                     }
@@ -117,7 +120,6 @@ class WebViewPageActivity : BaseActivity() {
                                     script = script.replace(
                                             HOOK_POINT,
                                             """
-                                                $HOOK_MAGIC
                                                 style = document.createElement('style');
                                                 style.type = 'text/css';
                                                 style.innerHTML = window.atob('${Base64.encodeToString(it.toByteArray(), Base64.NO_WRAP)}');
@@ -127,8 +129,14 @@ class WebViewPageActivity : BaseActivity() {
                                     )
                                 }
                             }
-                            Timber.d("injectJS: %s", script)
-                            agentWeb?.jsAccessEntrace?.callJs(script)
+                            script = """
+                                    (function() {
+                                        $HOOK_MAGIC
+                                        $script
+                                        return 'injectJS hooked';
+                                    })();
+                                    """
+                            callJs(script)
                         }
                         settings.userAgentString = "${settings.userAgentString} SearchCraft/2.6.2 (Baidu; P1 7.0)"
                         settings.setAppCacheEnabled(true)
@@ -268,5 +276,11 @@ class WebViewPageActivity : BaseActivity() {
     override fun onDestroy() {
         agentWeb?.webLifeCycle?.onDestroy()
         super.onDestroy()
+    }
+
+    private fun callJs(js: String) {
+        agentWeb?.jsAccessEntrace?.callJs(js) {
+            Timber.d(it)
+        }
     }
 }
