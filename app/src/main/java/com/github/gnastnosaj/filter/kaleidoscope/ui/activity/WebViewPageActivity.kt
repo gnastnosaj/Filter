@@ -124,7 +124,7 @@ class WebViewPageActivity : BaseActivity() {
                                             """
                                                 style = document.createElement('style');
                                                 style.type = 'text/css';
-                                                style.innerHTML = window.atob('${Base64.encodeToString(it.toByteArray(), Base64.NO_WRAP)}');
+                                                style.innerHTML = window.atob('${Base64.encodeToString(it.toByteArray(), Base64.NO_WRAP)}') + '/* injectCSS */';
                                                 head.appendChild(style);
                                                 $HOOK_POINT
                                             """
@@ -188,6 +188,39 @@ class WebViewPageActivity : BaseActivity() {
                                         }
                                     })
                                     .setWebChromeClient(object : WebChromeClient() {
+                                        override fun onProgressChanged(view: WebView, newProgress: Int) {
+                                            (view as NestedScrollAdblockWebView).apply {
+                                                url?.let {
+                                                    val injectCSS = connection?.execute("injectCSS", it) as? String
+                                                    injectCSS?.let {
+                                                        val script = """
+                                                            (function() {
+                                                                let head = document.getElementsByTagName('head')[0];
+                                                                let styles = document.getElementsByTagName('style');
+                                                                let i = 0;
+                                                                while(i < styles.length) {
+                                                                    if(styles[i].innerHTML.indexOf('injectCSS') != -1) {
+                                                                        break;
+                                                                    }
+                                                                    i++;
+                                                                }
+                                                                if(i == styles.length) {
+                                                                    let style = document.createElement('style');
+                                                                    style.type = 'text/css';
+                                                                    style.innerHTML = window.atob('${Base64.encodeToString(it.toByteArray(), Base64.NO_WRAP)}');
+                                                                    head.appendChild(style);
+                                                                    return ':( not hooked, do it by myself';
+                                                                } else {
+                                                                    return ':) it seems already hooked';
+                                                                }
+                                                            })();
+                                                        """
+                                                        callJs(script)
+                                                    }
+                                                }
+                                            }
+                                        }
+
                                         override fun onReceivedTitle(view: WebView, title: String) {
                                             this@WebViewPageActivity.title = title
                                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -291,9 +324,11 @@ class WebViewPageActivity : BaseActivity() {
                     }
                     .timeout(500, TimeUnit.MILLISECONDS)
                     .retry(3)
-                    .subscribe {
+                    .subscribe({
                         Timber.d(it)
-                    }
+                    }, {
+                        Timber.e(it)
+                    })
         }
     }
 }
