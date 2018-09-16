@@ -189,11 +189,12 @@ class WebViewPageActivity : BaseActivity() {
                                     })
                                     .setWebChromeClient(object : WebChromeClient() {
                                         override fun onProgressChanged(view: WebView, newProgress: Int) {
-                                            (view as NestedScrollAdblockWebView).apply {
-                                                url?.let {
-                                                    val injectCSS = connection?.execute("injectCSS", it) as? String
-                                                    injectCSS?.let {
-                                                        val script = """
+                                            if (newProgress == 100) {
+                                                (view as NestedScrollAdblockWebView).apply {
+                                                    url?.let {
+                                                        val injectCSS = connection?.execute("injectCSS", it) as? String
+                                                        injectCSS?.let {
+                                                            val script = """
                                                             (function() {
                                                                 let head = document.getElementsByTagName('head')[0];
                                                                 let styles = document.getElementsByTagName('style');
@@ -211,11 +212,12 @@ class WebViewPageActivity : BaseActivity() {
                                                                     head.appendChild(style);
                                                                     return ':( not hooked, do it by myself';
                                                                 } else {
-                                                                    return ':) it seems already hooked';
+                                                                    return ':) it seems already works';
                                                                 }
                                                             })();
                                                         """
-                                                        callJs(script)
+                                                            callJs(script)
+                                                        }
                                                     }
                                                 }
                                             }
