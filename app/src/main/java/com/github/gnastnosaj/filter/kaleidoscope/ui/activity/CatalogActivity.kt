@@ -21,30 +21,23 @@ import android.widget.ProgressBar
 import br.com.mauker.materialsearchview.MaterialSearchView
 import com.bilibili.socialize.share.core.shareparam.ShareParamText
 import com.facebook.drawee.view.SimpleDraweeView
-import com.github.gnastnosaj.boilerplate.Boilerplate
-import com.github.gnastnosaj.boilerplate.rxbus.RxHelper
 import com.github.gnastnosaj.boilerplate.ui.activity.BaseActivity
 import com.github.gnastnosaj.filter.dsl.core.Catalog
 import com.github.gnastnosaj.filter.dsl.core.Category
 import com.github.gnastnosaj.filter.dsl.core.Connection
 import com.github.gnastnosaj.filter.dsl.core.Page
-import com.github.gnastnosaj.filter.dsl.groovy.GrooidClassLoader
 import com.github.gnastnosaj.filter.dsl.groovy.api.Project
 import com.github.gnastnosaj.filter.kaleidoscope.BuildConfig
 import com.github.gnastnosaj.filter.kaleidoscope.Kaleidoscope
 import com.github.gnastnosaj.filter.kaleidoscope.R
-import com.github.gnastnosaj.filter.kaleidoscope.api.KaleidoscopeRetrofit
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
 import com.github.gnastnosaj.filter.kaleidoscope.api.search.search
 import com.github.gnastnosaj.filter.kaleidoscope.ui.adapter.CatalogAdapter
 import com.github.gnastnosaj.filter.kaleidoscope.ui.view.materialSearchView
 import com.github.gnastnosaj.filter.kaleidoscope.ui.view.tagGroup
 import com.github.gnastnosaj.filter.kaleidoscope.util.ShareHelper
-import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.material_design_iconic_typeface_library.MaterialDesignIconic
-import com.trello.rxlifecycle2.android.ActivityEvent
-import groovy.lang.Script
 import io.reactivex.Observable
 import io.reactivex.ObservableEmitter
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -103,7 +96,7 @@ class CatalogActivity : BaseActivity() {
                     supportActionBar?.apply {
                         setDisplayHomeAsUpEnabled(true)
                         setHomeAsUpIndicator(IconicsDrawable(context)
-                                .icon(CommunityMaterial.Icon.cmd_window_close)
+                                .icon(MaterialDesignIconic.Icon.gmi_close)
                                 .color(Color.WHITE).sizeDp(14))
                     }
                     title = plugin?.name
@@ -188,59 +181,17 @@ class CatalogActivity : BaseActivity() {
             }.lparams(matchParent, matchParent)
         }
 
-        var observable: Observable<Catalog>? = null
         catalog?.let {
-            observable = Observable.just(it)
-        }
-        if (observable == null) {
-            plugin?.let { plugin ->
-                observable = Observable
-                        .just(plugin)
-                        .switchMap {
-                            if (plugin.script != null) {
-                                Observable.create<Script> { emitter ->
-                                    emitter.onNext(GrooidClassLoader.loadAndCreateGroovyObject(Boilerplate.getInstance(), plugin.script) as Script)
-                                    emitter.onComplete()
-                                }
-                            } else {
-                                KaleidoscopeRetrofit.instance.service.plugin(plugin.id!!)
-                            }
-                        }
-                        .map { script ->
-                            Project(script)
-                        }
-                        .map { project ->
-                            project.execute("area", resources.getString(R.string.area))
-                            project.execute("build")
-                            project.catalog?.connections?.let {
-                                if (it.isNotEmpty()) {
-                                    return@map project.catalog!!
-                                }
-                            }
-                            throw IllegalStateException()
-                        }
-                        .doOnNext {
-                            catalog = it
-                        }
-                        .retry(3)
+            val catalogAdapter = CatalogAdapter(this@CatalogActivity, supportFragmentManager, plugin!!, it)
+            viewPager?.let {
+                it.adapter = catalogAdapter
+                tabLayout?.setupWithViewPager(it)
             }
-        }
-
-        observable?.apply {
-            compose(RxHelper.rxSchedulerHelper())
-                    .compose(bindUntilEvent(ActivityEvent.DESTROY))
-                    .subscribe { catalog ->
-                        val catalogAdapter = CatalogAdapter(this@CatalogActivity, supportFragmentManager, plugin!!, catalog)
-                        viewPager?.let {
-                            it.adapter = catalogAdapter
-                            tabLayout?.setupWithViewPager(it)
-                        }
-                        catalog.categories?.let { categories ->
-                            if (categories.size > 0) {
-                                prepareCategories(categories)
-                            }
-                        }
-                    }
+            it.categories?.let { categories ->
+                if (categories.size > 0) {
+                    prepareCategories(categories)
+                }
+            }
         }
 
         ActivityCompat.setExitSharedElementCallback(this,

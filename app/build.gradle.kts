@@ -122,7 +122,6 @@ dependencies {
 
     implementation("com.mikepenz:iconics-views:+@aar")
     implementation("com.mikepenz:material-design-iconic-typeface:+@aar")
-    implementation("com.mikepenz:community-material-typeface:+@aar")
 
     implementation("com.github.gnastnosaj:MaterialSearchView:4463cd3949")
     implementation("com.github.Yalantis:Context-Menu.Android:1.0.8")

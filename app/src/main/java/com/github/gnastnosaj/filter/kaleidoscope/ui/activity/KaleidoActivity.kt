@@ -38,7 +38,6 @@ import com.github.gnastnosaj.filter.kaleidoscope.api.plugin.PluginApi
 import com.github.gnastnosaj.filter.kaleidoscope.api.search.search
 import com.github.gnastnosaj.filter.kaleidoscope.ui.view.materialSearchView
 import com.github.gnastnosaj.filter.kaleidoscope.util.ShareHelper
-import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.material_design_iconic_typeface_library.MaterialDesignIconic
 import com.trello.rxlifecycle2.android.ActivityEvent
@@ -145,8 +144,8 @@ class KaleidoActivity : BaseActivity() {
                                     frameLayout {
                                         imageView {
                                             image = IconicsDrawable(context)
-                                                    .icon(CommunityMaterial.Icon.cmd_magnet)
-                                                    .colorRes(R.color.colorPrimary).sizeDp(18)
+                                                    .icon(MaterialDesignIconic.Icon.gmi_bike)
+                                                    .colorRes(R.color.colorPrimary).sizeDp(20)
                                         }.lparams(wrapContent, wrapContent) {
                                             leftMargin = dip(8)
                                             rightMargin = dip(8)

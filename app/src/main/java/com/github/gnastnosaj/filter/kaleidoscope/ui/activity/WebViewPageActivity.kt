@@ -28,7 +28,6 @@ import com.github.gnastnosaj.filter.kaleidoscope.api.plugin.StarApi
 import com.github.gnastnosaj.filter.kaleidoscope.ui.view.NestedScrollAdblockWebView
 import com.just.agentweb.AgentWeb
 import com.just.agentweb.BaseIndicatorView
-import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.material_design_iconic_typeface_library.MaterialDesignIconic
 import com.taobao.android.dexposed.DexposedBridge
@@ -293,10 +292,10 @@ class WebViewPageActivity : BaseActivity() {
             }
         }
         menu?.findItem(R.id.action_home)?.icon = IconicsDrawable(this)
-                .icon(CommunityMaterial.Icon.cmd_circle_outline)
+                .icon(MaterialDesignIconic.Icon.gmi_circle_o)
                 .color(Color.WHITE).sizeDp(14)
         menu?.findItem(R.id.action_close)?.icon = IconicsDrawable(this)
-                .icon(CommunityMaterial.Icon.cmd_window_close)
+                .icon(MaterialDesignIconic.Icon.gmi_close)
                 .color(Color.WHITE).sizeDp(14)
         return true
     }
