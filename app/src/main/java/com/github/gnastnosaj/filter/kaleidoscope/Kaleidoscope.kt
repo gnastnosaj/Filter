@@ -20,6 +20,8 @@ import com.github.piasy.biv.loader.fresco.FrescoImageLoader
 import com.jiongbull.jlog.Logger
 import com.jiongbull.jlog.constant.LogLevel
 import com.jiongbull.jlog.constant.LogSegment
+import io.reactivex.Completable
+import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
 import okhttp3.OkUrlFactory
 import org.adblockplus.libadblockplus.android.AdblockEngine
@@ -29,6 +31,7 @@ import timber.log.Timber
 import java.io.File
 import java.lang.ref.WeakReference
 import java.net.URL
+import java.util.concurrent.TimeUnit
 
 @Suppress("DEPRECATION")
 class Kaleidoscope : Application() {
@@ -42,13 +45,24 @@ class Kaleidoscope : Application() {
     companion object {
         fun saveInstanceState(any: Any): Int {
             val pool = (Boilerplate.getInstance() as Kaleidoscope).instanceStatePool
-            synchronized(pool) {
-                pool.filterValues {
-                    (it as WeakReference<*>).get() == null
-                }.keys.forEach {
-                    pool.remove(it)
-                }
 
+            Completable
+                    .fromCallable {
+                        synchronized(pool) {
+                            pool.filterValues {
+                                (it as WeakReference<*>).get() == null
+                            }.keys.forEach {
+                                pool.remove(it)
+                            }
+                        }
+                        //keep reference for one second, works?
+                        any
+                    }
+                    .delay(1, TimeUnit.SECONDS)
+                    .subscribeOn(Schedulers.computation())
+                    .subscribe()
+
+            synchronized(pool) {
                 val hashCode = any.hashCode()
                 pool[hashCode] = WeakReference(any)
                 return hashCode
