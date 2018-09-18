@@ -1,10 +1,8 @@
 package com.github.gnastnosaj.filter.kaleidoscope.ui.activity
 
-import android.app.Activity
 import android.os.Bundle
 import android.support.design.widget.AppBarLayout
 import android.support.v4.app.ActivityCompat
-import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.app.SharedElementCallback
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.StaggeredGridLayoutManager
@@ -14,6 +12,7 @@ import android.view.MotionEvent
 import android.view.View
 import com.facebook.drawee.view.SimpleDraweeView
 import com.github.gnastnosaj.boilerplate.ui.activity.BaseActivity
+import com.github.gnastnosaj.filter.dsl.core.Page
 import com.github.gnastnosaj.filter.dsl.groovy.api.Connection
 import com.github.gnastnosaj.filter.kaleidoscope.Kaleidoscope
 import com.github.gnastnosaj.filter.kaleidoscope.R
@@ -25,7 +24,6 @@ import org.jetbrains.anko.appcompat.v7.toolbar
 import org.jetbrains.anko.design.coordinatorLayout
 import org.jetbrains.anko.design.themedAppBarLayout
 import org.jetbrains.anko.frameLayout
-import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.recyclerview.v7.recyclerView
 import org.jetbrains.anko.support.v4.swipeRefreshLayout
@@ -34,11 +32,13 @@ import org.jetbrains.anko.wrapContent
 class WaterfallActivity : BaseActivity() {
     private var plugin: Plugin? = null
     private var connection: Connection? = null
+    private var preload: Page? = null
 
     companion object {
         const val EXTRA_TITLE = "title"
         const val EXTRA_PLUGIN = "plugin"
         const val EXTRA_CONNECTION_HASH_CODE = "connectionHashCode"
+        const val EXTRA_PRELOAD_HASH_CODE = "preloadHashCode"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,6 +52,9 @@ class WaterfallActivity : BaseActivity() {
                 val hashCode = getInt(EXTRA_CONNECTION_HASH_CODE)
                 connection = Kaleidoscope.restoreInstanceState(hashCode)
             }
+        }
+        if (intent.hasExtra(EXTRA_PRELOAD_HASH_CODE)) {
+            preload = Kaleidoscope.restoreInstanceState(intent.getIntExtra(EXTRA_PRELOAD_HASH_CODE, -1))
         }
 
         frameLayout {
@@ -86,35 +89,7 @@ class WaterfallActivity : BaseActivity() {
                                             val position = getChildAdapterPosition(childView)
                                             if (-1 < position && position < waterfallAdapter.data.size) {
                                                 val data = waterfallAdapter.data[position]
-                                                connection?.execute("page", data["href"]!!)?.let {
-                                                    when ((it as? com.github.gnastnosaj.filter.dsl.core.Connection)?.execute("layout")
-                                                            ?: "gallery") {
-                                                        "gallery" -> {
-                                                            val optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                                                                    this@WaterfallActivity, childView, GalleryActivity.TRANSITION_NAME
-                                                            )
-                                                            ActivityCompat.startActivity(context as Activity, intentFor<GalleryActivity>(
-                                                                    GalleryActivity.EXTRA_ID to (data["id"]
-                                                                            ?: data["title"]),
-                                                                    GalleryActivity.EXTRA_TITLE to data["title"],
-                                                                    GalleryActivity.EXTRA_PLUGIN to plugin,
-                                                                    GalleryActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(it)
-                                                            ), optionsCompat.toBundle())
-                                                        }
-                                                        "detail" -> {
-                                                            val optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                                                                    this@WaterfallActivity, childView.findViewById(R.id.thumbnail), DetailActivity.TRANSITION_NAME
-                                                            )
-                                                            ActivityCompat.startActivity(context as Activity, intentFor<DetailActivity>(
-                                                                    DetailActivity.EXTRA_ID to (data["id"]
-                                                                            ?: data["title"]),
-                                                                    DetailActivity.EXTRA_TITLE to data["title"],
-                                                                    DetailActivity.EXTRA_PLUGIN to plugin,
-                                                                    DetailActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(it)
-                                                            ), optionsCompat.toBundle())
-                                                        }
-                                                    }
-                                                }
+                                                start(childView, data, plugin, connection)
                                             }
                                         }
                                         true
@@ -126,7 +101,7 @@ class WaterfallActivity : BaseActivity() {
                     val mvcHelper = MVCSwipeRefreshHelper<List<Map<String, String>>>(swipeRefreshLayout)
                     mvcHelper.adapter = waterfallAdapter
                     connection?.let {
-                        val dataSource = ConnectionDataSource(context, it)
+                        val dataSource = ConnectionDataSource(context, it, preload)
                         mvcHelper.setDataSource(dataSource)
                         mvcHelper.refresh()
                     }

@@ -1,27 +1,21 @@
 package com.github.gnastnosaj.filter.kaleidoscope.ui.fragment
 
-import android.app.Activity
 import android.os.Bundle
-import android.support.v4.app.ActivityCompat
-import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.app.Fragment
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.StaggeredGridLayoutManager
 import android.view.*
+import com.github.gnastnosaj.boilerplate.ui.activity.BaseActivity
 import com.github.gnastnosaj.filter.dsl.core.Connection
 import com.github.gnastnosaj.filter.kaleidoscope.Kaleidoscope
-import com.github.gnastnosaj.filter.kaleidoscope.R
 import com.github.gnastnosaj.filter.kaleidoscope.api.datasource.ConnectionDataSource
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
-import com.github.gnastnosaj.filter.kaleidoscope.ui.activity.DetailActivity
-import com.github.gnastnosaj.filter.kaleidoscope.ui.activity.GalleryActivity
-import com.github.gnastnosaj.filter.kaleidoscope.ui.activity.WebViewPageActivity
+import com.github.gnastnosaj.filter.kaleidoscope.ui.activity.start
 import com.github.gnastnosaj.filter.kaleidoscope.ui.adapter.WaterfallAdapter
 import com.shizhefei.mvc.MVCHelper
 import com.shizhefei.mvc.MVCSwipeRefreshHelper
 import org.jetbrains.anko.AnkoContext
 import org.jetbrains.anko.frameLayout
-import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.recyclerview.v7.recyclerView
 import org.jetbrains.anko.support.v4.swipeRefreshLayout
@@ -71,49 +65,7 @@ class WaterfallFragment : Fragment() {
                                             val position = getChildAdapterPosition(childView)
                                             if (-1 < position && position < waterfallAdapter.data.size) {
                                                 val data = waterfallAdapter.data[position]
-                                                when (data["type"] ?: "thumbnail") {
-                                                    "thumbnail" -> connection?.execute("page", data["href"]!!)?.let {
-                                                        when ((it as? Connection)?.execute("layout") ?: "gallery") {
-                                                            "gallery" -> {
-                                                                val optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                                                                        context as Activity, childView, GalleryActivity.TRANSITION_NAME
-                                                                )
-                                                                ActivityCompat.startActivity(context as Activity, intentFor<GalleryActivity>(
-                                                                        GalleryActivity.EXTRA_ID to (data["id"]
-                                                                                ?: data["title"]),
-                                                                        GalleryActivity.EXTRA_TITLE to data["title"],
-                                                                        GalleryActivity.EXTRA_PLUGIN to plugin,
-                                                                        GalleryActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(it)
-                                                                ), optionsCompat.toBundle())
-                                                            }
-                                                            "detail" -> {
-                                                                val optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                                                                        context as Activity, childView.findViewById(R.id.thumbnail), DetailActivity.TRANSITION_NAME
-                                                                )
-                                                                ActivityCompat.startActivity(context as Activity, intentFor<DetailActivity>(
-                                                                        DetailActivity.EXTRA_ID to (data["id"]
-                                                                                ?: data["title"]),
-                                                                        DetailActivity.EXTRA_TITLE to data["title"],
-                                                                        DetailActivity.EXTRA_PLUGIN to plugin,
-                                                                        DetailActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(it)
-                                                                ), optionsCompat.toBundle())
-                                                            }
-                                                            "webview" -> {
-                                                                ActivityCompat.startActivity(
-                                                                        context as Activity,
-                                                                        intentFor<WebViewPageActivity>(
-                                                                                WebViewPageActivity.EXTRA_ID to (data["id"]
-                                                                                        ?: data["title"]),
-                                                                                WebViewPageActivity.EXTRA_TITLE to data["title"],
-                                                                                WebViewPageActivity.EXTRA_PLUGIN to plugin,
-                                                                                WebViewPageActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(it)
-                                                                        ),
-                                                                        null
-                                                                )
-                                                            }
-                                                        }
-                                                    }
-                                                }
+                                                (activity as? BaseActivity)?.start(childView, data, plugin, connection)
                                             }
                                         }
                                         true

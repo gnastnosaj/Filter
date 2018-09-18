@@ -1,10 +1,8 @@
 package com.github.gnastnosaj.filter.kaleidoscope.ui.activity
 
-import android.app.Activity
 import android.os.Bundle
 import android.support.design.widget.AppBarLayout
 import android.support.v4.app.ActivityCompat
-import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.app.SharedElementCallback
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.StaggeredGridLayoutManager
@@ -27,7 +25,6 @@ import org.jetbrains.anko.appcompat.v7.toolbar
 import org.jetbrains.anko.design.coordinatorLayout
 import org.jetbrains.anko.design.themedAppBarLayout
 import org.jetbrains.anko.frameLayout
-import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.recyclerview.v7.recyclerView
 import org.jetbrains.anko.support.v4.swipeRefreshLayout
@@ -88,34 +85,8 @@ class StarActivity : BaseActivity() {
                                             val position = getChildAdapterPosition(childView)
                                             if (-1 < position && position < waterfallAdapter.data.size) {
                                                 val data = waterfallAdapter.data[position]
-                                                connect(data["entrance"]!!)?.execute("page", data["href"]!!)?.let {
-                                                    when ((it as? com.github.gnastnosaj.filter.dsl.core.Connection)?.execute("layout")
-                                                            ?: "gallery") {
-                                                        "gallery" -> {
-                                                            val optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                                                                    this@StarActivity, childView, GalleryActivity.TRANSITION_NAME
-                                                            )
-                                                            ActivityCompat.startActivity(context as Activity, intentFor<GalleryActivity>(
-                                                                    GalleryActivity.EXTRA_ID to (data["id"]
-                                                                            ?: data["title"]),
-                                                                    GalleryActivity.EXTRA_TITLE to data["title"],
-                                                                    GalleryActivity.EXTRA_PLUGIN to plugin,
-                                                                    GalleryActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(it)
-                                                            ), optionsCompat.toBundle())
-                                                        }
-                                                        "detail" -> {
-                                                            val optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                                                                    this@StarActivity, childView.findViewById(R.id.thumbnail), DetailActivity.TRANSITION_NAME
-                                                            )
-                                                            ActivityCompat.startActivity(context as Activity, intentFor<DetailActivity>(
-                                                                    DetailActivity.EXTRA_ID to (data["id"]
-                                                                            ?: data["title"]),
-                                                                    DetailActivity.EXTRA_TITLE to data["title"],
-                                                                    DetailActivity.EXTRA_PLUGIN to plugin,
-                                                                    DetailActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(it)
-                                                            ), optionsCompat.toBundle())
-                                                        }
-                                                    }
+                                                connect(data["entrance"]!!)?.let {
+                                                    start(childView, data, plugin, it)
                                                 }
                                             }
                                         }

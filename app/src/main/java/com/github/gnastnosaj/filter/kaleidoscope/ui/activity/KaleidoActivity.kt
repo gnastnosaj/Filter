@@ -510,11 +510,11 @@ class KaleidoActivity : BaseActivity() {
                                         .setMessage(R.string.adult_warning)
                                         .setNegativeButton(R.string.adult_warning_not_18) { dialog, _ -> dialog.dismiss() }
                                         .setPositiveButton(R.string.adult_warning_continue) { dialog, _ ->
-                                            ActivityCompat.startActivity(this, intentFor<CatalogActivity>(CatalogActivity.EXTRA_PLUGIN to plugin, CatalogActivity.EXTRA_CATALOG_HASH_CODE to Kaleidoscope.saveInstanceState(project.catalog!!)).setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_MULTIPLE_TASK), null)
+                                            ActivityCompat.startActivity(this, intentFor<CatalogActivity>(CatalogActivity.EXTRA_PLUGIN to plugin, CatalogActivity.EXTRA_PROJECT_HASH_CODE to Kaleidoscope.saveInstanceState(project)).setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_MULTIPLE_TASK), null)
                                             dialog.dismiss()
                                         }.show()
                             } else {
-                                ActivityCompat.startActivity(this, intentFor<CatalogActivity>(CatalogActivity.EXTRA_PLUGIN to plugin, CatalogActivity.EXTRA_CATALOG_HASH_CODE to Kaleidoscope.saveInstanceState(project.catalog!!)).setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_MULTIPLE_TASK), null)
+                                ActivityCompat.startActivity(this, intentFor<CatalogActivity>(CatalogActivity.EXTRA_PLUGIN to plugin, CatalogActivity.EXTRA_PROJECT_HASH_CODE to Kaleidoscope.saveInstanceState(project)).setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_MULTIPLE_TASK), null)
                             }
                             return@map true
                         }

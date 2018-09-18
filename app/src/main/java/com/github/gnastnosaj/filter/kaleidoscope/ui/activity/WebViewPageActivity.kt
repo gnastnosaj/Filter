@@ -17,18 +17,23 @@ import android.view.View
 import android.webkit.*
 import android.widget.FrameLayout
 import com.github.gnastnosaj.boilerplate.Boilerplate
+import com.github.gnastnosaj.boilerplate.rxbus.RxHelper
 import com.github.gnastnosaj.boilerplate.util.keyboard.BaseActivity
 import com.github.gnastnosaj.filter.dsl.core.Connection
 import com.github.gnastnosaj.filter.kaleidoscope.Kaleidoscope
 import com.github.gnastnosaj.filter.kaleidoscope.R
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
+import com.github.gnastnosaj.filter.kaleidoscope.api.model.Star
+import com.github.gnastnosaj.filter.kaleidoscope.api.plugin.StarApi
 import com.github.gnastnosaj.filter.kaleidoscope.ui.view.NestedScrollAdblockWebView
 import com.just.agentweb.AgentWeb
 import com.just.agentweb.BaseIndicatorView
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.iconics.IconicsDrawable
+import com.mikepenz.material_design_iconic_typeface_library.MaterialDesignIconic
 import com.taobao.android.dexposed.DexposedBridge
 import com.taobao.android.dexposed.XC_MethodHook
+import com.trello.rxlifecycle2.android.ActivityEvent
 import io.reactivex.Observable
 import org.adblockplus.libadblockplus.android.settings.AdblockHelper
 import org.jetbrains.anko.*
@@ -43,6 +48,7 @@ class WebViewPageActivity : BaseActivity() {
     companion object {
         const val EXTRA_ID = "id"
         const val EXTRA_TITLE = "title"
+        const val EXTRA_THUMBNAIL = "thumbnail"
         const val EXTRA_PLUGIN = "plugin"
         const val EXTRA_CONNECTION_HASH_CODE = "connectionHashCode"
 
@@ -74,9 +80,15 @@ class WebViewPageActivity : BaseActivity() {
     }
 
     private var id: String? = null
+    private var thumbnail: String? = null
+    private var entrance: String? = null
+    private var starApi: StarApi? = null
+    private var star: Boolean = false
+
     private var plugin: Plugin? = null
     private var connection: Connection? = null
 
+    private var menu: Menu? = null
     private var agentWeb: AgentWeb? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,7 +96,11 @@ class WebViewPageActivity : BaseActivity() {
 
         id = intent.getStringExtra(EXTRA_ID)
         title = intent.getStringExtra(EXTRA_TITLE)
+        thumbnail = intent.getStringExtra(EXTRA_THUMBNAIL)
         plugin = intent.getParcelableExtra(EXTRA_PLUGIN)
+        plugin?.let {
+            starApi = StarApi(it)
+        }
         connection = Kaleidoscope.restoreInstanceState(intent.getIntExtra(EXTRA_CONNECTION_HASH_CODE, -1))
         if (connection == null) {
             savedInstanceState?.apply {
@@ -92,6 +108,7 @@ class WebViewPageActivity : BaseActivity() {
                 connection = Kaleidoscope.restoreInstanceState(hashCode)
             }
         }
+        entrance = connection?.execute("entrance") as? String
 
         frameLayout {
             fitsSystemWindows = true
@@ -252,7 +269,29 @@ class WebViewPageActivity : BaseActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_webview, menu)
+        this.menu = menu
+        menuInflater.inflate(R.menu.menu_webview_page, menu)
+        menu?.findItem(R.id.action_favourite)?.apply {
+            isVisible = false
+            if (entrance != null) {
+                val star = Star()
+                star.href = connection?.url
+                starApi?.contains(star)?.apply {
+                    compose(RxHelper.rxSchedulerHelper())
+                            .compose(bindUntilEvent(ActivityEvent.DESTROY))
+                            .doOnNext {
+                                this@WebViewPageActivity.star = it
+                            }
+                            .subscribe {
+                                icon = IconicsDrawable(this@WebViewPageActivity)
+                                        .icon(MaterialDesignIconic.Icon.gmi_label_heart)
+                                        .colorRes(if (this@WebViewPageActivity.star) R.color.colorAccent else R.color.white)
+                                        .sizeDp(18)
+                                isVisible = true
+                            }
+                }
+            }
+        }
         menu?.findItem(R.id.action_home)?.icon = IconicsDrawable(this)
                 .icon(CommunityMaterial.Icon.cmd_circle_outline)
                 .color(Color.WHITE).sizeDp(14)
@@ -266,6 +305,39 @@ class WebViewPageActivity : BaseActivity() {
         return when (item.itemId) {
             android.R.id.home -> {
                 onBackPressed()
+                true
+            }
+            R.id.action_favourite -> {
+                val star = Star()
+                star.href = connection?.url
+                id?.let {
+                    star.data["id"] = it
+                }
+                star.data["title"] = title.toString()
+                thumbnail?.let {
+                    star.data["thumbnail"] = it
+                }
+                entrance?.let {
+                    star.data["entrance"] = it
+                }
+                menu?.findItem(R.id.action_favourite)?.apply {
+                    val starAction = if (this@WebViewPageActivity.star) {
+                        starApi?.delete(star)
+                    } else {
+                        starApi?.insertOrUpdate(star)
+                    }
+                    starAction?.apply {
+                        compose(RxHelper.rxSchedulerHelper())
+                        compose(bindUntilEvent(ActivityEvent.DESTROY))
+                                .subscribe {
+                                    this@WebViewPageActivity.star = !this@WebViewPageActivity.star
+                                    icon = IconicsDrawable(this@WebViewPageActivity)
+                                            .icon(MaterialDesignIconic.Icon.gmi_label_heart)
+                                            .colorRes(if (this@WebViewPageActivity.star) R.color.colorAccent else R.color.white)
+                                            .sizeDp(18)
+                                }
+                    }
+                }
                 true
             }
             R.id.action_home -> {

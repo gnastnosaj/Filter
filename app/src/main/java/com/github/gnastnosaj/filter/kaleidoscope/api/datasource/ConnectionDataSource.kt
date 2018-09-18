@@ -8,7 +8,7 @@ import com.github.gnastnosaj.filter.dsl.core.Page
 import com.github.gnastnosaj.filter.kaleidoscope.api.event.TagEvent
 import io.reactivex.Observable
 
-class ConnectionDataSource(context: Context, private val connection: Connection) : RxDataSource<List<Map<String, String>>>(context) {
+class ConnectionDataSource(context: Context, private val connection: Connection, private var preload: Page? = null) : RxDataSource<List<Map<String, String>>>(context) {
     override fun hasMore(): Boolean {
         return connection.execute("hasMore") as? Boolean ?: false
     }
@@ -26,6 +26,12 @@ class ConnectionDataSource(context: Context, private val connection: Connection)
 
     override fun refresh(): Observable<List<Map<String, String>>> {
         return Observable.create<List<Map<String, String>>> {
+            if (preload != null && preload?.data?.isNotEmpty() == true) {
+                it.onNext(preload?.data ?: listOf())
+                preload = null
+                it.onComplete()
+                return@create
+            }
             (connection.execute("refresh") as? Page)?.let { page ->
                 page.tags?.let { tags ->
                     RxBus.getInstance().post(connection, TagEvent(tags))

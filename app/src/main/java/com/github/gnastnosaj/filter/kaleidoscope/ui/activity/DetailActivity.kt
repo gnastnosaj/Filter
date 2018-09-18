@@ -108,9 +108,7 @@ class DetailActivity : BaseActivity() {
                 connection = Kaleidoscope.restoreInstanceState(hashCode)
             }
         }
-        connection?.let {
-            entrance = it.execute("entrance") as? String
-        }
+        entrance = connection?.execute("entrance") as? String
 
         coordinatorLayout {
             backgroundColorResource = R.color.white

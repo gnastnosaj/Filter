@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.design.widget.TabLayout
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.SharedElementCallback
@@ -25,6 +26,8 @@ import com.github.gnastnosaj.boilerplate.rxbus.RxHelper
 import com.github.gnastnosaj.boilerplate.ui.activity.BaseActivity
 import com.github.gnastnosaj.filter.dsl.core.Catalog
 import com.github.gnastnosaj.filter.dsl.core.Category
+import com.github.gnastnosaj.filter.dsl.core.Connection
+import com.github.gnastnosaj.filter.dsl.core.Page
 import com.github.gnastnosaj.filter.dsl.groovy.GrooidClassLoader
 import com.github.gnastnosaj.filter.dsl.groovy.api.Project
 import com.github.gnastnosaj.filter.kaleidoscope.BuildConfig
@@ -43,7 +46,10 @@ import com.mikepenz.material_design_iconic_typeface_library.MaterialDesignIconic
 import com.trello.rxlifecycle2.android.ActivityEvent
 import groovy.lang.Script
 import io.reactivex.Observable
+import io.reactivex.ObservableEmitter
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.*
 import org.jetbrains.anko.appcompat.v7.toolbar
 import org.jetbrains.anko.design.tabLayout
@@ -58,11 +64,12 @@ class CatalogActivity : BaseActivity() {
     private var progressBar: ProgressBar? = null
 
     private var plugin: Plugin? = null
+    private var project: Project? = null
     private var catalog: Catalog? = null
 
     companion object {
         const val EXTRA_PLUGIN = "plugin"
-        const val EXTRA_CATALOG_HASH_CODE = "catalog"
+        const val EXTRA_PROJECT_HASH_CODE = "project"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,13 +78,15 @@ class CatalogActivity : BaseActivity() {
         if (intent.hasExtra(EXTRA_PLUGIN)) {
             plugin = intent.getParcelableExtra(EXTRA_PLUGIN)
         }
-        if (intent.hasExtra(EXTRA_CATALOG_HASH_CODE)) {
-            catalog = Kaleidoscope.restoreInstanceState(intent.getIntExtra(EXTRA_CATALOG_HASH_CODE, -1))
+        if (intent.hasExtra(EXTRA_PROJECT_HASH_CODE)) {
+            project = Kaleidoscope.restoreInstanceState(intent.getIntExtra(EXTRA_PROJECT_HASH_CODE, -1))
+            catalog = project?.catalog
         }
-        if (catalog == null) {
+        if (project == null) {
             savedInstanceState?.apply {
-                val hashCode = getInt(EXTRA_CATALOG_HASH_CODE)
-                catalog = Kaleidoscope.restoreInstanceState(hashCode)
+                val hashCode = getInt(EXTRA_PROJECT_HASH_CODE)
+                project = Kaleidoscope.restoreInstanceState(hashCode)
+                catalog = project?.catalog
             }
         }
 
@@ -149,7 +158,7 @@ class CatalogActivity : BaseActivity() {
                         }
                         query?.let {
                             progressBar?.visibility = View.VISIBLE
-                            searchDisposable = search(it).subscribe({
+                            searchDisposable = searchPlus(it).subscribe({
                                 progressBar?.visibility = View.GONE
                             }, {
                                 progressBar?.visibility = View.GONE
@@ -168,7 +177,7 @@ class CatalogActivity : BaseActivity() {
                             }
                         }
                         progressBar?.visibility = View.VISIBLE
-                        searchDisposable = search(getSuggestionAtPosition(position - 1)).subscribe({
+                        searchDisposable = searchPlus(getSuggestionAtPosition(position - 1)).subscribe({
                             progressBar?.visibility = View.GONE
                         }, {
                             progressBar?.visibility = View.GONE
@@ -301,8 +310,8 @@ class CatalogActivity : BaseActivity() {
 
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
-        catalog?.let {
-            outState?.putInt(EXTRA_CATALOG_HASH_CODE, Kaleidoscope.saveInstanceState(it))
+        project?.let {
+            outState?.putInt(EXTRA_PROJECT_HASH_CODE, Kaleidoscope.saveInstanceState(it))
         }
     }
 
@@ -324,7 +333,7 @@ class CatalogActivity : BaseActivity() {
                                 categories.firstOrNull {
                                     it.name == tag
                                 }?.connection?.let { connection ->
-                                    startActivity(Intent(intentFor<WaterfallActivity>(WaterfallActivity.EXTRA_TITLE to tag, WaterfallActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(connection))))
+                                    startActivity(Intent(intentFor<WaterfallActivity>(WaterfallActivity.EXTRA_TITLE to tag, WaterfallActivity.EXTRA_PLUGIN to plugin, WaterfallActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(connection))))
                                 }
                             }
                         }.lparams(matchParent, wrapContent)
@@ -356,5 +365,53 @@ class CatalogActivity : BaseActivity() {
                 }
             }
         })
+    }
+
+    private fun searchConnection(keyword: String): Observable<Connection> {
+        return Observable
+                .create { emitter: ObservableEmitter<Connection> ->
+                    project?.let {
+                        (it.execute("search", keyword) as? Connection)?.let { connection ->
+                            emitter.onNext(connection)
+                            emitter.onComplete()
+                            return@create
+                        }
+                    }
+                    emitter.onError(IllegalStateException())
+                }
+    }
+
+    private fun searchPreload(connection: Connection): Observable<Page> {
+        return Observable
+                .create { emitter: ObservableEmitter<Page> ->
+                    (connection.execute("refresh") as? Page)?.let { page ->
+                        if (page.data?.isNotEmpty() == true) {
+                            emitter.onNext(page)
+                            emitter.onComplete()
+                            return@create
+                        }
+                    }
+                    emitter.onError(IllegalStateException())
+                }
+    }
+
+    private fun searchPlus(keyword: String): Observable<Boolean> {
+        return Observable
+                .defer {
+                    Snackbar.make(findViewById(android.R.id.content), R.string.searching, Snackbar.LENGTH_LONG).show()
+                    searchConnection(keyword).subscribeOn(Schedulers.io())
+                }
+                .flatMap { connection ->
+                    searchPreload(connection)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .map { page ->
+                                startActivity(Intent(intentFor<WaterfallActivity>(WaterfallActivity.EXTRA_TITLE to keyword, WaterfallActivity.EXTRA_PLUGIN to plugin, WaterfallActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(connection), WaterfallActivity.EXTRA_PRELOAD_HASH_CODE to Kaleidoscope.saveInstanceState(page))))
+                                true
+                            }
+                }
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext { _: Throwable ->
+                    search(keyword).map { it.isNotEmpty() }
+                }
     }
 }
