@@ -39,7 +39,6 @@ import com.github.gnastnosaj.filter.kaleidoscope.util.ShareHelper
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.material_design_iconic_typeface_library.MaterialDesignIconic
 import io.reactivex.Observable
-import io.reactivex.ObservableEmitter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -320,7 +319,7 @@ class CatalogActivity : BaseActivity() {
 
     private fun searchConnection(keyword: String): Observable<Connection> {
         return Observable
-                .create { emitter: ObservableEmitter<Connection> ->
+                .create<Connection> { emitter ->
                     project?.let {
                         (it.execute("search", keyword) as? Connection)?.let { connection ->
                             emitter.onNext(connection)
@@ -334,7 +333,7 @@ class CatalogActivity : BaseActivity() {
 
     private fun searchPreload(connection: Connection): Observable<Page> {
         return Observable
-                .create { emitter: ObservableEmitter<Page> ->
+                .create<Page> { emitter ->
                     (connection.execute("refresh") as? Page)?.let { page ->
                         if (page.data?.isNotEmpty() == true) {
                             emitter.onNext(page)

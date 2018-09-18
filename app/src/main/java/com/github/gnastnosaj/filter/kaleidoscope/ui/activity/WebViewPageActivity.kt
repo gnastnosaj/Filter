@@ -5,6 +5,8 @@
 package com.github.gnastnosaj.filter.kaleidoscope.ui.activity
 
 import android.app.ActivityManager
+import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -26,6 +28,7 @@ import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Star
 import com.github.gnastnosaj.filter.kaleidoscope.api.plugin.StarApi
 import com.github.gnastnosaj.filter.kaleidoscope.ui.view.NestedScrollAdblockWebView
+import com.github.gnastnosaj.filter.kaleidoscope.util.HistoryManager
 import com.just.agentweb.AgentWeb
 import com.just.agentweb.BaseIndicatorView
 import com.mikepenz.iconics.IconicsDrawable
@@ -33,7 +36,9 @@ import com.mikepenz.material_design_iconic_typeface_library.MaterialDesignIconic
 import com.taobao.android.dexposed.DexposedBridge
 import com.taobao.android.dexposed.XC_MethodHook
 import com.trello.rxlifecycle2.android.ActivityEvent
+import io.reactivex.Completable
 import io.reactivex.Observable
+import io.reactivex.schedulers.Schedulers
 import org.adblockplus.libadblockplus.android.settings.AdblockHelper
 import org.jetbrains.anko.*
 import org.jetbrains.anko.appcompat.v7.toolbar
@@ -90,6 +95,8 @@ class WebViewPageActivity : BaseActivity() {
     private var menu: Menu? = null
     private var agentWeb: AgentWeb? = null
 
+    private var sharedPreferences: SharedPreferences? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -108,6 +115,8 @@ class WebViewPageActivity : BaseActivity() {
             }
         }
         entrance = connection?.execute("entrance") as? String
+
+        sharedPreferences = getSharedPreferences(WebViewPageActivity::class.java.name, Context.MODE_PRIVATE)
 
         frameLayout {
             fitsSystemWindows = true
@@ -248,7 +257,7 @@ class WebViewPageActivity : BaseActivity() {
                                     })
                                     .createAgentWeb()
                                     .ready()
-                                    .go(it.url ?: DEFAULT_URL)
+                                    .go(null)
                         }
                     }
                     setOnRefreshListener {
@@ -260,6 +269,31 @@ class WebViewPageActivity : BaseActivity() {
                 }
             }.lparams(matchParent, matchParent)
         }
+
+        Observable
+                .create<Bundle> { emitter ->
+                    connection?.url?.let { url ->
+                        val history = HistoryManager.restore(url)
+                        if (history != null) {
+                            emitter.onNext(history)
+                            emitter.onComplete()
+                            return@create
+                        }
+                    }
+                    emitter.onError(IllegalStateException())
+                }
+                .compose(RxHelper.rxSchedulerHelper())
+                .compose(bindToLifecycle())
+                .subscribe({
+                    agentWeb?.webCreator?.webView?.apply {
+                        restoreState(it)
+                        reload()
+                    }
+                }, {
+                    connection?.url?.let { url ->
+                        agentWeb?.urlLoader?.loadUrl(url)
+                    }
+                })
     }
 
     override fun onResume() {
@@ -382,6 +416,18 @@ class WebViewPageActivity : BaseActivity() {
     }
 
     override fun onDestroy() {
+        agentWeb?.webCreator?.webView?.let { webView ->
+            val history = Bundle()
+            webView.saveState(history)
+            connection?.url?.let { url ->
+                Completable
+                        .fromRunnable {
+                            HistoryManager.save(url, history)
+                        }
+                        .subscribeOn(Schedulers.io())
+                        .subscribe()
+            }
+        }
         agentWeb?.webLifeCycle?.onDestroy()
         super.onDestroy()
     }
