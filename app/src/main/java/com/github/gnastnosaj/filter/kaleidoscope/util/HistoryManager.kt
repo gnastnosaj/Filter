@@ -19,6 +19,11 @@ object HistoryManager {
         if (!cacheDir.exists()) {
             cacheDir.mkdir()
         }
+        cacheDir.listFiles { file: File ->
+            System.currentTimeMillis() - file.lastModified() > 30 * 24 * 60 * 60
+        }.forEach {
+            it.delete()
+        }
     }
 
     fun save(keyword: String, history: Bundle) {
