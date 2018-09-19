@@ -2,6 +2,7 @@ package com.github.gnastnosaj.filter.kaleidoscope
 
 import android.app.Application
 import android.content.Context
+import android.net.ConnectivityManager
 import android.os.Build
 import android.os.StrictMode
 import android.support.multidex.MultiDex
@@ -140,42 +141,57 @@ class Kaleidoscope : Application() {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 WebView.setWebContentsDebuggingEnabled(Boilerplate.DEBUG)
-
-                val okHttpClientBuilder = OkHttpClient.Builder()
-                okHttpClientBuilder.apply {
-                    enhance()
-                    addInterceptor(PluginInterceptor)
-                }
-
-                URL.setURLStreamHandlerFactory(OkUrlFactory(okHttpClientBuilder.build()))
             }
 
-            if (!AdblockHelper.get().isInit) {
-                // init Adblock
-                val basePath = getDir(AdblockEngine.BASE_PATH_DIRECTORY, Context.MODE_PRIVATE).absolutePath
+            Completable
+                    .fromRunnable {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                            val okHttpClientBuilder = OkHttpClient.Builder()
+                            okHttpClientBuilder.apply {
+                                enhance()
+                                addInterceptor(PluginInterceptor)
+                            }
 
-                // provide preloaded subscriptions
-                val map = java.util.HashMap<String, Int>()
-                map[AndroidWebRequestResourceWrapper.EASYLIST] = R.raw.easylist
-                map[AndroidWebRequestResourceWrapper.EASYLIST_CHINESE] = R.raw.easylistchina
-                map[AndroidWebRequestResourceWrapper.ACCEPTABLE_ADS] = R.raw.exceptionrules
-
-                AdblockHelper
-                        .get()
-                        .init(this, basePath, true, AdblockHelper.PREFERENCE_NAME)
-                        .preloadSubscriptions(AdblockHelper.PRELOAD_PREFERENCE_NAME, map)
-                        .addEngineCreatedListener {
-                            Timber.d("adblock engine created")
+                            URL.setURLStreamHandlerFactory(OkUrlFactory(okHttpClientBuilder.build()))
                         }
-                        .addEngineDisposedListener {
-                            Timber.d("adblock engine disposed")
+
+                        if (!AdblockHelper.get().isInit) {
+                            // init Adblock
+                            val basePath = getDir(AdblockEngine.BASE_PATH_DIRECTORY, Context.MODE_PRIVATE).absolutePath
+
+                            // provide preloaded subscriptions
+                            val map = java.util.HashMap<String, Int>()
+                            map[AndroidWebRequestResourceWrapper.EASYLIST] = R.raw.easylist
+                            map[AndroidWebRequestResourceWrapper.EASYLIST_CHINESE] = R.raw.easylistchina
+                            map[AndroidWebRequestResourceWrapper.ACCEPTABLE_ADS] = R.raw.exceptionrules
+
+                            AdblockHelper
+                                    .get()
+                                    .init(this, basePath, true, AdblockHelper.PREFERENCE_NAME)
+                                    .preloadSubscriptions(AdblockHelper.PRELOAD_PREFERENCE_NAME, map)
+                                    .addEngineCreatedListener { engine ->
+                                        Timber.d("adblock engine created")
+                                        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                                        val networkInfo = connectivityManager.activeNetworkInfo
+                                        if (networkInfo.type == ConnectivityManager.TYPE_WIFI) {
+                                            map.keys.forEach { url ->
+                                                engine.filterEngine.updateFiltersAsync(url)
+                                            }
+                                        }
+                                    }
+                                    .addEngineDisposedListener {
+                                        Timber.d("adblock engine disposed")
+                                    }
+                                    .retain(true)
                         }
-                        .retain(true)
-            }
 
-            BigImageViewer.initialize(FrescoImageLoader.with(this))
+                        BigImageViewer.initialize(FrescoImageLoader.with(this))
 
-            ShareHelper.initialize(this)
+                        ShareHelper.initialize(this)
+
+                    }
+                    .subscribeOn(Schedulers.io())
+                    .subscribe()
         }
     }
 

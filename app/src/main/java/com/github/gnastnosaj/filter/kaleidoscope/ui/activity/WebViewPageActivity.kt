@@ -165,6 +165,9 @@ class WebViewPageActivity : BaseActivity() {
                                     """
                             callJs(script)
                         }
+                        filter = {
+                            connection?.execute("filter", it) as? Boolean == true
+                        }
                         settings.userAgentString = "${settings.userAgentString} SearchCraft/2.6.2 (Baidu; P1 7.0)"
                         settings.setAppCacheEnabled(true)
                         settings.domStorageEnabled = true

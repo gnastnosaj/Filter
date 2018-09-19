@@ -9,6 +9,9 @@ import android.view.MotionEvent
 import android.view.ViewManager
 import com.taobao.android.dexposed.DexposedBridge
 import com.taobao.android.dexposed.XC_MethodHook
+import org.adblockplus.libadblockplus.FilterEngine
+import org.adblockplus.libadblockplus.android.AdblockEngine
+import org.adblockplus.libadblockplus.android.settings.AdblockHelper
 import org.adblockplus.libadblockplus.android.webview.AdblockWebView
 import org.jetbrains.anko.custom.ankoView
 import timber.log.Timber
@@ -25,6 +28,9 @@ class NestedScrollAdblockWebView(context: Context) : AdblockWebView(context), Ne
     private var mChildHelper: NestedScrollingChildHelper = NestedScrollingChildHelper(this)
 
     var injectJS: ((injectJS: String) -> Unit)? = null
+    var filter: ((url: String) -> Boolean)? = null
+
+    private var unhook: XC_MethodHook.Unhook
 
     companion object {
         init {
@@ -43,6 +49,26 @@ class NestedScrollAdblockWebView(context: Context) : AdblockWebView(context), Ne
 
     init {
         isNestedScrollingEnabled = true
+        object : XC_MethodHook() {
+            init {
+                unhook = DexposedBridge.findAndHookMethod(AdblockEngine::class.java, "matches", String::class.java, FilterEngine.ContentType::class.java, Array<String>::class.java, object : XC_MethodKeepHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        Timber.d("beforeHookedMethod: %s", param.method)
+                        filter?.let {
+                            if (it.invoke(param.args[0] as String)) {
+                                param.result = true
+                            }
+                        }
+                    }
+                })
+            }
+        }
+        setProvider(AdblockHelper.get().provider)
+    }
+
+    override fun destroy() {
+        unhook.unhook()
+        super.destroy()
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {

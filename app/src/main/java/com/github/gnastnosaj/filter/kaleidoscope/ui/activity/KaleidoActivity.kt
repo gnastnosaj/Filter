@@ -1,5 +1,6 @@
 package com.github.gnastnosaj.filter.kaleidoscope.ui.activity
 
+import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
@@ -40,6 +41,7 @@ import com.github.gnastnosaj.filter.kaleidoscope.ui.view.materialSearchView
 import com.github.gnastnosaj.filter.kaleidoscope.util.ShareHelper
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.material_design_iconic_typeface_library.MaterialDesignIconic
+import com.tbruyelle.rxpermissions2.RxPermissions
 import com.trello.rxlifecycle2.android.ActivityEvent
 import com.yalantis.contextmenu.lib.ContextMenuDialogFragment
 import com.yalantis.contextmenu.lib.MenuObject
@@ -72,6 +74,8 @@ class KaleidoActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        RxPermissions(this).request(Manifest.permission.WRITE_EXTERNAL_STORAGE).subscribe()
 
         crazy = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("crazy", false)
 
