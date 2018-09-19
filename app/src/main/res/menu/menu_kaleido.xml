@@ -9,10 +9,6 @@
           android:title="@string/action_share"
           app:showAsAction="never"/>
 
-    <item android:id="@+id/action_plugin"
-          android:title="@string/action_plugin"
-          app:showAsAction="never"/>
-
     <item android:id="@+id/action_settings"
           android:title="@string/action_settings"
           app:showAsAction="never"/>

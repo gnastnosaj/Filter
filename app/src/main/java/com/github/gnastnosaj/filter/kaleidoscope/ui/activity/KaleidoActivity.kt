@@ -317,10 +317,6 @@ class KaleidoActivity : BaseActivity() {
                 ShareHelper.share(this, ShareParamText(resources.getString(R.string.action_share), resources.getString(R.string.share_kaleidoscope, BuildConfig.SHARE_URI)))
                 true
             }
-            R.id.action_plugin -> {
-                startActivity(intentFor<PluginActivity>())
-                true
-            }
             R.id.action_settings -> {
                 startActivity(intentFor<SettingsActivity>())
                 true
