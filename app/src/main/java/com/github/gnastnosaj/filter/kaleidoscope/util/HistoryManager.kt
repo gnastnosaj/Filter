@@ -14,13 +14,14 @@ import java.io.File
 
 object HistoryManager {
     private val cacheDir = File(Boilerplate.getInstance().externalCacheDir, "history")
+    private const val duration = 30L * 24 * 60 * 60 * 1000
 
     init {
         if (!cacheDir.exists()) {
             cacheDir.mkdir()
         }
         cacheDir.listFiles { file: File ->
-            System.currentTimeMillis() - file.lastModified() > 30 * 24 * 60 * 60 * 1000
+            System.currentTimeMillis() - file.lastModified() > duration
         }.forEach {
             it.delete()
         }
