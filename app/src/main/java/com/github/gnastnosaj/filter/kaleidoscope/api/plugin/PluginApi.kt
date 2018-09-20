@@ -17,6 +17,14 @@ import okhttp3.Request
 object PluginApi {
     const val PREF_REPOSITORIES = "repositories"
 
+    init {
+        val sharedPreferences = Boilerplate.getInstance().getSharedPreferences(PREF_REPOSITORIES, Context.MODE_PRIVATE)
+        if (!sharedPreferences.contains(PREF_REPOSITORIES)) {
+            val repositories = setOf("https://raw.githubusercontent.com/gnastnosaj/Filter/develop/repository/plugins.json")
+            sharedPreferences.edit().putStringSet(PREF_REPOSITORIES, repositories).apply()
+        }
+    }
+
     private var plugins: List<Plugin>? = null
 
     fun plugins(refresh: Boolean = true): Observable<List<Plugin>> {
@@ -70,12 +78,12 @@ object PluginApi {
                     .zip(
                             repositories.map {
                                 Observable
-                                        .create<List<Plugin>> { emitter ->
+                                        .create<Array<Plugin>> { emitter ->
                                             val request = Request.Builder().url(it).build()
                                             val call = KaleidoscopeRetrofit.instance.okHttpClient.newCall(request)
                                             val response = call.execute()
                                             response.body()?.let {
-                                                val plugins = Gson().fromJson<List<Plugin>>(it.string(), List::class.java)
+                                                val plugins = Gson().fromJson<Array<Plugin>>(it.string(), Array<Plugin>::class.java)
                                                 emitter.onNext(plugins)
                                                 emitter.onComplete()
                                                 return@create
@@ -83,13 +91,13 @@ object PluginApi {
                                             emitter.onError(IllegalStateException())
                                         }
                                         .onErrorReturn {
-                                            listOf()
+                                            arrayOf()
                                         }
                             }
                     ) {
                         val plugins = mutableListOf<Plugin>()
                         it.forEach {
-                            plugins.addAll(it as List<Plugin>)
+                            plugins.addAll(it as Array<Plugin>)
                         }
                         return@zip plugins
                     }
