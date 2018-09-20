@@ -20,7 +20,7 @@ object HistoryManager {
             cacheDir.mkdir()
         }
         cacheDir.listFiles { file: File ->
-            System.currentTimeMillis() - file.lastModified() > 30 * 24 * 60 * 60
+            System.currentTimeMillis() - file.lastModified() > 30 * 24 * 60 * 60 * 1000
         }.forEach {
             it.delete()
         }
