@@ -25,6 +25,7 @@ import javax.net.ssl.X509TrustManager
 
 class KaleidoscopeRetrofit(private val context: Context) {
     val service: KaleidoscopeService
+    val okHttpClient: OkHttpClient
 
     init {
         val okHttpClientBuilder = OkHttpClient.Builder()
@@ -36,7 +37,7 @@ class KaleidoscopeRetrofit(private val context: Context) {
             enhance()
         }
 
-        val okHttpClient = okHttpClientBuilder.build()
+        okHttpClient = okHttpClientBuilder.build()
 
         val retrofit = Retrofit.Builder()
                 .client(okHttpClient)

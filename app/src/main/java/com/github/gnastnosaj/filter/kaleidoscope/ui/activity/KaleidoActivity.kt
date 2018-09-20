@@ -24,16 +24,13 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import br.com.mauker.materialsearchview.MaterialSearchView
 import com.bilibili.socialize.share.core.shareparam.ShareParamText
-import com.github.gnastnosaj.boilerplate.Boilerplate
 import com.github.gnastnosaj.boilerplate.rxbus.RxHelper
 import com.github.gnastnosaj.boilerplate.util.keyboard.BaseActivity
 import com.github.gnastnosaj.boilerplate.util.textdrawable.TextDrawable
-import com.github.gnastnosaj.filter.dsl.groovy.GrooidClassLoader
 import com.github.gnastnosaj.filter.dsl.groovy.api.Project
 import com.github.gnastnosaj.filter.kaleidoscope.BuildConfig
 import com.github.gnastnosaj.filter.kaleidoscope.Kaleidoscope
 import com.github.gnastnosaj.filter.kaleidoscope.R
-import com.github.gnastnosaj.filter.kaleidoscope.api.KaleidoscopeRetrofit
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
 import com.github.gnastnosaj.filter.kaleidoscope.api.plugin.PluginApi
 import com.github.gnastnosaj.filter.kaleidoscope.api.search.search
@@ -46,7 +43,6 @@ import com.trello.rxlifecycle2.android.ActivityEvent
 import com.yalantis.contextmenu.lib.ContextMenuDialogFragment
 import com.yalantis.contextmenu.lib.MenuObject
 import com.yalantis.contextmenu.lib.MenuParams
-import groovy.lang.Script
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -353,7 +349,8 @@ class KaleidoActivity : BaseActivity() {
     }
 
     private fun createContextMenu() {
-        PluginApi.plugins().retry(3)
+        PluginApi.plugins()
+                .retry(3)
                 .map {
                     if (!crazy) {
                         it.filter {
@@ -456,33 +453,14 @@ class KaleidoActivity : BaseActivity() {
                                     progressBar?.visibility = View.VISIBLE
                                     showDynamicBoxCustomView(DYNAMIC_BOX_LT_BIKING_IS_COOL, this)
                                     Snackbar.make(findViewById(android.R.id.content), R.string.plugin_initializing, Snackbar.LENGTH_SHORT).show()
-                                    Observable
-                                            .just(plugin)
-                                            .switchMap {
-                                                if (plugin.script != null) {
-                                                    Observable.create<Script> { emitter ->
-                                                        emitter.onNext(GrooidClassLoader.loadAndCreateGroovyObject(Boilerplate.getInstance(), plugin.script) as Script)
-                                                        emitter.onComplete()
-                                                    }
-                                                } else {
-                                                    KaleidoscopeRetrofit.instance.service.plugin(plugin.id!!)
-                                                }
-                                            }
-                                            .subscribeOn(Schedulers.io())
+                                    PluginApi.initialize(plugin).subscribeOn(Schedulers.io())
                                 }
                                 .subscribeOn(AndroidSchedulers.mainThread())
-                                .observeOn(Schedulers.io())
-                                .map { script ->
-                                    val project = Project(script)
-                                    project.execute("area", resources.getString(R.string.area))
-                                    project.execute("build")
-                                    projects?.put(plugin.id!!, project)
-                                    project
-                                }
                                 .retry(3)
                                 .timeout(1, TimeUnit.MINUTES)
                                 .observeOn(AndroidSchedulers.mainThread())
-                                .doOnNext {
+                                .doOnNext { project ->
+                                    projects?.put(plugin.id!!, project)
                                     progressBar?.visibility = View.GONE
                                     dismissDynamicBox(this)
                                 }.doOnError {

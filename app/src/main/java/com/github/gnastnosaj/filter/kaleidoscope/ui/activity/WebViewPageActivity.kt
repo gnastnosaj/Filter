@@ -409,7 +409,7 @@ class WebViewPageActivity : BaseActivity() {
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
         connection?.let {
-            outState?.putInt(DetailActivity.EXTRA_CONNECTION_HASH_CODE, Kaleidoscope.saveInstanceState(it))
+            outState?.putInt(EXTRA_CONNECTION_HASH_CODE, Kaleidoscope.saveInstanceState(it))
         }
     }
 
