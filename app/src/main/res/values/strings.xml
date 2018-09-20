@@ -16,6 +16,12 @@
     <string name="action_close">Close</string>
     <string name="action_home">Home</string>
 
+    <string name="fragment_kaleido_settings_repo_key">repositories</string>
+    <string name="fragment_kaleido_settings_repo_title">Repositories</string>
+    <string name="fragment_kaleido_settings_repo_summary">Add repositories that you want to download plugin from
+    </string>
+    <string name="fragment_kaleido_settings_add_repo">add repository</string>
+
     <string name="crazy_mode">＾(￣）￣)《(￣）￣)＾Hey, the crazy mode is enabled, driving safety attention yo～</string>
 
     <string name="searching">╭ (′▽`)╭(′▽`)╭(′▽`)╯In the crazy search, please go for a stroll first～</string>

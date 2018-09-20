@@ -14,6 +14,11 @@
     <string name="action_close">クローズ</string>
     <string name="action_home">ホームページ</string>
 
+    <string name="fragment_kaleido_settings_repo_key">repositories</string>
+    <string name="fragment_kaleido_settings_repo_title">エクステンションのリポジトリ</string>
+    <string name="fragment_kaleido_settings_repo_summary">＾(￣）￣)《(￣）￣)＾あなたのような拡張子のリポジトリを追加できます～</string>
+    <string name="fragment_kaleido_settings_add_repo">拡張のリポジトリを追加する</string>
+
     <string name="crazy_mode">＾(￣）￣)《(￣）￣)＾へへへ、狂ったモードを開いていたので、車で安全に気をつけてくださいね～</string>
 
     <string name="searching">╭ (′▽`)╭(′▽`)╭(′▽`)╯狂っている中で、先にぶらぶらしてください～</string>

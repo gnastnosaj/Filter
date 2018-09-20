@@ -13,6 +13,11 @@
     <string name="action_close">關閉</string>
     <string name="action_home">主頁</string>
 
+    <string name="fragment_kaleido_settings_repo_key">repositories</string>
+    <string name="fragment_kaleido_settings_repo_title">擴展源</string>
+    <string name="fragment_kaleido_settings_repo_summary">＾(￣）￣)《(￣）￣)＾添加自己想要的擴展源吧～</string>
+    <string name="fragment_kaleido_settings_add_repo">添加擴展源</string>
+
     <string name="crazy_mode">＾(￣）￣)《(￣）￣)＾嘿嘿，已開啟狂暴模式，開車注意安全喲～</string>
 
     <string name="searching">╭ (′▽`)╭(′▽`)╭(′▽`)╯正在瘋狂蒐索中，請先隨便逛逛吧～</string>

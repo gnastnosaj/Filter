@@ -1,0 +1,57 @@
+<!--
+  ~ Copyright (c) 2018, Jason Tsang.(https://github.com/gnastnosaj) All Rights Reserved.
+  -->
+
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="@dimen/fragment_adblock_wl_padding"
+        tools:context=".ui.fragment.RepositoriesSettingsFragment">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+        <!-- Add domain input -->
+        <EditText
+                android:id="@+id/fragment_repo_add_label"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:lines="1"
+                android:hint="@string/fragment_kaleido_settings_add_repo"
+                android:inputType="textUri"
+                android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+        <!-- Add button -->
+        <ImageView
+                android:id="@+id/fragment_repo_add_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/fragment_adblock_whitelisted_domains_add"
+                android:paddingStart="@dimen/fragment_adblock_wl_item_padding"
+                android:paddingLeft="@dimen/fragment_adblock_wl_item_padding"/>
+
+    </LinearLayout>
+
+    <!-- Whitelisted domain label -->
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/fragment_kaleido_settings_repo_title"
+            android:paddingTop="@dimen/fragment_adblock_wl_padding"
+            android:paddingBottom="@dimen/fragment_adblock_wl_padding"
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+    <!-- ListView -->
+    <ListView
+            android:id="@+id/fragment_repo_listview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+</LinearLayout>
