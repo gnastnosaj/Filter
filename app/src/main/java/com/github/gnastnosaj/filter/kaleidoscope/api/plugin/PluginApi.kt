@@ -4,6 +4,7 @@ import android.content.Context
 import com.github.gnastnosaj.boilerplate.Boilerplate
 import com.github.gnastnosaj.filter.dsl.groovy.GrooidClassLoader
 import com.github.gnastnosaj.filter.dsl.groovy.api.Project
+import com.github.gnastnosaj.filter.kaleidoscope.BuildConfig
 import com.github.gnastnosaj.filter.kaleidoscope.R
 import com.github.gnastnosaj.filter.kaleidoscope.api.KaleidoscopeRetrofit
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
@@ -20,7 +21,7 @@ object PluginApi {
     init {
         val sharedPreferences = Boilerplate.getInstance().getSharedPreferences(PREF_REPOSITORIES, Context.MODE_PRIVATE)
         if (!sharedPreferences.contains(PREF_REPOSITORIES)) {
-            val repositories = setOf("https://raw.githubusercontent.com/gnastnosaj/Filter/develop/repository/plugins.json")
+            val repositories = setOf(BuildConfig.DEFAULT_REPOSITORY_URL)
             sharedPreferences.edit().putStringSet(PREF_REPOSITORIES, repositories).apply()
         }
     }

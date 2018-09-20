@@ -3,7 +3,7 @@ package com.github.gnastnosaj.filter.kaleidoscope.api
 import android.content.Context
 import com.github.gnastnosaj.boilerplate.Boilerplate
 import com.github.gnastnosaj.filter.dsl.groovy.GrooidClassLoader
-import com.github.gnastnosaj.filter.kaleidoscope.R
+import com.github.gnastnosaj.filter.kaleidoscope.BuildConfig
 import com.github.gnastnosaj.filter.kaleidoscope.net.OkHttpEnhancer.enhance
 import groovy.lang.Script
 import okhttp3.OkHttpClient
@@ -41,7 +41,7 @@ class KaleidoscopeRetrofit(private val context: Context) {
 
         val retrofit = Retrofit.Builder()
                 .client(okHttpClient)
-                .baseUrl(context.resources.getString(R.string.kaleidoscope_base_url))
+                .baseUrl(BuildConfig.KALEIDO_BASE_URL)
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(object : Converter.Factory() {
                     override fun responseBodyConverter(type: Type?, annotations: Array<out Annotation>?, retrofit: Retrofit?): Converter<ResponseBody, *>? {

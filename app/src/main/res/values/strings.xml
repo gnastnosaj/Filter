@@ -40,7 +40,6 @@
     <string name="action_check">Check</string>
     <string name="copy_magnet_success">The Magnet Link has been copied to clipboard</string>
 
-    <string name="kaleidoscope_base_url">https://jasontsang.gitee.io/filter/</string>
     <string name="magneto">Magneto</string>
 
     <string name="action_mosaic">Mosaic</string>

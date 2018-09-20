@@ -57,6 +57,8 @@ android {
         create("pgyer") {
             setDimension("version")
             buildConfigField("String", "SHARE_URI", "\"https://www.pgyer.com/D7r4\"")
+            buildConfigField("String", "KALEIDO_BASE_URL", "\"https://jasontsang.gitee.io/filter/\"")
+            buildConfigField("String", "DEFAULT_REPOSITORY_URL", "\"https://raw.githubusercontent.com/gnastnosaj/Filter/develop/repository/plugins.json\"")
         }
     }
 
