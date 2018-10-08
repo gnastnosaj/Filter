@@ -35,12 +35,14 @@ task('build') {
 
                                 def groupParser = { container ->
                                     def head = container.select('div.hy-video-head')
-                                    page.data(
-                                            "type": "head",
-                                            "title": head.select('h3').text(),
-                                            "href": head.select('a').attr('abs:href')
-                                    )
-                                    def items = container.select('div.hy-video-list div.col-md-2')
+                                    if (head.size() > 0) {
+                                        page.data(
+                                                "type": "head",
+                                                "title": head.select('h3').text(),
+                                                "href": head.select('a').attr('abs:href')
+                                        )
+                                    }
+                                    def items = container.select('div.hy-video-list .col-md-2')
                                     items.each {
                                         itemParser(it)
                                     }
@@ -110,15 +112,22 @@ task('build') {
                                                                 v[t] = c
                                                             }
                                                         }
+                                                        if (v.size() != 0) {
+                                                            details[k] = v
+                                                        }
                                                     }
+
+                                                    def playlist = [:]
 
                                                     def style = select('dl.content a.videopic').attr('style')
                                                     def cover = style.substring(style.indexOf('(') + 1, style.indexOf(')'))
-                                                    def description = select('div.hy-layout div.hy-switch-tabs div.plot').text()
+                                                    def description = select('div.plot').text()
+
                                                     page.data(
                                                             "cover": cover,
                                                             "details": details,
-                                                            "description": description
+                                                            "description": description,
+                                                            "playlist": playlist
                                                     )
                                                 }
                                             }
@@ -150,10 +159,7 @@ task('build') {
                     def list = select('ul.menulist li a')
                     list.remove(0)
                     list.each { a ->
-                        category(a.text()) {
-                            def build = builder(a.attr('abs:href'))
-                            connection build
-                        }
+                        connection(a.text(), builder(a.attr('abs:href')))
                     }
                 }
             }
