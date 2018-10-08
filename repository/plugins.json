@@ -5,5 +5,11 @@
     "ico": "http://rarbt.com/Public/Home/images/logo_1.png",
     "www": "http://rarbt.com",
     "script": "https://raw.githubusercontent.com/gnastnosaj/Filter/develop/repository/rarbt.filter"
+  },
+  {
+    "id": "aqdy",
+    "name": "爱情电影",
+    "www": "http://www.aqdy.net",
+    "script": "https://raw.githubusercontent.com/gnastnosaj/Filter/develop/repository/aqdy.filter"
   }
 ]
