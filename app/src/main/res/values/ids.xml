@@ -10,6 +10,7 @@
     <item name="catalog_view_pager" type="id"/>
     <item name="thumbnail" type="id"/>
     <item name="title" type="id"/>
+    <item name="more" type="id"/>
     <item name="alphabet" type="id"/>
     <item name="www" type="id"/>
 </resources>

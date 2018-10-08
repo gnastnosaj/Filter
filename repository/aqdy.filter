@@ -153,6 +153,11 @@ task('build') {
                                     }
                                 }
                             }
+
+                            task('build') { href ->
+                                def build = builder(href)
+                                return connection(build)
+                            }
                         }
                     }
 

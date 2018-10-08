@@ -10,12 +10,14 @@ import com.github.gnastnosaj.filter.dsl.core.Connection
 import com.github.gnastnosaj.filter.kaleidoscope.Kaleidoscope
 import com.github.gnastnosaj.filter.kaleidoscope.api.datasource.ConnectionDataSource
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
+import com.github.gnastnosaj.filter.kaleidoscope.ui.activity.WaterfallActivity
 import com.github.gnastnosaj.filter.kaleidoscope.ui.activity.start
 import com.github.gnastnosaj.filter.kaleidoscope.ui.adapter.WaterfallAdapter
 import com.shizhefei.mvc.MVCHelper
 import com.shizhefei.mvc.MVCSwipeRefreshHelper
 import org.jetbrains.anko.AnkoContext
 import org.jetbrains.anko.frameLayout
+import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.recyclerview.v7.recyclerView
 import org.jetbrains.anko.support.v4.swipeRefreshLayout
@@ -65,7 +67,19 @@ class WaterfallFragment : Fragment() {
                                             val position = getChildAdapterPosition(childView)
                                             if (-1 < position && position < waterfallAdapter.data.size) {
                                                 val data = waterfallAdapter.data[position]
-                                                (activity as? BaseActivity)?.start(childView, data, plugin, connection)
+                                                if (data["type"] == "head") {
+                                                    data["href"]?.let {
+                                                        connection?.execute("build", it)?.let {
+                                                            startActivity(intentFor<WaterfallActivity>(
+                                                                    WaterfallActivity.EXTRA_TITLE to data["title"],
+                                                                    WaterfallActivity.EXTRA_PLUGIN to plugin,
+                                                                    WaterfallActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(it)
+                                                            ))
+                                                        }
+                                                    }
+                                                } else {
+                                                    (activity as? BaseActivity)?.start(childView, data, plugin, connection)
+                                                }
                                             }
                                         }
                                         true
