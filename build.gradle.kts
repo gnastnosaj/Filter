@@ -14,7 +14,7 @@ ext {
 
     set("ankoVersion", "0.10.4")
 
-    set("boilerplateVersion", "2.0.6-rc1")
+    set("boilerplateVersion", "2.0.6-rc2")
 }
 
 buildscript {
