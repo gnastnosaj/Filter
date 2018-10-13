@@ -371,6 +371,7 @@ class KaleidoActivity : BaseActivity() {
                                     menuObject.bgDrawable = TextDrawable.builder()
                                             .buildRect(it.id?.substring(0, 1)?.toUpperCase()
                                                     ?: "", resources.getColor(R.color.colorPrimary))
+                                    menuObject.title = it.name
                                     menuObject
                                 }
                             }

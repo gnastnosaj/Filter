@@ -7,9 +7,14 @@
     "script": "https://raw.githubusercontent.com/gnastnosaj/Filter/develop/repository/rarbt.filter"
   },
   {
-    "id": "aqdy",
-    "name": "爱情电影",
-    "www": "http://www.aqdy.net",
-    "script": "https://raw.githubusercontent.com/gnastnosaj/Filter/develop/repository/aqdy.filter"
+    "id": "930mh",
+    "name": "亲亲漫画",
+    "ico": "http://mhimg.acg.gd:44236/images/logo/dmzj.png",
+    "www": "http://www.930mh.com"
+  },
+  {
+    "id": "haotudao",
+    "name": "好图岛",
+    "www": "http://haotudao.com"
   }
 ]

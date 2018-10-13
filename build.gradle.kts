@@ -37,17 +37,17 @@ allprojects {
         flatDir {
             dirs("libs")
         }
-        google()
-        jcenter()
-        mavenCentral()
-        maven {
-            url = URI("https://jitpack.io")
-        }
         maven {
             url = URI("https://dl.bintray.com/thelasterstar/maven/")
         }
         maven {
             url = URI("http://dl.bintray.com/piasy/maven")
         }
+        maven {
+            url = URI("https://jitpack.io")
+        }
+        google()
+        mavenCentral()
+        jcenter()
     }
 }

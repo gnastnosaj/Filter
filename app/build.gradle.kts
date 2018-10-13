@@ -156,5 +156,8 @@ configurations.all {
         if (requested.group == "com.android.support" && !requested.name.startsWith("multidex")) {
             useVersion(supportLibraryVersion)
         }
+        if (requested.group == "com.facebook.fresco") {
+            useVersion("1.10.0")
+        }
     }
 }
