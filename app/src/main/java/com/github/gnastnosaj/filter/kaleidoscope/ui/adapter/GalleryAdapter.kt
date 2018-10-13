@@ -98,7 +98,6 @@ class GalleryAdapter(private val context: Context) : PagerAdapter(), IDataAdapte
                 thumbnailError(error)
             }
         })
-        bigImageView.showImage(Uri.parse("android.resource://${context.packageName}/${R.drawable.ic_placeholder_dark}"), Uri.parse(uri))
         bigImageView.setOnClickListener { _ -> RxBus.getInstance().post(ToolbarEvent::class.java, ToolbarEvent) }
         bigImageView.setOnLongClickListener {
             AlertDialog.Builder(context)
@@ -126,6 +125,9 @@ class GalleryAdapter(private val context: Context) : PagerAdapter(), IDataAdapte
                     .show()
             true
         }
+        bigImageView.setThumbnailScaleType(BigImageView.scaleType(BigImageView.DEFAULT_IMAGE_SCALE_TYPE))
+
+        bigImageView.showImage(Uri.parse("android.resource://${context.packageName}/${R.drawable.ic_placeholder_dark}"), Uri.parse(uri))
 
         container.addView(bigImageView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
 
