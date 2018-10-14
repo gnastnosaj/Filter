@@ -4,8 +4,11 @@ import android.os.Bundle
 import android.preference.Preference
 import android.support.design.widget.Snackbar
 import android.view.MenuItem
+import com.github.gnastnosaj.boilerplate.Boilerplate
 import com.github.gnastnosaj.filter.kaleidoscope.R
 import com.github.gnastnosaj.filter.kaleidoscope.ui.fragment.RepositoriesSettingsFragment
+import com.google.gson.Gson
+import ezy.boost.update.UpdateInfo
 import ezy.boost.update.UpdateManager
 import org.adblockplus.libadblockplus.android.AdblockEngine
 import org.adblockplus.libadblockplus.android.settings.*
@@ -68,6 +71,11 @@ class SettingsActivity : AppCompatPreferenceActivity(), BaseSettingsFragment.Pro
         UpdateManager
                 .create(this)
                 .setManual(true)
+                .setParser {
+                    val updateInfo = Gson().fromJson(it, UpdateInfo::class.java)
+                    updateInfo.hasUpdate = updateInfo.versionCode > Boilerplate.versionCode
+                    return@setParser updateInfo
+                }
                 .setOnFailureListener {
                     it.message?.let {
                         Snackbar.make(fragment.view, it, Snackbar.LENGTH_SHORT).show()

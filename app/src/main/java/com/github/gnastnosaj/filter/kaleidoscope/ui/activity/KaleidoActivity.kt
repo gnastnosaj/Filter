@@ -23,6 +23,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import br.com.mauker.materialsearchview.MaterialSearchView
 import com.bilibili.socialize.share.core.shareparam.ShareParamText
+import com.github.gnastnosaj.boilerplate.Boilerplate
 import com.github.gnastnosaj.boilerplate.rxbus.RxHelper
 import com.github.gnastnosaj.boilerplate.util.keyboard.BaseActivity
 import com.github.gnastnosaj.boilerplate.util.textdrawable.TextDrawable
@@ -35,6 +36,7 @@ import com.github.gnastnosaj.filter.kaleidoscope.api.plugin.PluginApi
 import com.github.gnastnosaj.filter.kaleidoscope.api.search.search
 import com.github.gnastnosaj.filter.kaleidoscope.ui.view.materialSearchView
 import com.github.gnastnosaj.filter.kaleidoscope.util.ShareHelper
+import com.google.gson.Gson
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.material_design_iconic_typeface_library.MaterialDesignIconic
 import com.tbruyelle.rxpermissions2.RxPermissions
@@ -42,6 +44,7 @@ import com.trello.rxlifecycle2.android.ActivityEvent
 import com.yalantis.contextmenu.lib.ContextMenuDialogFragment
 import com.yalantis.contextmenu.lib.MenuObject
 import com.yalantis.contextmenu.lib.MenuParams
+import ezy.boost.update.UpdateInfo
 import ezy.boost.update.UpdateManager
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -282,6 +285,11 @@ class KaleidoActivity : BaseActivity() {
 
         UpdateManager
                 .create(this)
+                .setParser {
+                    val updateInfo = Gson().fromJson(it, UpdateInfo::class.java)
+                    updateInfo.hasUpdate = updateInfo.versionCode > Boilerplate.versionCode
+                    return@setParser updateInfo
+                }
                 .setOnFailureListener {
                     Timber.w(it.message)
                 }
