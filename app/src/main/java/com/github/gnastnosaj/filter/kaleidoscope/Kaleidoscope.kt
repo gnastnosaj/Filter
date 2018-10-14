@@ -21,6 +21,7 @@ import com.github.piasy.biv.loader.fresco.FrescoImageLoader
 import com.jiongbull.jlog.Logger
 import com.jiongbull.jlog.constant.LogLevel
 import com.jiongbull.jlog.constant.LogSegment
+import ezy.boost.update.UpdateManager
 import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
@@ -189,6 +190,7 @@ class Kaleidoscope : Application() {
 
                         ShareHelper.initialize(this)
 
+                        UpdateManager.setUrl("${BuildConfig.KALEIDO_BASE_URL}updateInfo.json", "pgyer")
                     }
                     .subscribeOn(Schedulers.io())
                     .subscribe()

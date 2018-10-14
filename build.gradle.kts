@@ -8,8 +8,8 @@ ext {
     set("buildToolsVersion", "27.0.3")
     set("minSdkVersion", 16)
     set("targetSdkVersion", 27)
-    set("versionCode", 1)
-    set("versionName", "0.0.1")
+    set("versionCode", 2)
+    set("versionName", "0.0.2")
     set("supportLibraryVersion", "27.1.0")
 
     set("ankoVersion", "0.10.4")

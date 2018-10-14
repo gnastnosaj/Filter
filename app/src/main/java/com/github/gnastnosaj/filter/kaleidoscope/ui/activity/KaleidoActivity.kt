@@ -1,7 +1,6 @@
 package com.github.gnastnosaj.filter.kaleidoscope.ui.activity
 
 import android.Manifest
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Bitmap
@@ -43,6 +42,7 @@ import com.trello.rxlifecycle2.android.ActivityEvent
 import com.yalantis.contextmenu.lib.ContextMenuDialogFragment
 import com.yalantis.contextmenu.lib.MenuObject
 import com.yalantis.contextmenu.lib.MenuParams
+import ezy.boost.update.UpdateManager
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -50,6 +50,7 @@ import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.*
 import org.jetbrains.anko.appcompat.v7.toolbar
 import org.jetbrains.anko.design.themedAppBarLayout
+import timber.log.Timber
 import java.net.URLEncoder
 import java.text.SimpleDateFormat
 import java.util.*
@@ -62,6 +63,7 @@ class KaleidoActivity : BaseActivity() {
     private var progressBar: ProgressBar? = null
     private var contextMenuDialogFragment: ContextMenuDialogFragment? = null
 
+    private var searchMode = 0
     private var searchDisposable: Disposable? = null
     private var pluginDisposable: Disposable? = null
 
@@ -130,11 +132,9 @@ class KaleidoActivity : BaseActivity() {
                                             rightMargin = dip(8)
                                         }
                                         setOnClickListener {
-                                            val keyword = editText.text.toString()
-                                            if (keyword.isNotBlank()) {
-                                                ActivityCompat.startActivity(context as Activity, intentFor<WebViewActivity>(WebViewActivity.EXTRA_URL to "https://www.baidu.com/s?wd=${URLEncoder.encode(keyword, "utf-8")}", WebViewActivity.EXTRA_KEYWORD to keyword).setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_MULTIPLE_TASK), null)
-                                                editText.setText("")
-                                            }
+                                            searchMode = 0
+                                            search(editText.text.toString())
+                                            editText.setText("")
                                         }
                                     }.lparams(wrapContent, wrapContent)
                                     textView {
@@ -151,6 +151,7 @@ class KaleidoActivity : BaseActivity() {
                                             rightMargin = dip(8)
                                         }
                                         setOnClickListener {
+                                            searchMode = 1
                                             search(editText.text.toString())
                                             editText.setText("")
                                         }
@@ -278,6 +279,13 @@ class KaleidoActivity : BaseActivity() {
         }
 
         createContextMenu()
+
+        UpdateManager
+                .create(this)
+                .setOnFailureListener {
+                    Timber.w(it.message)
+                }
+                .check()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -408,38 +416,43 @@ class KaleidoActivity : BaseActivity() {
             }
         }
 
-        if (keyword.isEmpty() && searchView?.isOpen != true) {
+        if (keyword.isBlank() && searchView?.isOpen != true) {
             searchView?.openSearch()
         } else {
-            searchDisposable = Observable
-                    .defer {
-                        progressBar?.visibility = View.VISIBLE
-                        showDynamicBoxCustomView(DYNAMIC_BOX_LT_BIKING_IS_COOL, this)
-                        PluginApi.plugins().compose(RxHelper.rxSchedulerHelper())
-                    }
-                    .compose(bindUntilEvent(ActivityEvent.DESTROY))
-                    .flatMap {
-                        it.firstOrNull {
-                            it.id == keyword
-                        }?.let { plugin ->
-                            return@flatMap start(plugin)
+            if (searchMode == 0) {
+                searchView?.saveQueryToDb(keyword, System.currentTimeMillis())
+                ActivityCompat.startActivity(this, intentFor<WebViewActivity>(WebViewActivity.EXTRA_URL to "https://www.baidu.com/s?wd=${URLEncoder.encode(keyword, "utf-8")}", WebViewActivity.EXTRA_KEYWORD to keyword).setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_MULTIPLE_TASK), null)
+            } else {
+                searchDisposable = Observable
+                        .defer {
+                            progressBar?.visibility = View.VISIBLE
+                            showDynamicBoxCustomView(DYNAMIC_BOX_LT_BIKING_IS_COOL, this)
+                            PluginApi.plugins().compose(RxHelper.rxSchedulerHelper())
                         }
+                        .compose(bindUntilEvent(ActivityEvent.DESTROY))
+                        .flatMap {
+                            it.firstOrNull {
+                                it.id == keyword
+                            }?.let { plugin ->
+                                return@flatMap start(plugin)
+                            }
 
-                        (this as BaseActivity).search(keyword).map { it.isNotEmpty() }
-                    }
-                    .doOnNext {
-                        progressBar?.visibility = View.GONE
-                        dismissDynamicBox(this)
-                    }
-                    .doOnError {
-                        progressBar?.visibility = View.GONE
-                        dismissDynamicBox(this)
-                    }
-                    .doOnDispose {
-                        progressBar?.visibility = View.GONE
-                        dismissDynamicBox(this)
-                    }
-                    .subscribe()
+                            (this as BaseActivity).search(keyword).map { it.isNotEmpty() }
+                        }
+                        .doOnNext {
+                            progressBar?.visibility = View.GONE
+                            dismissDynamicBox(this)
+                        }
+                        .doOnError {
+                            progressBar?.visibility = View.GONE
+                            dismissDynamicBox(this)
+                        }
+                        .doOnDispose {
+                            progressBar?.visibility = View.GONE
+                            dismissDynamicBox(this)
+                        }
+                        .subscribe()
+            }
         }
     }
 

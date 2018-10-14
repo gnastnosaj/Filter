@@ -17,6 +17,8 @@
     <string name="fragment_kaleido_settings_repo_title">扩展源</string>
     <string name="fragment_kaleido_settings_repo_summary">＾(￣）￣)《(￣）￣)＾添加自己想要的扩展源吧～</string>
     <string name="fragment_kaleido_settings_add_repo">添加扩展源</string>
+    <string name="fragment_kaleido_settings_update_key">update</string>
+    <string name="fragment_kaleido_settings_update_title">检查新版本</string>
 
     <string name="crazy_mode">＾(￣）￣)《(￣）￣)＾嘿嘿，已开启狂暴模式，开车注意安全哟～</string>
 

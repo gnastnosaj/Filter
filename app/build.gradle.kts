@@ -145,6 +145,7 @@ dependencies {
     implementation("net.qiujuer.genius:graphics:+")
     implementation("me.drakeet.support:about:+")
     implementation("me.weishu:epic:0.3.6")
+    implementation("com.github.czy1121:update:+")
 
     implementation(project(":dsl"))
     implementation(project(":dsl-groovy"))

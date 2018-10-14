@@ -21,6 +21,8 @@
     <string name="fragment_kaleido_settings_repo_summary">Add repositories that you want to download plugin from
     </string>
     <string name="fragment_kaleido_settings_add_repo">add repository</string>
+    <string name="fragment_kaleido_settings_update_key">update</string>
+    <string name="fragment_kaleido_settings_update_title">Check for updates</string>
 
     <string name="crazy_mode">＾(￣）￣)《(￣）￣)＾Hey, the crazy mode is enabled, driving safety attention yo～</string>
 

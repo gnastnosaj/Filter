@@ -18,6 +18,8 @@
     <string name="fragment_kaleido_settings_repo_title">エクステンションのリポジトリ</string>
     <string name="fragment_kaleido_settings_repo_summary">＾(￣）￣)《(￣）￣)＾あなたのような拡張子のリポジトリを追加できます～</string>
     <string name="fragment_kaleido_settings_add_repo">拡張のリポジトリを追加する</string>
+    <string name="fragment_kaleido_settings_update_key">update</string>
+    <string name="fragment_kaleido_settings_update_title">新バージョンのチェック</string>
 
     <string name="crazy_mode">＾(￣）￣)《(￣）￣)＾へへへ、狂ったモードを開いていたので、車で安全に気をつけてくださいね～</string>
 

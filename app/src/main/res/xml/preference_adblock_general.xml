@@ -37,4 +37,9 @@
             android:title="@string/fragment_kaleido_settings_repo_title"
             android:summary="@string/fragment_kaleido_settings_repo_summary"/>
 
+    <!-- Update -->
+    <Preference
+            android:key="@string/fragment_kaleido_settings_update_key"
+            android:title="@string/fragment_kaleido_settings_update_title"/>
+
 </PreferenceScreen>

@@ -2,9 +2,11 @@ package com.github.gnastnosaj.filter.kaleidoscope.ui.activity
 
 import android.os.Bundle
 import android.preference.Preference
+import android.support.design.widget.Snackbar
 import android.view.MenuItem
 import com.github.gnastnosaj.filter.kaleidoscope.R
 import com.github.gnastnosaj.filter.kaleidoscope.ui.fragment.RepositoriesSettingsFragment
+import ezy.boost.update.UpdateManager
 import org.adblockplus.libadblockplus.android.AdblockEngine
 import org.adblockplus.libadblockplus.android.settings.*
 
@@ -62,6 +64,18 @@ class SettingsActivity : AppCompatPreferenceActivity(), BaseSettingsFragment.Pro
         insertRepositoriesFragment()
     }
 
+    override fun onUpdateClicked(fragment: GeneralSettingsFragment) {
+        UpdateManager
+                .create(this)
+                .setManual(true)
+                .setOnFailureListener {
+                    it.message?.let {
+                        Snackbar.make(fragment.view, it, Snackbar.LENGTH_SHORT).show()
+                    }
+                }
+                .check()
+    }
+
     override fun isValidRepository(fragment: RepositoriesSettingsFragment, repository: String): Boolean {
         return repository.isNotBlank()
     }
@@ -90,25 +104,33 @@ class SettingsActivity : AppCompatPreferenceActivity(), BaseSettingsFragment.Pro
 class GeneralSettingsFragment : org.adblockplus.libadblockplus.android.settings.GeneralSettingsFragment() {
 
     private var SETTINGS_REPOSITORIES_KEY: String? = null
+    private var SETTINGS_UPDATE_KEY: String? = null
 
     private var repositories: Preference? = null
+    private var update: Preference? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         SETTINGS_REPOSITORIES_KEY = getString(R.string.fragment_kaleido_settings_repo_key)
+        SETTINGS_UPDATE_KEY = getString(R.string.fragment_kaleido_settings_update_key)
         repositories = findPreference(SETTINGS_REPOSITORIES_KEY)
+        update = findPreference(SETTINGS_UPDATE_KEY)
     }
 
     override fun onResume() {
         super.onResume()
 
         repositories?.onPreferenceClickListener = this
+        update?.onPreferenceClickListener = this
     }
 
     override fun onPreferenceClick(preference: Preference): Boolean {
         if (preference.key == SETTINGS_REPOSITORIES_KEY) {
             (activity as? Listener)?.onRepositoriesClicked(this)
+            return true
+        } else if (preference.key == SETTINGS_UPDATE_KEY) {
+            (activity as? Listener)?.onUpdateClicked(this)
             return true
         }
         return super.onPreferenceClick(preference)
@@ -116,5 +138,6 @@ class GeneralSettingsFragment : org.adblockplus.libadblockplus.android.settings.
 
     interface Listener : BaseSettingsFragment.Listener {
         fun onRepositoriesClicked(fragment: GeneralSettingsFragment)
+        fun onUpdateClicked(fragment: GeneralSettingsFragment)
     }
 }
