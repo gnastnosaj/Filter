@@ -1,7 +1,6 @@
 package com.github.gnastnosaj.filter.kaleidoscope.ui.activity
 
 import android.Manifest
-import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -11,16 +10,15 @@ import android.os.Bundle
 import android.os.PersistableBundle
 import android.os.SystemClock
 import android.preference.PreferenceManager
+import android.provider.MediaStore
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
+import android.support.v7.app.AlertDialog
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.LinearLayout
-import android.widget.ListView
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.*
 import br.com.mauker.materialsearchview.MaterialSearchView
 import com.bilibili.socialize.share.core.shareparam.ShareParamText
 import com.github.gnastnosaj.boilerplate.Boilerplate
@@ -54,6 +52,8 @@ import org.jetbrains.anko.*
 import org.jetbrains.anko.appcompat.v7.toolbar
 import org.jetbrains.anko.design.themedAppBarLayout
 import timber.log.Timber
+import java.io.File
+import java.io.FileOutputStream
 import java.net.URLEncoder
 import java.text.SimpleDateFormat
 import java.util.*
@@ -71,6 +71,8 @@ class KaleidoActivity : BaseActivity() {
     private var pluginDisposable: Disposable? = null
 
     private val kaleidoHits = LongArray(5)
+    private var donateDialog: AlertDialog? = null
+    private var donateDisposable: Disposable? = null
     private var crazy = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -307,14 +309,24 @@ class KaleidoActivity : BaseActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
+                donateDisposable?.dispose()
+                donateDisposable = Observable
+                        .timer(300, TimeUnit.MILLISECONDS)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe {
+                            donate()
+                        }
                 if (!crazy) {
                     System.arraycopy(kaleidoHits, 1, kaleidoHits, 0, kaleidoHits.size - 1)
                     kaleidoHits[kaleidoHits.size - 1] = SystemClock.uptimeMillis()
                     if (kaleidoHits[0] >= (SystemClock.uptimeMillis() - 1000)) {
-                        crazy = true
-                        createContextMenu()
-                        PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("crazy", crazy).apply()
-                        Snackbar.make(findViewById(android.R.id.content), R.string.crazy_mode, Snackbar.LENGTH_SHORT).show()
+                        donateDisposable?.dispose()
+                        donate {
+                            crazy = true
+                            createContextMenu()
+                            PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("crazy", crazy).apply()
+                            Snackbar.make(findViewById(android.R.id.content), R.string.crazy_mode, Snackbar.LENGTH_SHORT).show()
+                        }
                     }
                 }
                 true
@@ -520,5 +532,49 @@ class KaleidoActivity : BaseActivity() {
                     }
                     false
                 }
+    }
+
+    private fun donate(ok: (() -> Unit)? = null) {
+        donateDialog?.dismiss()
+        val qrcode = ImageView(this)
+        qrcode.setImageResource(R.drawable.donate)
+        qrcode.setOnLongClickListener {
+            Observable
+                    .create<String> { emitter ->
+                        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.donate)
+                        val path = "${ShareHelper.configuration!!.getImageCachePath(this)}/donate.jpg"
+                        val fos = FileOutputStream(path)
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
+                        fos.flush()
+                        fos.close()
+                        emitter.onNext(path)
+                        emitter.onComplete()
+                    }
+                    .compose(RxHelper.rxSchedulerHelper())
+                    .subscribe({ path ->
+                        Snackbar.make(findViewById(android.R.id.content), resources.getString(R.string.save_picture_success, path), Snackbar.LENGTH_SHORT).show()
+                        MediaStore.Images.Media.insertImage(contentResolver, path, File(path).name, "")
+                    }, {
+                        Snackbar.make(findViewById(android.R.id.content), R.string.save_picture_fail, Snackbar.LENGTH_SHORT).show()
+                    })
+            true
+        }
+        donateDialog = AlertDialog.Builder(this)
+                .setMessage(R.string.donate)
+                .setView(qrcode)
+                .setCancelable(false)
+                .setPositiveButton(R.string.like) { dialog, _ ->
+                    dialog.dismiss()
+                    ok?.invoke()
+                }
+                .setNegativeButton(R.string.dislike) { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
+        val layoutParams = qrcode.layoutParams as FrameLayout.LayoutParams
+        layoutParams.width = dip(256)
+        layoutParams.height = dip(256)
+        layoutParams.gravity = Gravity.CENTER_HORIZONTAL
+        qrcode.layoutParams = layoutParams
     }
 }

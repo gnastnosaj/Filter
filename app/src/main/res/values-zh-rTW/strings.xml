@@ -20,6 +20,9 @@
     <string name="fragment_kaleido_settings_update_key">update</string>
     <string name="fragment_kaleido_settings_update_title">檢查新版本</string>
 
+    <string name="donate">如果你覺得我的項目對你有幫助，請掃描下方的支付寶二維碼打賞。(長按二維碼保存圖片)</string>
+    <string name="like">點個贊</string>
+    <string name="dislike">一邊兒去</string>
     <string name="crazy_mode">＾(￣）￣)《(￣）￣)＾嘿嘿，已開啟狂暴模式，開車注意安全喲～</string>
 
     <string name="searching">╭ (′▽`)╭(′▽`)╭(′▽`)╯正在瘋狂蒐索中，請先隨便逛逛吧～</string>

@@ -21,6 +21,9 @@
     <string name="fragment_kaleido_settings_update_key">update</string>
     <string name="fragment_kaleido_settings_update_title">新バージョンのチェック</string>
 
+    <string name="donate">もしあなたは私のプロジェクトがあなたに助けがあると思うならば、下の支払いの宝の二次元コードをスキャンして賞を打つことを願います</string>
+    <string name="like">褒める</string>
+    <string name="dislike">歩きながら行く</string>
     <string name="crazy_mode">＾(￣）￣)《(￣）￣)＾へへへ、狂ったモードを開いていたので、車で安全に気をつけてくださいね～</string>
 
     <string name="searching">╭ (′▽`)╭(′▽`)╭(′▽`)╯狂っている中で、先にぶらぶらしてください～</string>

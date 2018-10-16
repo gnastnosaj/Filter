@@ -20,6 +20,9 @@
     <string name="fragment_kaleido_settings_update_key">update</string>
     <string name="fragment_kaleido_settings_update_title">检查新版本</string>
 
+    <string name="donate">如果你觉得我的项目对你有帮助，请扫描下方的支付宝二维码打赏。(长按二维码保存图片)</string>
+    <string name="like">点个赞</string>
+    <string name="dislike">一边儿去</string>
     <string name="crazy_mode">＾(￣）￣)《(￣）￣)＾嘿嘿，已开启狂暴模式，开车注意安全哟～</string>
 
     <string name="searching">╭ (′▽`)╭(′▽`)╭(′▽`)╯正在疯狂搜索中，请先随便逛逛吧～</string>

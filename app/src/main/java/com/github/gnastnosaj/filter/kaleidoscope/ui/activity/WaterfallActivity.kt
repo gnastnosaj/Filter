@@ -89,7 +89,7 @@ class WaterfallActivity : BaseActivity() {
                                             val position = getChildAdapterPosition(childView)
                                             if (-1 < position && position < waterfallAdapter.data.size) {
                                                 val data = waterfallAdapter.data[position]
-                                                start(childView, data, plugin, connection)
+                                                show(childView, data, plugin, connection)
                                             }
                                         }
                                         true

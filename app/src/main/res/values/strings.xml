@@ -24,6 +24,9 @@
     <string name="fragment_kaleido_settings_update_key">update</string>
     <string name="fragment_kaleido_settings_update_title">Check for updates</string>
 
+    <string name="donate">If you think my project is helpful to you, please scan the Alipay QR code below.</string>
+    <string name="like">like</string>
+    <string name="dislike">dislike</string>
     <string name="crazy_mode">＾(￣）￣)《(￣）￣)＾Hey, the crazy mode is enabled, driving safety attention yo～</string>
 
     <string name="searching">╭ (′▽`)╭(′▽`)╭(′▽`)╯In the crazy search, please go for a stroll first～</string>

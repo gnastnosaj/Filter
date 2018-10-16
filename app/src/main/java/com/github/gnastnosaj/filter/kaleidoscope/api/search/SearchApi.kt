@@ -1,11 +1,11 @@
 package com.github.gnastnosaj.filter.kaleidoscope.api.search
 
 import android.Manifest
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.support.design.widget.Snackbar
+import android.support.v7.app.AlertDialog
 import com.github.gnastnosaj.boilerplate.Boilerplate
 import com.github.gnastnosaj.boilerplate.rxbus.RxHelper
 import com.github.gnastnosaj.boilerplate.ui.activity.BaseActivity

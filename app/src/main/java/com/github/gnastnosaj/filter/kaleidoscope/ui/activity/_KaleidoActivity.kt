@@ -14,7 +14,7 @@ import com.github.gnastnosaj.filter.kaleidoscope.R
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
 import org.jetbrains.anko.intentFor
 
-fun BaseActivity.start(view: View, data: Map<String, String>, plugin: Plugin?, connection: Connection?) {
+fun BaseActivity.show(view: View, data: Map<String, String>, plugin: Plugin?, connection: Connection?) {
     connection?.execute("page", data["href"]!!)?.let {
         when ((it as? com.github.gnastnosaj.filter.dsl.core.Connection)?.execute("layout")
                 ?: "gallery") {
