@@ -537,11 +537,11 @@ class KaleidoActivity : BaseActivity() {
     private fun donate(ok: (() -> Unit)? = null) {
         donateDialog?.dismiss()
         val qrcode = ImageView(this)
-        qrcode.setImageResource(R.drawable.donate)
+        qrcode.setImageResource(R.drawable.donate_qrcode)
         qrcode.setOnLongClickListener {
             Observable
                     .create<String> { emitter ->
-                        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.donate)
+                        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.donate_alipay)
                         val path = "${ShareHelper.configuration!!.getImageCachePath(this)}/donate.jpg"
                         val fos = FileOutputStream(path)
                         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
