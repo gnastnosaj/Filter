@@ -20,8 +20,10 @@ task('build') {
                     result = raw {
                         json { raw ->
                             def results = getJSONArray("results")
-                            for (i in 0..results.length() - 1) {
+                            for (i in 0..(results.length() - 1)) {
+                                System.out.println("loop" + i)
                                 def fuli = results.getJSONObject(i)
+                                System.out.println("loop fuli" + fuli)
                                 raw.data(
                                         "title": fuli.getString("desc"),
                                         "thumbnail", fuli.getString("url")
@@ -46,7 +48,7 @@ task('build') {
                     result = raw {
                         json { raw ->
                             def results = getJSONArray("results")
-                            for (i in 0..results.length() - 1) {
+                            for (i in 0..(results.length() - 1)) {
                                 def fuli = results.getJSONObject(i)
                                 raw.data(
                                         "title": fuli.getString("desc"),
