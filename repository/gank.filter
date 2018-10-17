@@ -18,15 +18,11 @@ task('build') {
                 connection {
                     url "$baseUrl/10/$current"
                     result = raw {
-                        json { raw ->
+                        json {
                             def results = getJSONArray("results")
-                            System.out.println("start loop" + results)
-                            System.out.println("length" + results.length())
-                            for (i in 0..(results.length() - 1)) {
-                                System.out.println("loop" + i)
+                            for (i in 0..results.length() - 1) {
                                 def fuli = results.getJSONObject(i)
-                                System.out.println("loop fuli" + fuli)
-                                raw.data(
+                                it.data(
                                         "title": fuli.getString("desc"),
                                         "thumbnail", fuli.getString("url")
                                 )
@@ -48,11 +44,11 @@ task('build') {
                 connection {
                     url "$baseUrl/10/$current"
                     result = raw {
-                        json { raw ->
+                        json {
                             def results = getJSONArray("results")
-                            for (i in 0..(results.length() - 1)) {
+                            for (i in 0..results.length() - 1) {
                                 def fuli = results.getJSONObject(i)
-                                raw.data(
+                                it.data(
                                         "title": fuli.getString("desc"),
                                         "thumbnail", fuli.getString("url")
                                 )
