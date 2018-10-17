@@ -24,7 +24,7 @@ task('build') {
                                 def fuli = results.getJSONObject(i)
                                 page.data(
                                         "title": fuli.getString("desc"),
-                                        "thumbnail", fuli.getString("url")
+                                        "thumbnail": fuli.getString("url")
                                 )
                             }
                         }
@@ -50,7 +50,7 @@ task('build') {
                                 def fuli = results.getJSONObject(i)
                                 page.data(
                                         "title": fuli.getString("desc"),
-                                        "thumbnail", fuli.getString("url")
+                                        "thumbnail": fuli.getString("url")
                                 )
                             }
                         }
