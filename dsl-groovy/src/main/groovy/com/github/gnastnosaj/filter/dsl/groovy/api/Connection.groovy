@@ -153,6 +153,7 @@ class Connection extends com.github.gnastnosaj.filter.dsl.core.Connection {
             }
 
             connection.followRedirects(followRedirects)
+            connection.ignoreContentType(true)
 
             if (method == com.github.gnastnosaj.filter.dsl.core.Connection.Method.GET) {
                 connection.request().method(org.jsoup.Connection.Method.GET)

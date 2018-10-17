@@ -17,7 +17,6 @@ task('build') {
 
                 connection {
                     url "$baseUrl/count/10/page/$current"
-                    headers('content-type': 'text/plain')
                     result = raw {
                         json { raw ->
                             getJSONArray("results").each {
@@ -39,7 +38,6 @@ task('build') {
 
                 connection {
                     url "$baseUrl/count/10/page/$current"
-                    headers('content-type': 'text/plain')
                     result = raw {
                         json { raw ->
                             getJSONArray("results").each {
