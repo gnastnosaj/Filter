@@ -21,9 +21,9 @@ task('build') {
                         json { raw ->
                             def results = getJSONArray("results")
                             for (i in 0..results.length() - 1) {
-                                def data = results.getJSONObject(i)
-                                raw.data("title", data.getString("desc"))
-                                raw.data("thumbnail", data.getString("url"))
+                                def fuli = results.getJSONObject(i)
+                                raw.data("title", fuli.getString("desc"))
+                                raw.data("thumbnail", fuli.getString("url"))
                             }
                         }
                     }
@@ -45,9 +45,9 @@ task('build') {
                         json { raw ->
                             def results = getJSONArray("results")
                             for (i in 0..results.length() - 1) {
-                                def data = results.getJSONObject(i)
-                                raw.data("title", data.getString("desc"))
-                                raw.data("thumbnail", data.getString("url"))
+                                def fuli = results.getJSONObject(i)
+                                raw.data("title", fuli.getString("desc"))
+                                raw.data("thumbnail", fuli.getString("url"))
                             }
                         }
                     }
