@@ -20,6 +20,8 @@ task('build') {
                     result = raw {
                         json { raw ->
                             def results = getJSONArray("results")
+                            System.out.println("start loop" + results)
+                            System.out.println("length" + results.length())
                             for (i in 0..(results.length() - 1)) {
                                 System.out.println("loop" + i)
                                 def fuli = results.getJSONObject(i)
