@@ -27,8 +27,8 @@ def builder = { type ->
                             for (i in 0..(results.length() - 1)) {
                                 def fuli = results.getJSONObject(i)
                                 page.data(
-                                        "title": fuli.getString("desc"),
-                                        "thumbnail": fuli.getString("url")
+                                        "title": fuli.optString("desc"),
+                                        "thumbnail": fuli.optString("url")
                                 )
                             }
                         }
@@ -56,8 +56,8 @@ def builder = { type ->
                             for (i in 0..(results.length() - 1)) {
                                 def fuli = results.getJSONObject(i)
                                 page.data(
-                                        "title": fuli.getString("desc"),
-                                        "thumbnail": fuli.getString("url")
+                                        "title": fuli.optString("desc"),
+                                        "thumbnail": fuli.optString("url")
                                 )
                             }
                         }
