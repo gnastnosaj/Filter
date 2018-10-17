@@ -18,11 +18,11 @@ task('build') {
                 connection {
                     url "$baseUrl/10/$current"
                     result = raw {
-                        json {
+                        json { page ->
                             def results = getJSONArray("results")
-                            for (i in 0..results.length() - 1) {
+                            for (i in 0..(results.length() - 1)) {
                                 def fuli = results.getJSONObject(i)
-                                it.data(
+                                page.data(
                                         "title": fuli.getString("desc"),
                                         "thumbnail", fuli.getString("url")
                                 )
@@ -44,11 +44,11 @@ task('build') {
                 connection {
                     url "$baseUrl/10/$current"
                     result = raw {
-                        json {
+                        json { page ->
                             def results = getJSONArray("results")
-                            for (i in 0..results.length() - 1) {
+                            for (i in 0..(results.length() - 1)) {
                                 def fuli = results.getJSONObject(i)
-                                it.data(
+                                page.data(
                                         "title": fuli.getString("desc"),
                                         "thumbnail", fuli.getString("url")
                                 )
