@@ -16,9 +16,6 @@ class Raw extends com.github.gnastnosaj.filter.dsl.core.Page {
 
     def json(Closure configureClosure) {
         def json = new JSONObject(raw)
-        json.getJSONArray("results").each { JSONObject jsonObject ->
-            jsonObject
-        }
         return DSLUtil.configureObjectWithClosure(json, configureClosure, this)
     }
 
