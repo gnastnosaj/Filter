@@ -19,9 +19,15 @@ task('build') {
                     url "$baseUrl/count/10/page/$current"
                     result = raw {
                         json { raw ->
+                            System.out.println("start getJSONArray")
+                            System.out.println(getJSONArray("results"))
+                            System.out.println("start endJSONArray")
+                            System.out.println("start getJSONArray each")
                             getJSONArray("results").each {
+                                System.out.println(it)
                                 raw.data("title", it.getString("desc"))
                             }
+                            System.out.println("end getJSONArray each")
                         }
                     }
                 }
