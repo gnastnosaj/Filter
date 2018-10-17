@@ -22,8 +22,10 @@ task('build') {
                             def results = getJSONArray("results")
                             for (i in 0..results.length() - 1) {
                                 def fuli = results.getJSONObject(i)
-                                raw.data("title", fuli.getString("desc"))
-                                raw.data("thumbnail", fuli.getString("url"))
+                                raw.data(
+                                        "title": fuli.getString("desc"),
+                                        "thumbnail", fuli.getString("url")
+                                )
                             }
                         }
                     }
@@ -46,8 +48,10 @@ task('build') {
                             def results = getJSONArray("results")
                             for (i in 0..results.length() - 1) {
                                 def fuli = results.getJSONObject(i)
-                                raw.data("title", fuli.getString("desc"))
-                                raw.data("thumbnail", fuli.getString("url"))
+                                raw.data(
+                                        "title": fuli.getString("desc"),
+                                        "thumbnail", fuli.getString("url")
+                                )
                             }
                         }
                     }
