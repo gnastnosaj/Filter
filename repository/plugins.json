@@ -21,5 +21,11 @@
     "args": {
       "adult_warning": true
     }
+  },
+  {
+    "id": "gank",
+    "name": "干货集中营",
+    "www": "https://gank.io",
+    "script": "https://raw.githubusercontent.com/gnastnosaj/Filter/develop/repository/gank.filter"
   }
 ]

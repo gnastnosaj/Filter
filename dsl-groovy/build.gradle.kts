@@ -44,4 +44,6 @@ dependencies {
     api(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
     compileOnly(project(":dsl"))
+
+    api("org.jsoup:jsoup:+")
 }

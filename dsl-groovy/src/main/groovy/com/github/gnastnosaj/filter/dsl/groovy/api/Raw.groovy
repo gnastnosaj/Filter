@@ -1,17 +1,25 @@
+/*
+ * Copyright (c) 2018, Jason Tsang.(https://github.com/gnastnosaj) All Rights Reserved.
+ */
+
 package com.github.gnastnosaj.filter.dsl.groovy.api
 
 import com.github.gnastnosaj.filter.dsl.groovy.util.DSLUtil
-import org.jsoup.nodes.Document
+import org.json.JSONObject
 
-class Page extends com.github.gnastnosaj.filter.dsl.core.Page {
-    Document document
+class Raw extends com.github.gnastnosaj.filter.dsl.core.Page {
+    String raw
 
-    Page(Document document) {
-        this.document = document
+    Raw(String raw) {
+        this.raw = raw
     }
 
-    def document(Closure configureClosure) {
-        return DSLUtil.configureObjectWithClosure(document, configureClosure, this)
+    def json(Closure configureClosure) {
+        def json = new JSONObject(raw)
+        json.getJSONArray("results").each { JSONObject jsonObject ->
+            jsonObject
+        }
+        return DSLUtil.configureObjectWithClosure(json, configureClosure, this)
     }
 
     def data(Closure configureClosure) {

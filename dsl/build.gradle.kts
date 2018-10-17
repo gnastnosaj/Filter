@@ -48,6 +48,4 @@ dependencies {
     implementation(kotlin("stdlib", kotlinVersion))
 
     api("com.google.android.tools:dx:1.7")
-
-    api("org.jsoup:jsoup:+")
 }

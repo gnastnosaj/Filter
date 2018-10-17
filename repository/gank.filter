@@ -1,0 +1,60 @@
+/*
+ * Copyright (c) 2018, Jason Tsang.(https://github.com/gnastnosaj) All Rights Reserved.
+ */
+
+task('build') {
+    catalog {
+        connection('Android') {
+            def baseUrl = 'http://gank.io/api/search/query/listview/category/Android'
+            url "$baseUrl/count/10/page/1"
+
+            def current, next
+
+            task('refresh') {
+                def result
+
+                current = 1
+
+                connection {
+                    url "$baseUrl/count/10/page/$current"
+                    result = raw {
+                        json { raw ->
+                            getJSONArray("results").each {
+                                raw.data("title", it.getString("desc"))
+                            }
+                        }
+                    }
+                }
+
+                next = current + 1
+
+                return result
+            }
+
+            task('loadMore') {
+                def result
+
+                current = next
+
+                connection {
+                    url "$baseUrl/count/10/page/$current"
+                    result = raw {
+                        json { raw ->
+                            getJSONArray("results").each {
+                                raw.data("title", it.getString("desc"))
+                            }
+                        }
+                    }
+                }
+
+                next = current + 1
+
+                return result
+            }
+
+            task('hasMore') {
+                return true
+            }
+        }
+    }
+}

@@ -132,4 +132,39 @@ class Connection extends com.github.gnastnosaj.filter.dsl.core.Connection {
 
         return page
     }
+
+    def raw(Closure configureClosure) {
+        def raw
+
+        if (url != null) {
+            org.jsoup.Connection connection = Jsoup.connect(url)
+
+            if (headers != null) {
+                connection.headers(headers)
+            }
+            if (cookies != null) {
+                connection.cookies(cookies)
+            }
+            if (data != null) {
+                connection.data(data)
+            }
+            if (timeout != null) {
+                connection.timeout(timeout)
+            }
+
+            connection.followRedirects(followRedirects)
+
+            if (method == com.github.gnastnosaj.filter.dsl.core.Connection.Method.GET) {
+                connection.request().method(org.jsoup.Connection.Method.GET)
+            } else {
+                connection.request().method(org.jsoup.Connection.Method.POST)
+            }
+
+            raw = new Raw(connection.execute().body())
+
+            DSLUtil.configureObjectWithClosure(raw, configureClosure)
+        }
+
+        return raw
+    }
 }

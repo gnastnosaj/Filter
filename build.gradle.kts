@@ -38,16 +38,16 @@ allprojects {
             dirs("libs")
         }
         maven {
-            url = URI("https://dl.bintray.com/thelasterstar/maven/")
-        }
-        maven {
             url = URI("http://dl.bintray.com/piasy/maven")
         }
         maven {
-            url = URI("https://jitpack.io")
+            url = URI("https://dl.bintray.com/thelasterstar/maven/")
         }
         google()
-        mavenCentral()
         jcenter()
+        mavenCentral()
+        maven {
+            url = URI("https://jitpack.io")
+        }
     }
 }
