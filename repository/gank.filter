@@ -2,69 +2,82 @@
  * Copyright (c) 2018, Jason Tsang.(https://github.com/gnastnosaj) All Rights Reserved.
  */
 
+def baseUrl = 'https://gank.io/api/data'
+
+def builder = { type ->
+    return {
+        url "$baseUrl/$type/10/1"
+
+        def current, next
+
+        task('refresh') {
+            def result
+
+            current = 1
+
+            connection {
+                url "$baseUrl/$type/10/$current"
+                result = raw {
+                    json { page ->
+                        def results = getJSONArray("results")
+                        if (results.length() == 0) {
+                            next = -1
+                        } else {
+                            next = current + 1
+                            for (i in 0..(results.length() - 1)) {
+                                def fuli = results.getJSONObject(i)
+                                page.data(
+                                        "title": fuli.getString("desc"),
+                                        "thumbnail": fuli.getString("url")
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            return result
+        }
+
+        task('loadMore') {
+            def result
+
+            current = next
+
+            connection {
+                url "$baseUrl/$type/10/$current"
+                result = raw {
+                    json { page ->
+                        def results = getJSONArray("results")
+                        if (results.length() == 0) {
+                            next = -1
+                        } else {
+                            next = current + 1
+                            for (i in 0..(results.length() - 1)) {
+                                def fuli = results.getJSONObject(i)
+                                page.data(
+                                        "title": fuli.getString("desc"),
+                                        "thumbnail": fuli.getString("url")
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            return result
+        }
+
+        task('hasMore') {
+            return next != -1
+        }
+    }
+}
+
 task('build') {
     catalog {
-        connection('福利') {
-            def baseUrl = 'https://gank.io/api/data/福利'
-            url "$baseUrl/10/1"
-
-            def current, next
-
-            task('refresh') {
-                def result
-
-                current = 1
-
-                connection {
-                    url "$baseUrl/10/$current"
-                    result = raw {
-                        json { page ->
-                            def results = getJSONArray("results")
-                            for (i in 0..(results.length() - 1)) {
-                                def fuli = results.getJSONObject(i)
-                                page.data(
-                                        "title": fuli.getString("desc"),
-                                        "thumbnail": fuli.getString("url")
-                                )
-                            }
-                        }
-                    }
-                }
-
-                next = current + 1
-
-                return result
-            }
-
-            task('loadMore') {
-                def result
-
-                current = next
-
-                connection {
-                    url "$baseUrl/10/$current"
-                    result = raw {
-                        json { page ->
-                            def results = getJSONArray("results")
-                            for (i in 0..(results.length() - 1)) {
-                                def fuli = results.getJSONObject(i)
-                                page.data(
-                                        "title": fuli.getString("desc"),
-                                        "thumbnail": fuli.getString("url")
-                                )
-                            }
-                        }
-                    }
-                }
-
-                next = current + 1
-
-                return result
-            }
-
-            task('hasMore') {
-                return true
-            }
+        for (type in ['Android', 'iOS', '休息视频', '福利', '拓展资源', '前端', '瞎推荐', 'App']) {
+            connection(type, builder(type))
         }
     }
 }
