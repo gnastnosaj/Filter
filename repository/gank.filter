@@ -4,9 +4,9 @@
 
 task('build') {
     catalog {
-        connection('Android') {
-            def baseUrl = 'http://gank.io/api/search/query/listview/category/Android'
-            url "$baseUrl/count/10/page/1"
+        connection('福利') {
+            def baseUrl = 'https://gank.io/api/data/福利'
+            url "$baseUrl/10/1"
 
             def current, next
 
@@ -16,18 +16,15 @@ task('build') {
                 current = 1
 
                 connection {
-                    url "$baseUrl/count/10/page/$current"
+                    url "$baseUrl/10/$current"
                     result = raw {
                         json { raw ->
-                            System.out.println("start getJSONArray")
-                            System.out.println(getJSONArray("results"))
-                            System.out.println("start endJSONArray")
-                            System.out.println("start getJSONArray each")
-                            getJSONArray("results").each {
-                                System.out.println(it)
-                                raw.data("title", it.getString("desc"))
+                            def results = getJSONArray("results")
+                            for (i in 0..results.length() - 1) {
+                                def data = results.getJSONObject(i)
+                                raw.data("title", data.getString("desc"))
+                                raw.data("thumbnail", data.getString("url"))
                             }
-                            System.out.println("end getJSONArray each")
                         }
                     }
                 }
@@ -43,11 +40,14 @@ task('build') {
                 current = next
 
                 connection {
-                    url "$baseUrl/count/10/page/$current"
+                    url "$baseUrl/10/$current"
                     result = raw {
                         json { raw ->
-                            getJSONArray("results").each {
-                                raw.data("title", it.getString("desc"))
+                            def results = getJSONArray("results")
+                            for (i in 0..results.length() - 1) {
+                                def data = results.getJSONObject(i)
+                                raw.data("title", data.getString("desc"))
+                                raw.data("thumbnail", data.getString("url"))
                             }
                         }
                     }
