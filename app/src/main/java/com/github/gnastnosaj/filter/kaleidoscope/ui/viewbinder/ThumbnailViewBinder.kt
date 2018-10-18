@@ -93,17 +93,17 @@ class ThumbnailViewBinder : ItemViewBinder<Map<*, *>, ThumbnailViewBinder.ViewHo
                 }
             }
         }
-        viewHolder.titleView?.text = (item as? Map<String, String>)?.get("title")
+        viewHolder.title?.text = (item as? Map<String, String>)?.get("title")
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var thumbnail: RatioImageView? = null
 
-        var titleView: TextView? = null
+        var title: TextView? = null
 
         init {
             thumbnail = itemView.findViewById(R.id.thumbnail)
-            titleView = itemView.findViewById(R.id.title)
+            title = itemView.findViewById(R.id.title)
         }
     }
 }

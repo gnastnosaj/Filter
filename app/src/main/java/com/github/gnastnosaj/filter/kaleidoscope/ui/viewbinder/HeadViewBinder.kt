@@ -63,16 +63,16 @@ class HeadViewBinder : ItemViewBinder<Map<*, *>, HeadViewBinder.ViewHolder>() {
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, item: Map<*, *>) {
-        viewHolder.titleView?.text = (item as? Map<String, String>)?.get("title")
+        viewHolder.title?.text = (item as? Map<String, String>)?.get("title")
         viewHolder.more?.visibility = if ((item as? Map<String, String>)?.get("href") != null) View.VISIBLE else View.GONE
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var titleView: TextView? = null
+        var title: TextView? = null
         var more: ImageView? = null
 
         init {
-            titleView = itemView.findViewById(R.id.title)
+            title = itemView.findViewById(R.id.title)
             more = itemView.findViewById(R.id.more)
         }
     }
