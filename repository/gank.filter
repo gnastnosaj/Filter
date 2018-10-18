@@ -19,16 +19,18 @@ def builder = { type ->
                 url "$baseUrl/$type/10/$current"
                 result = raw {
                     json { page ->
-                        def results = getJSONArray("results")
+                        def results = getJSONArray('results')
                         if (results.length() == 0) {
                             next = -1
                         } else {
                             next = current + 1
-                            for (i in 0..(results.length() - 1)) {
+                            for (i in 0..results.length() - 1) {
                                 def fuli = results.getJSONObject(i)
+                                def images = fuli.optJSONArray('images')
                                 page.data(
-                                        "title": fuli.optString("desc"),
-                                        "thumbnail": fuli.optString("url")
+                                        'type': type == '福利' ? 'thumbnail' : 'post',
+                                        'title': fuli.optString('desc'),
+                                        'thumbnail': (images != null && images.length() > 0) ? images.getString(0) : fuli.optString('url')
                                 )
                             }
                         }
@@ -53,11 +55,13 @@ def builder = { type ->
                             next = -1
                         } else {
                             next = current + 1
-                            for (i in 0..(results.length() - 1)) {
+                            for (i in 0..results.length() - 1) {
                                 def fuli = results.getJSONObject(i)
+                                def images = fuli.optJSONArray('images')
                                 page.data(
-                                        "title": fuli.optString("desc"),
-                                        "thumbnail": fuli.optString("url")
+                                        'type': type == '福利' ? 'thumbnail' : 'post',
+                                        'title': fuli.optString('desc'),
+                                        'thumbnail': (images != null && images.length() > 0) ? images.getString(0) : fuli.optString('url')
                                 )
                             }
                         }
