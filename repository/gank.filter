@@ -30,7 +30,8 @@ def builder = { type ->
                                 page.data(
                                         'type': type == '福利' ? 'thumbnail' : 'post',
                                         'title': fuli.optString('desc'),
-                                        'thumbnail': (images != null && images.length() > 0) ? images.getString(0) : fuli.optString('url')
+                                        'thumbnail': (images != null && images.length() > 0) ? images.getString(0) : fuli.optString('url'),
+                                        'href': fuli.optString('url')
                                 )
                             }
                         }
@@ -61,7 +62,8 @@ def builder = { type ->
                                 page.data(
                                         'type': type == '福利' ? 'thumbnail' : 'post',
                                         'title': fuli.optString('desc'),
-                                        'thumbnail': (images != null && images.length() > 0) ? images.getString(0) : fuli.optString('url')
+                                        'thumbnail': (images != null && images.length() > 0) ? images.getString(0) : fuli.optString('url'),
+                                        'href': fuli.optString('url')
                                 )
                             }
                         }
@@ -74,6 +76,32 @@ def builder = { type ->
 
         task('hasMore') {
             return next != -1
+        }
+
+        task('page') { href ->
+            return connection {
+                url href
+
+                task('entrance') {
+                    return "$baseUrl/$type/10/1"
+                }
+
+                task('layout') {
+                    return type == '福利' ? 'gallery' : 'webview'
+                }
+
+                task('refresh') {
+                    return page {
+                        data(
+                                'thumbnail': href
+                        )
+                    }
+                }
+
+                task('hasMore') {
+                    return false
+                }
+            }
         }
     }
 }
