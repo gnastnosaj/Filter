@@ -10,8 +10,6 @@ import org.json.JSONObject
 class Raw extends com.github.gnastnosaj.filter.dsl.core.Page {
     String raw
 
-    Raw() {}
-
     Raw(String raw) {
         this.raw = raw
     }

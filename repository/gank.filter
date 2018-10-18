@@ -80,6 +80,8 @@ def builder = { type ->
 
         task('page') { href ->
             return connection {
+                url href
+
                 task('entrance') {
                     return "$baseUrl/$type/10/1"
                 }
@@ -89,7 +91,7 @@ def builder = { type ->
                 }
 
                 task('refresh') {
-                    return page {
+                    return blank {
                         data(
                                 'thumbnail': href
                         )

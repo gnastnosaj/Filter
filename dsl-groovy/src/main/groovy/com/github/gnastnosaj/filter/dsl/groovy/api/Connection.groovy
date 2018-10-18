@@ -100,6 +100,12 @@ class Connection extends com.github.gnastnosaj.filter.dsl.core.Connection {
         return execute(name, null)
     }
 
+    def blank(Closure configureClosure) {
+        def page = new Page()
+        DSLUtil.configureObjectWithClosure(page, configureClosure)
+        return page
+    }
+
     def page(Closure configureClosure) {
         def page
 
@@ -128,8 +134,6 @@ class Connection extends com.github.gnastnosaj.filter.dsl.core.Connection {
             }
 
             DSLUtil.configureObjectWithClosure(page, configureClosure)
-        } else {
-            page = new Page()
         }
 
         return page
@@ -166,8 +170,6 @@ class Connection extends com.github.gnastnosaj.filter.dsl.core.Connection {
             raw = new Raw(connection.execute().body())
 
             DSLUtil.configureObjectWithClosure(raw, configureClosure)
-        } else {
-            raw = new Raw()
         }
 
         return raw
