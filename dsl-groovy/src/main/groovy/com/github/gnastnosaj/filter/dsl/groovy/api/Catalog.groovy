@@ -8,7 +8,7 @@ class Catalog extends com.github.gnastnosaj.filter.dsl.core.Catalog {
         if (connections == null) {
             connections = new LinkedHashMap<>()
         }
-        Connection connection
+        def connection
         if (connections.containsKey(name)) {
             connection = connections.get(name)
         } else {

@@ -17,7 +17,7 @@ class Category extends com.github.gnastnosaj.filter.dsl.core.Category {
                 return category
             }
         }
-        Category category = new Category(name)
+        def category = new Category(name)
         children.add(category)
         DSLUtil.configureObjectWithClosure(category, configureClosure)
         return category
