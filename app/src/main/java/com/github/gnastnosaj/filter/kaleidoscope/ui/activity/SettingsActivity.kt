@@ -74,6 +74,7 @@ class SettingsActivity : AppCompatPreferenceActivity(), BaseSettingsFragment.Pro
                 .setParser {
                     val updateInfo = Gson().fromJson(it, UpdateInfo::class.java)
                     updateInfo.hasUpdate = updateInfo.versionCode > Boilerplate.versionCode
+                    updateInfo.isSilent = false
                     return@setParser updateInfo
                 }
                 .setOnFailureListener {

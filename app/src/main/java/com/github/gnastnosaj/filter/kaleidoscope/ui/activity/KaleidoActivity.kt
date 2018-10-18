@@ -290,6 +290,7 @@ class KaleidoActivity : BaseActivity() {
                 .setParser {
                     val updateInfo = Gson().fromJson(it, UpdateInfo::class.java)
                     updateInfo.hasUpdate = updateInfo.versionCode > Boilerplate.versionCode
+                    updateInfo.isSilent = true
                     return@setParser updateInfo
                 }
                 .setOnFailureListener {
