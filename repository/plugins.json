@@ -29,9 +29,9 @@
     "script": "https://raw.githubusercontent.com/gnastnosaj/Filter/develop/repository/gank.filter"
   },
   {
-    "id": "jiandan",
+    "id": "jandan",
     "name": "煎蛋 - 地球上没有新鲜事",
     "www": "http://jandan.net",
-    "script": "https://raw.githubusercontent.com/gnastnosaj/Filter/develop/repository/jiandan.filter"
+    "script": "https://raw.githubusercontent.com/gnastnosaj/Filter/develop/repository/jandan.filter"
   }
 ]

@@ -15,7 +15,11 @@ task('build') {
                 def list = select('div#content div.list-post')
                 list.each {
                     def title = it.select('div.indexs h2').text()
-                    def thumbnail = it.select('div.thumbs_b img').attr('abs:src')
+                    def img = it.select('div.thumbs_b img')
+                    def thumbnail = img.attr('abs:src')
+                    if (thumbnail.allWhitespace) {
+                        thumbnail = "http:${img.attr('data-original')}".toString()
+                    }
                     def href = it.select('div.thumbs_b a').attr('abs:href')
                     def author = it.select('div.indexs div.time_s').text()
                     page.data(
@@ -89,12 +93,13 @@ task('build') {
                 def list = select('ol.commentlist li')
                 list.each {
                     def title = it.select('div.author').text()
-                    def thumbnail = it.select('div.text img').attr('org_src')
+                    def hash = it.select('div.text span.img-hash').text()
+                    def thumbnail = it.select('div.text img').attr('abs:src')
                     page.data(
                             'id': title,
                             'title': title,
                             'thumbnail': thumbnail,
-                            'href': "http://wx4.sinaimg.cn/large${thumbnail.substring(thumbnail.lastIndexOf('/'), thumbnail.length())}".toString()
+                            'href': thumbnail
                     )
                 }
 
