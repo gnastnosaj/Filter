@@ -31,7 +31,7 @@ class WaterfallAdapter : MultiTypeAdapter(), IDataAdapter<List<Map<String, Strin
             }
         }
         this.register(Map::class)
-                .to(HeadViewBinder(), ThumbnailViewBinder())
+                .to(HeadViewBinder(), ThumbnailViewBinder(), PostViewBinder())
                 .withKClassLinker { _, data ->
                     when ((data as? Map<String, String>)?.get("type") ?: "thumbnail") {
                         "head" -> HeadViewBinder::class

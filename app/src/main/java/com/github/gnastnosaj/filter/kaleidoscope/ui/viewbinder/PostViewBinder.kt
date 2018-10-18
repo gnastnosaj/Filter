@@ -4,7 +4,6 @@
 
 package com.github.gnastnosaj.filter.kaleidoscope.ui.viewbinder
 
-import android.net.Uri
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.StaggeredGridLayoutManager
 import android.view.Gravity
@@ -19,7 +18,6 @@ import com.facebook.drawee.drawable.ScalingUtils
 import com.facebook.drawee.generic.RoundingParams
 import com.facebook.drawee.view.SimpleDraweeView
 import com.facebook.imagepipeline.image.ImageInfo
-import com.facebook.imagepipeline.request.ImageRequest
 import com.github.gnastnosaj.filter.kaleidoscope.R
 import com.github.gnastnosaj.filter.kaleidoscope.ui.view.ratioImageView
 import me.drakeet.multitype.ItemViewBinder
@@ -36,42 +34,43 @@ class PostViewBinder : ItemViewBinder<Map<*, *>, PostViewBinder.ViewHolder>() {
         return ViewHolder(
                 with(AnkoContext.create(parent.context, parent)) {
                     frameLayout {
-                        lparams(matchParent, dip(256))
+                        lparams(matchParent, dip(128))
+                        backgroundColorResource = R.color.grey_50
                         linearLayout {
                             orientation = LinearLayout.HORIZONTAL
                             linearLayout {
                                 orientation = LinearLayout.VERTICAL
                                 textView {
                                     id = R.id.title
-                                    textSize = 18f
+                                    textSize = 16f
                                     textColorResource = R.color.grey_900
                                 }.lparams(matchParent, 0) {
                                     weight = 1.0f
                                 }
                                 textView {
                                     id = R.id.description
-                                    textSize = 16f
+                                    textSize = 12f
                                     textColorResource = R.color.grey_500
                                 }.lparams(matchParent, wrapContent)
                             }.lparams(0, matchParent) {
                                 weight = 1.0f
-                                setMargins(dip(10), dip(10), dip(10), dip(10))
+                                setMargins(dip(16), dip(16), dip(16), dip(16))
                             }
                             ratioImageView {
-                                R.id.thumbnail
+                                id = R.id.thumbnail
                                 aspectRatio = 1f
-                                hierarchy.roundingParams = RoundingParams.fromCornersRadius(dip(5).toFloat())
+                                hierarchy.roundingParams = RoundingParams.fromCornersRadius(dip(5).toFloat()).setOverlayColor(resources.getColor(R.color.grey_50))
                                 hierarchy.setPlaceholderImage(R.color.grey_300, ScalingUtils.ScaleType.FIT_XY)
                                 hierarchy.actualImageScaleType = ScalingUtils.ScaleType.CENTER_CROP
                             }.lparams(wrapContent, matchParent) {
-                                setMargins(dip(10), dip(10), dip(10), dip(10))
+                                setMargins(dip(16), dip(16), dip(16), dip(16))
                             }
                         }.lparams(matchParent, matchParent)
                         view {
-                            backgroundColorResource = R.color.grey_300
+                            backgroundColorResource = R.color.grey_200
                         }.lparams(matchParent, 1) {
                             gravity = Gravity.BOTTOM
-                            setMargins(dip(10), 0, dip(10), 0)
+                            setMargins(dip(16), 0, dip(16), 0)
                         }
                     }
                 }
@@ -86,13 +85,12 @@ class PostViewBinder : ItemViewBinder<Map<*, *>, PostViewBinder.ViewHolder>() {
             } else if (data["author"] == null && data["publish"] != null) {
                 viewHolder.description?.text = data["publish"]
             } else {
-                viewHolder.description?.text = "${data["author"]}●${data["publish"]}"
+                viewHolder.description?.text = "${data["author"]} · ${data["publish"]}"
             }
             viewHolder.thumbnail?.apply {
                 var uri = data["thumbnail"]
                 uri?.let {
                     controller = Fresco.newDraweeControllerBuilder()
-                            .setLowResImageRequest(ImageRequest.fromUri(Uri.parse("android.resource://${context.packageName}/${R.drawable.ic_placeholder_light}")))
                             .setUri(it)
                             .setOldController(controller)
                             .setControllerListener(object : BaseControllerListener<ImageInfo>() {

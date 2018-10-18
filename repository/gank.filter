@@ -33,7 +33,7 @@ def builder = { type ->
                                         'thumbnail': (images != null && images.length() > 0) ? images.getString(0) : fuli.optString('url'),
                                         'href': fuli.optString('url'),
                                         'author': fuli.optString('who'),
-                                        'publish': fuli.optString('publishedAt')
+                                        'publish': fuli.optString('publishedAt')?.substring(0, 10)
                                 )
                             }
                         }
@@ -67,7 +67,7 @@ def builder = { type ->
                                         'thumbnail': (images != null && images.length() > 0) ? images.getString(0) : fuli.optString('url'),
                                         'href': fuli.optString('url'),
                                         'author': fuli.optString('who'),
-                                        'publish': fuli.optString('publishedAt')
+                                        'publish': fuli.optString('publishedAt')?.substring(0, 10)
                                 )
                             }
                         }
