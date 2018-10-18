@@ -29,6 +29,7 @@ def builder = { type ->
                                 def images = fuli.optJSONArray('images')
                                 page.data(
                                         'type': type == '福利' ? 'thumbnail' : 'post',
+                                        'id': fuli.optString('desc'),
                                         'title': fuli.optString('desc'),
                                         'thumbnail': (images != null && images.length() > 0) ? images.getString(0) : fuli.optString('url'),
                                         'href': fuli.optString('url'),
@@ -63,6 +64,7 @@ def builder = { type ->
                                 def images = fuli.optJSONArray('images')
                                 page.data(
                                         'type': type == '福利' ? 'thumbnail' : 'post',
+                                        'id': fuli.optString('desc'),
                                         'title': fuli.optString('desc'),
                                         'thumbnail': (images != null && images.length() > 0) ? images.getString(0) : fuli.optString('url'),
                                         'href': fuli.optString('url'),

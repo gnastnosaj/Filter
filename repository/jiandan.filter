@@ -1,0 +1,166 @@
+/*
+ * Copyright (c) 2018, Jason Tsang.(https://github.com/gnastnosaj) All Rights Reserved.
+ */
+
+def baseUrl = 'http://jandan.net'
+
+task('build') {
+    catalog {
+        connection('新鲜事') {
+            url baseUrl
+
+            def current, next
+
+            def parser = { page ->
+                def list = select('div#content div.list-post')
+                list.each {
+                    def title = it.select('div.indexs h2').text()
+                    def thumbnail = it.select('div.thumbs_b img').attr('abs:src')
+                    def href = it.select('div.thumbs_b a').attr('abs:href')
+                    def author = it.select('div.indexs div.time_s').text()
+                    page.data(
+                            'type': 'post',
+                            'id': title,
+                            'title': title,
+                            'thumbnail': thumbnail,
+                            'href': href,
+                            'author': author
+                    )
+                }
+
+                next = select('div.wp-pagenavi a')?.last()?.attr('abs:href')
+            }
+
+            task('refresh') {
+                def result
+
+                current = baseUrl
+
+                connection {
+                    url current
+                    result = page {
+                        document parser
+                    }
+                }
+
+                return result
+            }
+
+            task('loadMore') {
+                def result
+
+                current = next
+
+                connection {
+                    url current
+                    result = page {
+                        document parser
+                    }
+                }
+
+                return result
+            }
+
+            task('hasMore') {
+                return next && !next.allWhitespace
+            }
+
+            task('page') { href ->
+                return connection {
+                    url href
+
+                    task('entrance') {
+                        return baseUrl
+                    }
+
+                    task('layout') {
+                        return 'webview'
+                    }
+                }
+            }
+        }
+
+        connection('妹纸') {
+            url "$baseUrl/ooxx"
+
+            def current, next
+
+            def parser = { page ->
+                def list = select('ol.commentlist li')
+                list.each {
+                    def title = it.select('div.author').text()
+                    def thumbnail = it.select('div.text img').attr('abs:src')
+                    def href = it.select('div.text a.view_img_link').attr('abs:href')
+                    page.data(
+                            "id": title,
+                            "title": title,
+                            "thumbnail": thumbnail,
+                            "href": href
+                    )
+                }
+
+                next = select('div.cp-pagenavi a.previous-comment-page').attr('abs:href')
+            }
+
+            task('refresh') {
+                def result
+
+                current = "$baseUrl/ooxx"
+
+                connection {
+                    url current
+                    result = page {
+                        document parser
+                    }
+                }
+
+                return result
+            }
+
+            task('loadMore') {
+                def result
+
+                current = next
+
+                connection {
+                    url current
+                    result = page {
+                        document parser
+                    }
+                }
+
+                return result
+            }
+
+            task('hasMore') {
+                return next && !next.allWhitespace
+            }
+
+            task('page') { href ->
+                return connection {
+                    url href
+
+                    task('entrance') {
+                        return "$baseUrl/ooxx".toString()
+                    }
+
+                    task('layout') {
+                        return 'gallery'
+                    }
+
+                    task('refresh') {
+                        return blank {
+                            data(
+                                    'thumbnail': href
+                            )
+                        }
+                    }
+
+                    task('hasMore') {
+                        return false
+                    }
+                }
+            }
+        }
+    }
+}
