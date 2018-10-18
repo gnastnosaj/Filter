@@ -89,13 +89,12 @@ task('build') {
                 def list = select('ol.commentlist li')
                 list.each {
                     def title = it.select('div.author').text()
-                    def thumbnail = it.select('div.text img').attr('abs:src')
-                    def href = it.select('div.text a.view_img_link').attr('abs:href')
+                    def thumbnail = it.select('div.text img').attr('org_src')
                     page.data(
-                            "id": title,
-                            "title": title,
-                            "thumbnail": thumbnail,
-                            "href": href
+                            'id': title,
+                            'title': title,
+                            'thumbnail': thumbnail,
+                            'href': "http://wx4.sinaimg.cn/large${thumbnail.substring(thumbnail.lastIndexOf('/'), thumbnail.length())}".toString()
                     )
                 }
 
