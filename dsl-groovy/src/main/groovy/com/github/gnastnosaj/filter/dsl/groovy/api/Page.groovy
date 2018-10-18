@@ -6,6 +6,8 @@ import org.jsoup.nodes.Document
 class Page extends com.github.gnastnosaj.filter.dsl.core.Page {
     Document document
 
+    Page() {}
+
     Page(Document document) {
         this.document = document
     }

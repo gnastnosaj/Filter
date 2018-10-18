@@ -80,8 +80,6 @@ def builder = { type ->
 
         task('page') { href ->
             return connection {
-                url href
-
                 task('entrance') {
                     return "$baseUrl/$type/10/1"
                 }

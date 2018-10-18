@@ -128,6 +128,8 @@ class Connection extends com.github.gnastnosaj.filter.dsl.core.Connection {
             }
 
             DSLUtil.configureObjectWithClosure(page, configureClosure)
+        } else {
+            page = new Page()
         }
 
         return page
@@ -164,6 +166,8 @@ class Connection extends com.github.gnastnosaj.filter.dsl.core.Connection {
             raw = new Raw(connection.execute().body())
 
             DSLUtil.configureObjectWithClosure(raw, configureClosure)
+        } else {
+            raw = new Raw()
         }
 
         return raw
