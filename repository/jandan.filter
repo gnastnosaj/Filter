@@ -161,10 +161,10 @@ task('build') {
 
                     task('refresh') {
                         return blank {
-                            href.split(';').each {
-                                if (!it.allWhitespace) {
+                            for (thumbnail in href.split(';')) {
+                                if (!thumbnail.allWhitespace) {
                                     data(
-                                            'thumbnail': it
+                                            'thumbnail': thumbnail
                                     )
                                 }
                             }
