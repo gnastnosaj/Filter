@@ -63,10 +63,6 @@ class Connection extends com.github.gnastnosaj.filter.dsl.core.Connection {
         this.method = method
     }
 
-    def layout(com.github.gnastnosaj.filter.dsl.core.Connection.Layout layout) {
-        this.layout = layout
-    }
-
     def task(String name, Closure configureClosure) {
         for (com.github.gnastnosaj.filter.dsl.core.Task task : tasks) {
             if (task.name == name) {

@@ -10,14 +10,9 @@ abstract class Connection {
     var timeout: Int? = null
     var followRedirects: Boolean = true
     var method: Method = Method.GET
-    var layout: Layout = Layout.WATERFALL
 
     enum class Method {
         GET, POST
-    }
-
-    enum class Layout {
-        WATERFALL, GALLERY
     }
 
     abstract fun execute(name: String, vararg args: Any): Any?

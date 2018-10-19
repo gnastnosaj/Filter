@@ -93,13 +93,17 @@ task('build') {
                 def list = select('ol.commentlist li')
                 list.each {
                     def title = it.select('div.author').text()
-                    def hash = it.select('div.text span.img-hash').text()
-                    def thumbnail = it.select('div.text img').attr('abs:src')
+                    def hash = it.select('div.text span.img-hash').first().text()
+                    def thumbnail = "http:${new String(Base64.decode(hash, Base64.DEFAULT))}".toString()
+                    def href = ''
+                    it.select('div.text span.img-hash').each {
+                        href += "http:${new String(Base64.decode(it.text(), Base64.DEFAULT))};".toString()
+                    }
                     page.data(
                             'id': title,
                             'title': title,
                             'thumbnail': thumbnail,
-                            'href': thumbnail
+                            'href': href
                     )
                 }
 
@@ -154,9 +158,13 @@ task('build') {
 
                     task('refresh') {
                         return blank {
-                            data(
-                                    'thumbnail': href
-                            )
+                            href.split(';').each {
+                                if (!it.allWhitespace) {
+                                    data(
+                                            'thumbnail': it
+                                    )
+                                }
+                            }
                         }
                     }
 

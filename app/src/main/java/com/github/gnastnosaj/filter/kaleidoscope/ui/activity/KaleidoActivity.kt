@@ -69,6 +69,7 @@ class KaleidoActivity : BaseActivity() {
     private var searchMode = 0
     private var searchDisposable: Disposable? = null
     private var pluginDisposable: Disposable? = null
+    private var contextMenuDisposable: Disposable? = null
 
     private val kaleidoHits = LongArray(5)
     private var donateDialog: AlertDialog? = null
@@ -378,7 +379,12 @@ class KaleidoActivity : BaseActivity() {
     }
 
     private fun createContextMenu() {
-        PluginApi.plugins()
+        contextMenuDisposable?.apply {
+            if (!isDisposed) {
+                dispose()
+            }
+        }
+        contextMenuDisposable = PluginApi.plugins()
                 .retry(3)
                 .map {
                     if (!crazy) {
@@ -422,6 +428,18 @@ class KaleidoActivity : BaseActivity() {
                                         }
                                     }
                                     pluginDisposable = start(plugins[i]).subscribe()
+                                }
+
+                                findViewById<View>(R.id.action_kaleido).setOnLongClickListener {
+                                    if (crazy) {
+                                        crazy = false
+                                        createContextMenu()
+                                        PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("crazy", crazy).apply()
+                                        Snackbar.make(findViewById(android.R.id.content), R.string.normal_mode, Snackbar.LENGTH_SHORT).show()
+                                        true
+                                    } else {
+                                        false
+                                    }
                                 }
                             }
                 }

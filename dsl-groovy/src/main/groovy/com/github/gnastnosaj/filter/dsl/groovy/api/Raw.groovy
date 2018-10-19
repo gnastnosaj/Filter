@@ -7,6 +7,8 @@ package com.github.gnastnosaj.filter.dsl.groovy.api
 import com.github.gnastnosaj.filter.dsl.groovy.util.DSLUtil
 import org.json.JSONObject
 
+import java.util.regex.Pattern
+
 class Raw extends com.github.gnastnosaj.filter.dsl.core.Page {
     String raw
 
@@ -17,6 +19,11 @@ class Raw extends com.github.gnastnosaj.filter.dsl.core.Page {
     def json(Closure configureClosure) {
         def json = new JSONObject(raw)
         return DSLUtil.configureObjectWithClosure(json, configureClosure, this)
+    }
+
+    def matcher(String pattern, Closure configureClosure) {
+        def matcher = Pattern.compile(pattern).matcher(raw)
+        return DSLUtil.configureObjectWithClosure(matcher, configureClosure, this)
     }
 
     def data(Closure configureClosure) {

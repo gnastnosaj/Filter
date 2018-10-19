@@ -80,7 +80,7 @@ public class GrooidClassLoader extends GroovyClassLoader {
             });
             ImportCustomizer customizer = new ImportCustomizer();
             customizer.addStaticStars(Connection.Method.class.getName());
-            customizer.addStaticStars(Connection.Layout.class.getName());
+            customizer.addStaticStars(android.util.Base64.class.getName());
             config.addCompilationCustomizers(customizer);
 
             GrooidClassLoader classLoader = new GrooidClassLoader(context.getApplicationContext().getClassLoader(), config);
