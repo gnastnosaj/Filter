@@ -95,6 +95,7 @@ task('build') {
                     def title = it.select('div.author').text()
                     def spans = it.select('div.text span.img-hash')
                     if (spans.size() > 0) {
+                        title += " · ${spans.size()}p"
                         def hash = spans.first().text()
                         def thumbnail = "http:${new String(Base64.decode(hash, Base64.DEFAULT))}".toString()
                         def href = ''
