@@ -14,15 +14,6 @@
     "script": "https://raw.githubusercontent.com/gnastnosaj/Filter/develop/repository/930mh.filter"
   },
   {
-    "id": "haotudao",
-    "name": "好图岛",
-    "www": "http://haotudao.com",
-    "script": "https://raw.githubusercontent.com/gnastnosaj/Filter/develop/repository/haotudao.filter",
-    "args": {
-      "adult_warning": true
-    }
-  },
-  {
     "id": "gank",
     "name": "干货集中营",
     "www": "https://gank.io",
