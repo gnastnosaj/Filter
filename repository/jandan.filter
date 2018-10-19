@@ -93,18 +93,21 @@ task('build') {
                 def list = select('ol.commentlist li')
                 list.each {
                     def title = it.select('div.author').text()
-                    def hash = it.select('div.text span.img-hash').first().text()
-                    def thumbnail = "http:${new String(Base64.decode(hash, Base64.DEFAULT))}".toString()
-                    def href = ''
-                    it.select('div.text span.img-hash').each {
-                        href += "http:${new String(Base64.decode(it.text(), Base64.DEFAULT))};".toString()
+                    def spans = it.select('div.text span.img-hash')
+                    if (spans.size() > 0) {
+                        def hash = spans.first().text()
+                        def thumbnail = "http:${new String(Base64.decode(hash, Base64.DEFAULT))}".toString()
+                        def href = ''
+                        spans.each { span ->
+                            href += "http:${new String(Base64.decode(span.text(), Base64.DEFAULT))};".toString()
+                        }
+                        page.data(
+                                'id': title,
+                                'title': title,
+                                'thumbnail': thumbnail,
+                                'href': href
+                        )
                     }
-                    page.data(
-                            'id': title,
-                            'title': title,
-                            'thumbnail': thumbnail,
-                            'href': href
-                    )
                 }
 
                 next = select('div.cp-pagenavi a.previous-comment-page').attr('abs:href')
