@@ -23,6 +23,7 @@ task('build') {
                                     def href = it.select('a.site-title').attr('abs:href')
                                     def time = it.select('span small').text()
                                     page.data(
+                                            'type': 'post',
                                             'id': title,
                                             'title': title,
                                             'href': href,

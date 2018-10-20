@@ -19,6 +19,7 @@ task('build') {
                     def author = it.select('td.title a.sitebit').text()
                     def time = it.select('td.subtext span.age a').text()
                     page.data(
+                            'type': 'post',
                             'id': title,
                             'title': title,
                             'href': href,
