@@ -16,8 +16,8 @@ task('build') {
                 list.each {
                     def title = it.select('td.title a.storylink').text()
                     def href = it.select('td.title a.storylink').attr('abs:href')
-                    def author = it.select('td.title a.sitebit').text()
-                    def time = it.select('td.subtext span.age a').text()
+                    def author = it.select('td.title span.sitebit a').text()
+                    def time = it.nextElementSibling().select('td.subtext span.age a').text()
                     page.data(
                             'type': 'post',
                             'id': title,
