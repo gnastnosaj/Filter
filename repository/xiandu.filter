@@ -30,6 +30,8 @@ task('build') {
                                             'time': time
                                     )
                                 }
+
+                                next = select('a.button').attr('abs:href')
                             }
 
                             task('refresh') {

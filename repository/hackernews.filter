@@ -27,6 +27,8 @@ task('build') {
                             'time': time
                     )
                 }
+
+                next = select('a.morelink').attr('abs:href')
             }
 
             task('refresh') {
