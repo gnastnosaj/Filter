@@ -1,0 +1,80 @@
+/*
+ * Copyright (c) 2018, Jason Tsang.(https://github.com/gnastnosaj) All Rights Reserved.
+ */
+
+def baseUrl = 'https://news.ycombinator.com'
+
+task('build') {
+    catalog {
+        connection('new') {
+            url baseUrl
+
+            def current, next
+
+            def parser = { page ->
+                def list = select('tbody tr.athing')
+                list.each {
+                    def title = it.select('td.title a.storylink').text()
+                    def href = it.select('td.title a.storylink').attr('abs:href')
+                    def author = it.select('td.title a.sitebit').text()
+                    def time = it.select('td.subtext span.age a').text()
+                    page.data(
+                            'id': title,
+                            'title': title,
+                            'href': href,
+                            'author': author,
+                            'time': time
+                    )
+                }
+            }
+
+            task('refresh') {
+                def result
+
+                current = baseUrl
+
+                connection {
+                    url current
+                    result = page {
+                        document parser
+                    }
+                }
+
+                return result
+            }
+
+            task('loadMore') {
+                def result
+
+                current = next
+
+                connection {
+                    url current
+                    result = page {
+                        document parser
+                    }
+                }
+
+                return result
+            }
+
+            task('hasMore') {
+                return next && !next.allWhitespace
+            }
+
+            task('page') { href ->
+                return connection {
+                    url href
+
+                    task('entrance') {
+                        return baseUrl
+                    }
+
+                    task('layout') {
+                        return 'webview'
+                    }
+                }
+            }
+        }
+    }
+}

@@ -24,5 +24,17 @@
     "name": "煎蛋 - 地球上没有新鲜事",
     "www": "http://jandan.net",
     "script": "https://raw.githubusercontent.com/gnastnosaj/Filter/develop/repository/jandan.filter"
+  },
+  {
+    "id": "xiandu",
+    "name": "闲读 - 读那些值得读的",
+    "www": "https://gank.io/xiandu",
+    "script": "https://raw.githubusercontent.com/gnastnosaj/Filter/develop/repository/xiandu.filter"
+  },
+  {
+    "id": "hackernews",
+    "name": "Hacker News",
+    "www": "https://news.ycombinator.com",
+    "script": "https://raw.githubusercontent.com/gnastnosaj/Filter/develop/repository/hackernews.filter"
   }
 ]
