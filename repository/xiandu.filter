@@ -21,7 +21,8 @@ task('build') {
                                 items.each {
                                     def title = it.select('a.site-title').text()
                                     def href = it.select('a.site-title').attr('abs:href')
-                                    def publish = it.select('a.site-title').nextElementSibling().text()
+                                    def publish = it.select('small').text()
+
                                     page.data(
                                             'type': 'post',
                                             'id': title,
