@@ -21,6 +21,8 @@ import android.view.View
 import android.widget.*
 import br.com.mauker.materialsearchview.MaterialSearchView
 import com.bilibili.socialize.share.core.shareparam.ShareParamText
+import com.getkeepsafe.taptargetview.TapTarget
+import com.getkeepsafe.taptargetview.TapTargetView
 import com.github.gnastnosaj.boilerplate.Boilerplate
 import com.github.gnastnosaj.boilerplate.rxbus.RxHelper
 import com.github.gnastnosaj.boilerplate.util.keyboard.BaseActivity
@@ -316,7 +318,9 @@ class KaleidoActivity : BaseActivity() {
                         .timer(300, TimeUnit.MILLISECONDS)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe {
-                            donate()
+                            donate {
+                                Snackbar.make(findViewById(android.R.id.content), resources.getString(R.string.secret, resources.getString(if (crazy) R.string.secret_normal else R.string.secret_crazy)), Snackbar.LENGTH_SHORT).show()
+                            }
                         }
                 if (!crazy) {
                     System.arraycopy(kaleidoHits, 1, kaleidoHits, 0, kaleidoHits.size - 1)
@@ -430,7 +434,8 @@ class KaleidoActivity : BaseActivity() {
                                     pluginDisposable = start(plugins[i]).subscribe()
                                 }
 
-                                findViewById<View>(R.id.action_kaleido).setOnLongClickListener {
+                                val kaleido = findViewById<View>(R.id.action_kaleido)
+                                kaleido.setOnLongClickListener {
                                     if (crazy) {
                                         crazy = false
                                         createContextMenu()
@@ -441,6 +446,17 @@ class KaleidoActivity : BaseActivity() {
                                         false
                                     }
                                 }
+                                val tapTarget = TapTarget
+                                        .forView(kaleido, resources.getString(R.string.filter), resources.getString(R.string.filter_description))
+                                        .outerCircleAlpha(0.8f)
+                                TapTargetView.showFor(this, tapTarget, object : TapTargetView.Listener() {
+                                    override fun onTargetClick(view: TapTargetView) {
+                                        view.dismiss(true)
+                                        if (fragmentManager.findFragmentByTag(ContextMenuDialogFragment.TAG) == null) {
+                                            contextMenuDialogFragment?.show(supportFragmentManager, ContextMenuDialogFragment.TAG)
+                                        }
+                                    }
+                                })
                             }
                 }
                 .subscribeOn(Schedulers.io())

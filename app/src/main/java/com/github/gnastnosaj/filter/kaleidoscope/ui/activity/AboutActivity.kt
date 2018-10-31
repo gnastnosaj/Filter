@@ -53,6 +53,7 @@ class AboutActivity : AbsAboutActivity() {
         items.add(License("RxPermissions", "tbruyelle", License.APACHE_2, "https://github.com/tbruyelle/RxPermissions"))
         items.add(License("MultiType", "drakeet", License.APACHE_2, "https://github.com/drakeet/MultiType"))
         items.add(License("about-page", "drakeet", License.APACHE_2, "https://github.com/drakeet/about-page"))
+        items.add(License("TapTargetView", "KeepSafe", License.APACHE_2, "https://github.com/KeepSafe/TapTargetView"))
     }
 
     override fun onCreateHeader(icon: ImageView, slogan: TextView, version: TextView) {

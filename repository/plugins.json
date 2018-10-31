@@ -1,37 +1,5 @@
 [
   {
-    "id": "rarbt",
-    "name": "RARBT中文字幕电影天堂",
-    "ico": "http://rarbt.com/Public/Home/images/logo_1.png",
-    "www": "http://rarbt.com",
-    "script": "https://raw.githubusercontent.com/gnastnosaj/Filter/develop/repository/rarbt.filter"
-  },
-  {
-    "id": "930mh",
-    "name": "亲亲漫画",
-    "ico": "http://mhimg.acg.gd:44236/images/logo/dmzj.png",
-    "www": "http://www.930mh.com",
-    "script": "https://raw.githubusercontent.com/gnastnosaj/Filter/develop/repository/930mh.filter"
-  },
-  {
-    "id": "gank",
-    "name": "干货集中营",
-    "www": "https://gank.io",
-    "script": "https://raw.githubusercontent.com/gnastnosaj/Filter/develop/repository/gank.filter"
-  },
-  {
-    "id": "jandan",
-    "name": "煎蛋 - 地球上没有新鲜事",
-    "www": "http://jandan.net",
-    "script": "https://raw.githubusercontent.com/gnastnosaj/Filter/develop/repository/jandan.filter"
-  },
-  {
-    "id": "xiandu",
-    "name": "闲读 - 读那些值得读的",
-    "www": "https://gank.io/xiandu",
-    "script": "https://raw.githubusercontent.com/gnastnosaj/Filter/develop/repository/xiandu.filter"
-  },
-  {
     "id": "hackernews",
     "name": "Hacker News",
     "www": "https://news.ycombinator.com",

@@ -25,6 +25,11 @@
     <string name="dislike">一边儿去</string>
     <string name="crazy_mode">＾(￣）￣)《(￣）￣)＾嘿嘿，已开启狂暴模式，开车注意安全哟～</string>
     <string name="normal_mode">轻轻的我走了，正如我轻轻的来～</string>
+    <string name="secret">偷偷告诉你，%s</string>
+    <string name="secret_crazy">logo四连击可开启狂暴模式～</string>
+    <string name="secret_normal">插件图标长按可退出狂暴模式～</string>
+    <string name="filter">滤镜</string>
+    <string name="filter_description">为您提供色彩斑斓的万花筒滤镜</string>
 
     <string name="searching">╭ (′▽`)╭(′▽`)╭(′▽`)╯正在疯狂搜索中，请先随便逛逛吧～</string>
     <string name="search_result_not_found">⊙﹏⊙‖∣° 悲剧，未找到可用的资源，请重新试试吧...</string>

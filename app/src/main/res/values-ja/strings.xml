@@ -26,6 +26,11 @@
     <string name="dislike">歩きながら行く</string>
     <string name="crazy_mode">＾(￣）￣)《(￣）￣)＾へへへ、狂ったモードを開いていたので、車で安全に気をつけてくださいね～</string>
     <string name="normal_mode">そっと私は歩いて、私がそっと来たように～</string>
+    <string name="secret">こっそり教えてあげる，%s</string>
+    <string name="secret_crazy">ロゴ4連撃は暴れモードを開く～</string>
+    <string name="secret_normal">スクラップアイコンの長さは暴走モードを終了する～</string>
+    <string name="filter">フィルター</string>
+    <string name="filter_description">色鮮やかな万華鏡フィルタをご提供いたします</string>
 
     <string name="searching">╭ (′▽`)╭(′▽`)╭(′▽`)╯狂っている中で、先にぶらぶらしてください～</string>
     <string name="search_result_not_found">⊙﹏⊙‖∣° 悲劇、未利用の資源を探し当てて、再試して下さい...</string>

@@ -143,9 +143,10 @@ dependencies {
     implementation("com.jaeger.ninegridimageview:library:+")
     implementation("com.github.iielse:ImageWatcher:+")
     implementation("net.qiujuer.genius:graphics:+")
-    implementation("me.drakeet.support:about:+")
+    implementation("me.drakeet.support:about:2.1.1")
     implementation("me.weishu:epic:0.3.6")
     implementation("com.github.czy1121:update:+")
+    implementation("com.getkeepsafe.taptargetview:taptargetview:1.12.0")
 
     implementation(project(":dsl"))
     implementation(project(":dsl-groovy"))
