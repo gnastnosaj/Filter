@@ -288,18 +288,21 @@ class KaleidoActivity : BaseActivity() {
 
         createContextMenu()
 
-        UpdateManager
-                .create(this)
-                .setParser {
-                    val updateInfo = Gson().fromJson(it, UpdateInfo::class.java)
-                    updateInfo.hasUpdate = updateInfo.versionCode > Boilerplate.versionCode
-                    updateInfo.isSilent = true
-                    return@setParser updateInfo
+        Observable.timer(30, TimeUnit.SECONDS)
+                .subscribe {
+                    UpdateManager
+                            .create(this)
+                            .setParser {
+                                val updateInfo = Gson().fromJson(it, UpdateInfo::class.java)
+                                updateInfo.hasUpdate = updateInfo.versionCode > Boilerplate.versionCode
+                                updateInfo.isSilent = true
+                                return@setParser updateInfo
+                            }
+                            .setOnFailureListener {
+                                Timber.w(it.message)
+                            }
+                            .check()
                 }
-                .setOnFailureListener {
-                    Timber.w(it.message)
-                }
-                .check()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

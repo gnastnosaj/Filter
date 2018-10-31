@@ -6,6 +6,7 @@ package com.github.gnastnosaj.filter.kaleidoscope.ui.viewbinder
 
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.StaggeredGridLayoutManager
+import android.text.TextUtils
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -44,6 +45,8 @@ class PostViewBinder : ItemViewBinder<Map<*, *>, PostViewBinder.ViewHolder>() {
                                     id = R.id.title
                                     textSize = 16f
                                     textColorResource = R.color.grey_900
+                                    maxLines = 2
+                                    ellipsize = TextUtils.TruncateAt.END
                                 }.lparams(matchParent, 0) {
                                     weight = 1.0f
                                 }
@@ -51,6 +54,8 @@ class PostViewBinder : ItemViewBinder<Map<*, *>, PostViewBinder.ViewHolder>() {
                                     id = R.id.description
                                     textSize = 12f
                                     textColorResource = R.color.grey_500
+                                    singleLine = true
+                                    ellipsize = TextUtils.TruncateAt.END
                                 }.lparams(matchParent, wrapContent)
                             }.lparams(0, matchParent) {
                                 weight = 1.0f
@@ -80,18 +85,22 @@ class PostViewBinder : ItemViewBinder<Map<*, *>, PostViewBinder.ViewHolder>() {
     override fun onBindViewHolder(viewHolder: ViewHolder, item: Map<*, *>) {
         (item as? Map<String, String>)?.let { data ->
             viewHolder.title?.text = data["title"]
-            if (data["author"] != null && data["publish"] == null) {
-                viewHolder.description?.text = data["author"]
+
+            viewHolder.description?.text = if (data["author"] != null && data["publish"] == null) {
+                data["author"]
             } else if (data["author"] == null && data["publish"] != null) {
-                viewHolder.description?.text = data["publish"]
+                data["publish"]
             } else {
-                viewHolder.description?.text = "${data["author"]} · ${data["publish"]}"
+                "${data["author"]} · ${data["publish"]}"
             }
+
+            var uri = data["thumbnail"]
+
             viewHolder.thumbnail?.apply {
-                var uri = data["thumbnail"]
-                uri?.let {
+                if (!uri.isNullOrBlank()) {
+                    visibility = View.VISIBLE
                     controller = Fresco.newDraweeControllerBuilder()
-                            .setUri(it)
+                            .setUri(uri)
                             .setOldController(controller)
                             .setControllerListener(object : BaseControllerListener<ImageInfo>() {
                                 override fun onFailure(id: String?, throwable: Throwable?) {
@@ -109,7 +118,15 @@ class PostViewBinder : ItemViewBinder<Map<*, *>, PostViewBinder.ViewHolder>() {
                                     Timber.e(throwable)
                                 }
                             }).build()
+                } else {
+                    visibility = View.GONE
                 }
+            }
+
+            viewHolder.itemView.apply {
+                val lp = layoutParams
+                lp.height = if (uri.isNullOrBlank()) dip(100) else dip(128)
+                layoutParams = lp
             }
         }
     }
