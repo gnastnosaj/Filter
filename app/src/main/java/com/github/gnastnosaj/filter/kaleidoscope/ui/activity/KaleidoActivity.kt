@@ -116,21 +116,6 @@ class KaleidoActivity : BaseActivity() {
                     backgroundColorResource = R.color.colorPrimary
                     createDynamicBox(frameLayout {
                         backgroundColor = Color.WHITE
-                        htmlTextView {
-                            Observable
-                                    .create<String> { emitter ->
-                                        val request = Request.Builder().url("${BuildConfig.KALEIDO_BASE_URL}filter.html").build()
-                                        val call = KaleidoscopeRetrofit.instance.okHttpClient.newCall(request)
-                                        call.execute().body()?.string()?.let {
-                                            emitter.onNext(it)
-                                        }
-                                        emitter.onComplete()
-                                    }
-                                    .compose(RxHelper.rxSchedulerHelper())
-                                    .subscribe {
-                                        setHtml(it, HtmlHttpImageGetter(this))
-                                    }
-                        }.lparams(matchParent, dip(128))
                         linearLayout {
                             orientation = LinearLayout.VERTICAL
                             linearLayout {
@@ -247,6 +232,23 @@ class KaleidoActivity : BaseActivity() {
                             }
                         }.lparams(matchParent, wrapContent) {
                             gravity = Gravity.CENTER_VERTICAL
+                        }
+                        htmlTextView {
+                            Observable
+                                    .create<String> { emitter ->
+                                        val request = Request.Builder().url("${BuildConfig.KALEIDO_BASE_URL}copyright.html").build()
+                                        val call = KaleidoscopeRetrofit.instance.okHttpClient.newCall(request)
+                                        call.execute().body()?.string()?.let {
+                                            emitter.onNext(it)
+                                        }
+                                        emitter.onComplete()
+                                    }
+                                    .compose(RxHelper.rxSchedulerHelper())
+                                    .subscribe {
+                                        setHtml(it, HtmlHttpImageGetter(this))
+                                    }
+                        }.lparams(wrapContent, wrapContent) {
+                            gravity = Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM
                         }
                     }.lparams(matchParent, matchParent))
                     progressBar = horizontalProgressBar(R.style.Widget_AppCompat_ProgressBar_Horizontal) {
