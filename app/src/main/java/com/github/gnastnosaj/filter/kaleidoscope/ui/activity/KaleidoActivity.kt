@@ -247,7 +247,7 @@ class KaleidoActivity : BaseActivity() {
                                     .subscribe {
                                         setHtml(it, HtmlHttpImageGetter(this))
                                     }
-                        }.lparams(wrapContent, wrapContent) {
+                        }.lparams(matchParent, wrapContent) {
                             gravity = Gravity.BOTTOM
                             setMargins(dip(12), 0, dip(12), dip(12))
                         }
