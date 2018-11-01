@@ -29,6 +29,7 @@ import com.github.gnastnosaj.filter.kaleidoscope.api.model.Star
 import com.github.gnastnosaj.filter.kaleidoscope.api.plugin.StarApi
 import com.github.gnastnosaj.filter.kaleidoscope.ui.view.NestedScrollAdblockWebView
 import com.github.gnastnosaj.filter.kaleidoscope.util.HistoryManager
+import com.google.gson.Gson
 import com.just.agentweb.AgentWeb
 import com.just.agentweb.BaseIndicatorView
 import com.mikepenz.iconics.IconicsDrawable
@@ -50,9 +51,7 @@ import java.util.concurrent.TimeUnit
 
 class WebViewPageActivity : BaseActivity() {
     companion object {
-        const val EXTRA_ID = "id"
-        const val EXTRA_TITLE = "title"
-        const val EXTRA_THUMBNAIL = "thumbnail"
+        const val EXTRA_DATA = "data"
         const val EXTRA_PLUGIN = "plugin"
         const val EXTRA_CONNECTION_HASH_CODE = "connectionHashCode"
 
@@ -83,8 +82,7 @@ class WebViewPageActivity : BaseActivity() {
         }
     }
 
-    private var id: String? = null
-    private var thumbnail: String? = null
+    private var data: MutableMap<String, String>? = null
     private var entrance: String? = null
     private var starApi: StarApi? = null
     private var star: Boolean = false
@@ -100,9 +98,8 @@ class WebViewPageActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        id = intent.getStringExtra(EXTRA_ID)
-        title = intent.getStringExtra(EXTRA_TITLE)
-        thumbnail = intent.getStringExtra(EXTRA_THUMBNAIL)
+        data = Gson().fromJson<MutableMap<String, String>>(intent.getStringExtra(EXTRA_DATA), MutableMap::class.java)
+        title = data?.get("title")
         plugin = intent.getParcelableExtra(EXTRA_PLUGIN)
         plugin?.let {
             starApi = StarApi(it)
@@ -311,7 +308,6 @@ class WebViewPageActivity : BaseActivity() {
             isVisible = false
             if (entrance != null) {
                 val star = Star()
-                star.href = connection?.url
                 starApi?.contains(star)?.apply {
                     compose(RxHelper.rxSchedulerHelper())
                             .compose(bindUntilEvent(ActivityEvent.DESTROY))
@@ -345,13 +341,8 @@ class WebViewPageActivity : BaseActivity() {
             }
             R.id.action_favourite -> {
                 val star = Star()
-                star.href = connection?.url
-                id?.let {
-                    star.data["id"] = it
-                }
-                star.data["title"] = title.toString()
-                thumbnail?.let {
-                    star.data["thumbnail"] = it
+                data?.let {
+                    star.data.putAll(it)
                 }
                 entrance?.let {
                     star.data["entrance"] = it

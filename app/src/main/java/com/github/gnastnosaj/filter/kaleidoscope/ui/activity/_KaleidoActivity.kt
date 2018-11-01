@@ -12,6 +12,7 @@ import com.github.gnastnosaj.filter.dsl.core.Connection
 import com.github.gnastnosaj.filter.kaleidoscope.Kaleidoscope
 import com.github.gnastnosaj.filter.kaleidoscope.R
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
+import com.google.gson.Gson
 import org.jetbrains.anko.intentFor
 
 fun BaseActivity.show(view: View, data: Map<String, String>, plugin: Plugin?, connection: Connection?) {
@@ -23,9 +24,7 @@ fun BaseActivity.show(view: View, data: Map<String, String>, plugin: Plugin?, co
                         this, view, GalleryActivity.TRANSITION_NAME
                 )
                 ActivityCompat.startActivity(this, intentFor<GalleryActivity>(
-                        GalleryActivity.EXTRA_ID to (data["id"]
-                                ?: data["title"]),
-                        GalleryActivity.EXTRA_TITLE to data["title"],
+                        GalleryActivity.EXTRA_DATA to Gson().toJson(data),
                         GalleryActivity.EXTRA_PLUGIN to plugin,
                         GalleryActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(it)
                 ), optionsCompat.toBundle())
@@ -35,19 +34,14 @@ fun BaseActivity.show(view: View, data: Map<String, String>, plugin: Plugin?, co
                         this, view.findViewById(R.id.thumbnail), DetailActivity.TRANSITION_NAME
                 )
                 ActivityCompat.startActivity(this, intentFor<DetailActivity>(
-                        DetailActivity.EXTRA_ID to (data["id"]
-                                ?: data["title"]),
-                        DetailActivity.EXTRA_TITLE to data["title"],
+                        DetailActivity.EXTRA_DATA to Gson().toJson(data),
                         DetailActivity.EXTRA_PLUGIN to plugin,
                         DetailActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(it)
                 ), optionsCompat.toBundle())
             }
             "webview" -> {
                 ActivityCompat.startActivity(this, intentFor<WebViewPageActivity>(
-                        WebViewPageActivity.EXTRA_ID to (data["id"]
-                                ?: data["title"]),
-                        WebViewPageActivity.EXTRA_TITLE to data["title"],
-                        WebViewPageActivity.EXTRA_THUMBNAIL to data["thumbnail"],
+                        WebViewPageActivity.EXTRA_DATA to Gson().toJson(data),
                         WebViewPageActivity.EXTRA_PLUGIN to plugin,
                         WebViewPageActivity.EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(it)
                 ), null)

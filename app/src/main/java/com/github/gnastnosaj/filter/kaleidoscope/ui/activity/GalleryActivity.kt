@@ -31,6 +31,7 @@ import com.github.gnastnosaj.filter.kaleidoscope.api.search.search
 import com.github.gnastnosaj.filter.kaleidoscope.ui.adapter.GalleryAdapter
 import com.github.gnastnosaj.filter.kaleidoscope.ui.view.tagGroup
 import com.github.gnastnosaj.filter.kaleidoscope.util.ShareHelper
+import com.google.gson.Gson
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.material_design_iconic_typeface_library.MaterialDesignIconic
 import com.shizhefei.mvc.ILoadViewFactory
@@ -44,7 +45,6 @@ import org.jetbrains.anko.*
 import org.jetbrains.anko.appcompat.v7.toolbar
 import org.jetbrains.anko.design.themedAppBarLayout
 import org.jetbrains.anko.support.v4.viewPager
-import java.lang.Exception
 
 
 class GalleryActivity : BaseActivity() {
@@ -59,7 +59,7 @@ class GalleryActivity : BaseActivity() {
     private var galleryAdapter: GalleryAdapter? = null
     private var tagEventObservable: Observable<TagEvent>? = null
 
-    private var id: String? = null
+    private var data: MutableMap<String, String>? = null
     private var plugin: Plugin? = null
     private var connection: Connection? = null
 
@@ -68,8 +68,7 @@ class GalleryActivity : BaseActivity() {
     private var star: Boolean = false
 
     companion object {
-        const val EXTRA_ID = "id"
-        const val EXTRA_TITLE = "title"
+        const val EXTRA_DATA = "data"
         const val EXTRA_PLUGIN = "plugin"
         const val EXTRA_CONNECTION_HASH_CODE = "connectionHashCode"
 
@@ -79,8 +78,8 @@ class GalleryActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        id = intent.getStringExtra(EXTRA_ID)
-        title = intent.getStringExtra(EXTRA_TITLE)
+        data = Gson().fromJson<MutableMap<String, String>>(intent.getStringExtra(EXTRA_DATA), MutableMap::class.java)
+        title = data?.get("title")
         plugin = intent.getParcelableExtra(EXTRA_PLUGIN)
         plugin?.let {
             starApi = StarApi(it)
@@ -221,7 +220,6 @@ class GalleryActivity : BaseActivity() {
             isVisible = false
             if (entrance != null) {
                 val star = Star()
-                star.href = connection?.url
                 starApi?.contains(star)?.apply {
                     compose(RxHelper.rxSchedulerHelper())
                             .compose(bindUntilEvent(ActivityEvent.DESTROY))
@@ -258,7 +256,7 @@ class GalleryActivity : BaseActivity() {
                 true
             }
             R.id.action_search -> {
-                id?.let {
+                data?.get("id")?.let {
                     progressBar?.visibility = View.VISIBLE
                     searchDisposable?.apply {
                         if (!isDisposed) {
@@ -275,20 +273,8 @@ class GalleryActivity : BaseActivity() {
             }
             R.id.action_favourite -> {
                 val star = Star()
-                star.href = connection?.url
-                id?.let {
-                    star.data["id"] = it
-                }
-                star.data["title"] = title.toString()
-                val first = galleryAdapter?.data?.firstOrNull()
-                first?.get("cover")?.let {
-                    star.data["thumbnail"] = it
-                }
-                first?.get("thumbnail")?.let {
-                    star.data["thumbnail"] = it
-                }
-                first?.get("thumbnail_error")?.let {
-                    star.data["thumbnail_error"] = it
+                data?.let {
+                    star.data.putAll(it)
                 }
                 entrance?.let {
                     star.data["entrance"] = it

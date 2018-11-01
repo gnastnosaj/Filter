@@ -46,6 +46,7 @@ import com.github.gnastnosaj.filter.kaleidoscope.api.search.search
 import com.github.gnastnosaj.filter.kaleidoscope.ui.view.*
 import com.github.gnastnosaj.filter.kaleidoscope.util.ShareHelper
 import com.github.ielse.imagewatcher.ImageWatcherHelper
+import com.google.gson.Gson
 import com.jaeger.ninegridimageview.NineGridImageView
 import com.jaeger.ninegridimageview.NineGridImageViewAdapter
 import com.mikepenz.iconics.IconicsDrawable
@@ -70,7 +71,7 @@ class DetailActivity : BaseActivity() {
     private var searchDisposable: Disposable? = null
     private var imageWatcherHelper: ImageWatcherHelper? = null
 
-    private var id: String? = null
+    private var data: MutableMap<String, String>? = null
     private var plugin: Plugin? = null
     private var connection: Connection? = null
 
@@ -80,8 +81,7 @@ class DetailActivity : BaseActivity() {
     private var star: Boolean = false
 
     companion object {
-        const val EXTRA_ID = "id"
-        const val EXTRA_TITLE = "title"
+        const val EXTRA_DATA = "data"
         const val EXTRA_PLUGIN = "plugin"
         const val EXTRA_CONNECTION_HASH_CODE = "connectionHashCode"
 
@@ -95,8 +95,8 @@ class DetailActivity : BaseActivity() {
             window.sharedElementEnterTransition = ChangeBounds()
         }
 
-        id = intent.getStringExtra(EXTRA_ID)
-        title = intent.getStringExtra(EXTRA_TITLE)
+        data = Gson().fromJson<MutableMap<String, String>>(intent.getStringExtra(EXTRA_DATA), MutableMap::class.java)
+        title = data?.get("title")
         plugin = intent.getParcelableExtra(EXTRA_PLUGIN)
         plugin?.let {
             starApi = StarApi(it)
@@ -336,7 +336,6 @@ class DetailActivity : BaseActivity() {
             isVisible = false
             if (entrance != null) {
                 val star = Star()
-                star.href = connection?.url
                 starApi?.contains(star)?.apply {
                     compose(RxHelper.rxSchedulerHelper())
                             .compose(bindUntilEvent(ActivityEvent.DESTROY))
@@ -374,7 +373,7 @@ class DetailActivity : BaseActivity() {
                 true
             }
             R.id.action_search -> {
-                id?.let {
+                data?.get("id")?.let {
                     progressBar?.visibility = View.VISIBLE
                     searchDisposable?.apply {
                         if (!isDisposed) {
@@ -391,13 +390,8 @@ class DetailActivity : BaseActivity() {
             }
             R.id.action_favourite -> {
                 val star = Star()
-                star.href = connection?.url
-                id?.let {
-                    star.data["id"] = it
-                }
-                star.data["title"] = title.toString()
-                thumbnail?.let {
-                    star.data["thumbnail"] = it
+                data?.let {
+                    star.data.putAll(it)
                 }
                 entrance?.let {
                     star.data["entrance"] = it
