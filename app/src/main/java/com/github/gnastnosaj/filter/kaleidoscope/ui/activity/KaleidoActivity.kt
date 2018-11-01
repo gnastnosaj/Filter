@@ -248,7 +248,8 @@ class KaleidoActivity : BaseActivity() {
                                         setHtml(it, HtmlHttpImageGetter(this))
                                     }
                         }.lparams(wrapContent, wrapContent) {
-                            gravity = Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM
+                            gravity = Gravity.BOTTOM
+                            setMargins(dip(12), 0, dip(12), dip(12))
                         }
                     }.lparams(matchParent, matchParent))
                     progressBar = horizontalProgressBar(R.style.Widget_AppCompat_ProgressBar_Horizontal) {
