@@ -1,7 +1,13 @@
 package com.github.gnastnosaj.filter.kaleidoscope.api.model
 
-class Star {
+class Star() {
     var data = mutableMapOf<String, String>()
+
+    constructor(data: MutableMap<String, String>?) : this() {
+        data?.let {
+            this.data.putAll(it)
+        }
+    }
 
     override fun equals(other: Any?): Boolean {
         other?.let {

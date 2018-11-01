@@ -335,7 +335,7 @@ class DetailActivity : BaseActivity() {
         menu?.findItem(R.id.action_favourite)?.apply {
             isVisible = false
             if (entrance != null) {
-                val star = Star()
+                val star = Star(data)
                 starApi?.contains(star)?.apply {
                     compose(RxHelper.rxSchedulerHelper())
                             .compose(bindUntilEvent(ActivityEvent.DESTROY))
@@ -389,10 +389,7 @@ class DetailActivity : BaseActivity() {
                 true
             }
             R.id.action_favourite -> {
-                val star = Star()
-                data?.let {
-                    star.data.putAll(it)
-                }
+                val star = Star(data)
                 entrance?.let {
                     star.data["entrance"] = it
                 }
