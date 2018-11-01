@@ -116,6 +116,23 @@ class KaleidoActivity : BaseActivity() {
                     backgroundColorResource = R.color.colorPrimary
                     createDynamicBox(frameLayout {
                         backgroundColor = Color.WHITE
+                        htmlTextView {
+                            Observable
+                                    .create<String> { emitter ->
+                                        val request = Request.Builder().url("${BuildConfig.KALEIDO_BASE_URL}interesting.html").build()
+                                        val call = KaleidoscopeRetrofit.instance.okHttpClient.newCall(request)
+                                        call.execute().body()?.string()?.let {
+                                            emitter.onNext(it)
+                                        }
+                                        emitter.onComplete()
+                                    }
+                                    .compose(RxHelper.rxSchedulerHelper())
+                                    .subscribe {
+                                        setHtml(it, HtmlHttpImageGetter(this))
+                                    }
+                        }.lparams(matchParent, wrapContent) {
+                            setMargins(dip(12), dip(12), dip(12), 0)
+                        }
                         linearLayout {
                             orientation = LinearLayout.VERTICAL
                             linearLayout {
