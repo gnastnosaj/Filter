@@ -12,4 +12,7 @@ interface KaleidoscopeService {
 
     @GET("kaleidoscope/{id}.filter")
     fun plugin(@Path("id") id: String): Observable<Script>
+
+    @GET("kaleidoscope/filter.html")
+    fun interesting(): Observable<String>
 }

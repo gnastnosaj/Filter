@@ -31,9 +31,11 @@ import com.github.gnastnosaj.filter.dsl.groovy.api.Project
 import com.github.gnastnosaj.filter.kaleidoscope.BuildConfig
 import com.github.gnastnosaj.filter.kaleidoscope.Kaleidoscope
 import com.github.gnastnosaj.filter.kaleidoscope.R
+import com.github.gnastnosaj.filter.kaleidoscope.api.KaleidoscopeRetrofit
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
 import com.github.gnastnosaj.filter.kaleidoscope.api.plugin.PluginApi
 import com.github.gnastnosaj.filter.kaleidoscope.api.search.search
+import com.github.gnastnosaj.filter.kaleidoscope.ui.view.htmlTextView
 import com.github.gnastnosaj.filter.kaleidoscope.ui.view.materialSearchView
 import com.github.gnastnosaj.filter.kaleidoscope.util.ShareHelper
 import com.google.gson.Gson
@@ -53,6 +55,7 @@ import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.*
 import org.jetbrains.anko.appcompat.v7.toolbar
 import org.jetbrains.anko.design.themedAppBarLayout
+import org.sufficientlysecure.htmltextview.HtmlHttpImageGetter
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
@@ -112,6 +115,13 @@ class KaleidoActivity : BaseActivity() {
                     backgroundColorResource = R.color.colorPrimary
                     createDynamicBox(frameLayout {
                         backgroundColor = Color.WHITE
+                        htmlTextView {
+                            KaleidoscopeRetrofit.instance.service.interesting()
+                                    .compose(RxHelper.rxSchedulerHelper())
+                                    .subscribe {
+                                        setHtml(it, HtmlHttpImageGetter(this))
+                                    }
+                        }.lparams(matchParent, dip(128))
                         linearLayout {
                             orientation = LinearLayout.VERTICAL
                             linearLayout {

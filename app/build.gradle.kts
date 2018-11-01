@@ -146,7 +146,8 @@ dependencies {
     implementation("me.drakeet.support:about:2.1.1")
     implementation("me.weishu:epic:0.3.6")
     implementation("com.github.czy1121:update:+")
-    implementation("com.getkeepsafe.taptargetview:taptargetview:1.12.0")
+    implementation("com.getkeepsafe.taptargetview:taptargetview:+")
+    implementation("org.sufficientlysecure:html-textview:+")
 
     implementation(project(":dsl"))
     implementation(project(":dsl-groovy"))
