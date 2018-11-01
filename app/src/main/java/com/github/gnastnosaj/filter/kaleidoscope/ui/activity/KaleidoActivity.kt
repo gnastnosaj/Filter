@@ -52,6 +52,7 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import okhttp3.Request
 import org.jetbrains.anko.*
 import org.jetbrains.anko.appcompat.v7.toolbar
 import org.jetbrains.anko.design.themedAppBarLayout
@@ -116,7 +117,15 @@ class KaleidoActivity : BaseActivity() {
                     createDynamicBox(frameLayout {
                         backgroundColor = Color.WHITE
                         htmlTextView {
-                            KaleidoscopeRetrofit.instance.service.interesting()
+                            Observable
+                                    .create<String> { emitter ->
+                                        val request = Request.Builder().url("${BuildConfig.KALEIDO_BASE_URL}filter.html").build()
+                                        val call = KaleidoscopeRetrofit.instance.okHttpClient.newCall(request)
+                                        call.execute().body()?.string()?.let {
+                                            emitter.onNext(it)
+                                        }
+                                        emitter.onComplete()
+                                    }
                                     .compose(RxHelper.rxSchedulerHelper())
                                     .subscribe {
                                         setHtml(it, HtmlHttpImageGetter(this))
