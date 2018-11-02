@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.design.widget.TabLayout
+import android.support.design.widget.TabLayout.MODE_SCROLLABLE
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.SharedElementCallback
 import android.support.v4.view.ViewPager
@@ -107,7 +108,11 @@ class CatalogActivity : BaseActivity() {
                         isIndeterminate = true
                         visibility = View.GONE
                     }.lparams(matchParent, wrapContent)
-                    tabLayout = tabLayout()
+                    tabLayout = tabLayout {
+                        if (plugin?.args?.get("tab_mode") as? String == "scrollable") {
+                            tabMode = MODE_SCROLLABLE
+                        }
+                    }
                 }
                 frameLayout {
                     viewPager = viewPager {
