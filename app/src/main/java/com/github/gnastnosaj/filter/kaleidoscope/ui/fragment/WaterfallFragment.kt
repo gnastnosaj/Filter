@@ -11,6 +11,7 @@ import com.github.gnastnosaj.filter.kaleidoscope.Kaleidoscope
 import com.github.gnastnosaj.filter.kaleidoscope.api.datasource.ConnectionDataSource
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
 import com.github.gnastnosaj.filter.kaleidoscope.ui.activity.WaterfallActivity
+import com.github.gnastnosaj.filter.kaleidoscope.ui.activity.preview
 import com.github.gnastnosaj.filter.kaleidoscope.ui.activity.show
 import com.github.gnastnosaj.filter.kaleidoscope.ui.adapter.WaterfallAdapter
 import com.shizhefei.mvc.MVCHelper
@@ -78,7 +79,9 @@ class WaterfallFragment : Fragment() {
                                                         }
                                                     }
                                                 } else {
-                                                    (activity as? BaseActivity)?.show(childView, data, plugin, connection)
+                                                    (activity as? BaseActivity)?.apply {
+                                                        preview(show(childView, data, plugin, connection), connection, waterfallAdapter.data)
+                                                    }
                                                 }
                                             }
                                         }

@@ -13,9 +13,23 @@ import com.github.gnastnosaj.filter.kaleidoscope.Kaleidoscope
 import com.github.gnastnosaj.filter.kaleidoscope.R
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
 import com.google.gson.Gson
+import groovy.lang.Closure
 import org.jetbrains.anko.intentFor
 
-fun BaseActivity.show(view: View, data: Map<String, String>, plugin: Plugin?, connection: Connection?) {
+fun BaseActivity.preview(page: Connection?, parent: Connection?, data: List<Map<String, String>>) {
+    (page as? com.github.gnastnosaj.filter.dsl.groovy.api.Connection)?.task("preview", object : Closure<Connection?>(page) {
+        override fun call(vararg args: Any?): Connection? {
+            for (i in 0 until data.size - 1) {
+                if (data[i]["href"] == args[0]) {
+                    return parent?.execute("page", data[i + 1]["href"] as String) as? Connection
+                }
+            }
+            return null
+        }
+    })
+}
+
+fun BaseActivity.show(view: View, data: Map<String, String>, plugin: Plugin?, connection: Connection?): Connection? {
     connection?.execute("page", data["href"]!!)?.let {
         when ((it as? com.github.gnastnosaj.filter.dsl.core.Connection)?.execute("layout")
                 ?: "gallery") {
@@ -47,5 +61,9 @@ fun BaseActivity.show(view: View, data: Map<String, String>, plugin: Plugin?, co
                 ), null)
             }
         }
+
+        return it as? com.github.gnastnosaj.filter.dsl.core.Connection
     }
+
+    return null
 }

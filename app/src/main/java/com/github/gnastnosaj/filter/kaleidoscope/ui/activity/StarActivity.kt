@@ -86,7 +86,7 @@ class StarActivity : BaseActivity() {
                                             if (-1 < position && position < waterfallAdapter.data.size) {
                                                 val data = waterfallAdapter.data[position]
                                                 connect(data["entrance"]!!)?.let {
-                                                    show(childView, data, plugin, it)
+                                                    preview(show(childView, data, plugin, it), it, waterfallAdapter.data)
                                                 }
                                             }
                                         }

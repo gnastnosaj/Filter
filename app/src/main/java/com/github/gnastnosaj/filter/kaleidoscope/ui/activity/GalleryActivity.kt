@@ -45,6 +45,7 @@ import org.jetbrains.anko.*
 import org.jetbrains.anko.appcompat.v7.toolbar
 import org.jetbrains.anko.design.themedAppBarLayout
 import org.jetbrains.anko.support.v4.viewPager
+import java.util.concurrent.TimeUnit
 
 
 class GalleryActivity : BaseActivity() {
@@ -95,6 +96,13 @@ class GalleryActivity : BaseActivity() {
             entrance = it.execute("entrance") as? String
             tagEventObservable = RxBus.getInstance().register(it, TagEvent::class.java)
         }
+
+        Observable.timer(30, TimeUnit.SECONDS)
+                .subscribe {
+                    connection?.url?.let {
+                        val preview = connection!!.execute("preview", it)
+                    }
+                }
 
         frameLayout {
             backgroundColorResource = R.color.colorPrimaryDark
