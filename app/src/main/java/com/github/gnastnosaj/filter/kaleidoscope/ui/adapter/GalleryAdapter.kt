@@ -26,9 +26,8 @@ class GalleryAdapter(private val context: Context) : PagerAdapter(), IDataAdapte
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
         val data = data[position]
-        (data as MutableMap<String, String>)["position"] = "$position"
-
         var uri = data["thumbnail"]
+
         val bigImageView = BigImageView(context)
         val thumbnailError: (throwable: Throwable) -> Unit = {
             data["thumbnail_error"]?.let {
@@ -150,14 +149,6 @@ class GalleryAdapter(private val context: Context) : PagerAdapter(), IDataAdapte
 
     override fun isViewFromObject(view: View, `object`: Any): Boolean {
         return view == `object`
-    }
-
-    override fun getItemPosition(`object`: Any): Int {
-        return if ((`object` as? Map<String, String>)?.containsKey("position") == true) {
-            POSITION_UNCHANGED
-        } else {
-            POSITION_NONE
-        }
     }
 
     override fun getCount(): Int {
