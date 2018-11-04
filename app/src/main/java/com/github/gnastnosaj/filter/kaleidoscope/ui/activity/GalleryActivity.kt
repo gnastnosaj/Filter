@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.AppBarLayout
+import android.support.v4.app.ActivityCompat
 import android.support.v4.view.ViewCompat
 import android.support.v4.view.ViewPager
 import android.view.*
@@ -190,9 +191,14 @@ class GalleryActivity : BaseActivity() {
                     }
 
                     (preview?.get("page") as? Connection)?.let { page ->
-                        intent.putExtra(EXTRA_DATA, Gson().toJson(preview["data"]))
-                        intent.putExtra(EXTRA_CONNECTION_HASH_CODE, Kaleidoscope.saveInstanceState(page))
-                        recreate()
+                        ActivityCompat.startActivity(this@GalleryActivity, intentFor<GalleryActivity>(EXTRA_DATA to Gson().toJson(preview["data"]), EXTRA_PLUGIN to plugin, EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(page)), null)
+                        setPendingTransition(null)
+                        finish()
+                        if (velocityX < 0) {
+                            overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left)
+                        } else if (velocityX > 0) {
+                            overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right)
+                        }
                     }
                 }
 
