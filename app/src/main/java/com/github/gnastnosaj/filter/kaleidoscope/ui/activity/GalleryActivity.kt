@@ -6,10 +6,7 @@ import android.os.Bundle
 import android.support.design.widget.AppBarLayout
 import android.support.v4.view.ViewCompat
 import android.support.v4.view.ViewPager
-import android.view.Gravity
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.view.animation.DecelerateInterpolator
 import android.widget.ProgressBar
 import com.bilibili.socialize.share.core.shareparam.ShareImage
@@ -45,7 +42,6 @@ import org.jetbrains.anko.*
 import org.jetbrains.anko.appcompat.v7.toolbar
 import org.jetbrains.anko.design.themedAppBarLayout
 import org.jetbrains.anko.support.v4.viewPager
-import java.util.concurrent.TimeUnit
 
 
 class GalleryActivity : BaseActivity() {
@@ -96,13 +92,6 @@ class GalleryActivity : BaseActivity() {
             entrance = it.execute("entrance") as? String
             tagEventObservable = RxBus.getInstance().register(it, TagEvent::class.java)
         }
-
-        Observable.timer(30, TimeUnit.SECONDS)
-                .subscribe {
-                    connection?.url?.let {
-                        val preview = connection!!.execute("preview", it)
-                    }
-                }
 
         frameLayout {
             backgroundColorResource = R.color.colorPrimaryDark
@@ -185,13 +174,47 @@ class GalleryActivity : BaseActivity() {
             override fun showNormal() {
                 progressBar?.visibility = View.GONE
             }
-
         })
+
+        val gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
+                connection?.url?.let {
+                    val preview = when {
+                        velocityX < 0 && viewPager?.currentItem == galleryAdapter!!.data.size - 1 -> {
+                            connection?.execute("preview", it) as? Map<String, Any>
+                        }
+                        velocityX > 0 && viewPager?.currentItem == 0 -> {
+                            connection?.execute("preview", it, true) as? Map<String, Any>
+                        }
+                        else -> null
+                    }
+
+                    (preview?.get("page") as? Connection)?.let { page ->
+                        intent.putExtra(EXTRA_DATA, Gson().toJson(preview["data"]))
+                        intent.putExtra(EXTRA_CONNECTION_HASH_CODE, Kaleidoscope.saveInstanceState(page))
+                        recreate()
+                    }
+                }
+
+                return false
+            }
+        })
+
         connection?.let {
             val dataSource = ConnectionDataSource(this@GalleryActivity, it)
             mvcHelper.setDataSource(dataSource)
             mvcHelper.setAdapter(galleryAdapter, ViewPagerViewHandler())
             mvcHelper.refresh()
+
+            viewPager?.apply {
+                setOnTouchListener { view, event ->
+                    if (!dataSource.hasMore() || (view as ViewPager).currentItem == 0) {
+                        gestureDetector.onTouchEvent(event)
+                    } else {
+                        false
+                    }
+                }
+            }
         }
     }
 

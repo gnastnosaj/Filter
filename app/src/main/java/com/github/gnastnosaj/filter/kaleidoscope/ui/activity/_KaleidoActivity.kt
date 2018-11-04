@@ -17,13 +17,44 @@ import groovy.lang.Closure
 import org.jetbrains.anko.intentFor
 
 fun BaseActivity.preview(page: Connection?, parent: Connection?, data: List<Map<String, String>>) {
-    (page as? com.github.gnastnosaj.filter.dsl.groovy.api.Connection)?.task("preview", object : Closure<Connection?>(page) {
-        override fun call(vararg args: Any?): Connection? {
-            for (i in 0 until data.size - 1) {
-                if (data[i]["href"] == args[0]) {
-                    return parent?.execute("page", data[i + 1]["href"] as String) as? Connection
+    (page as? com.github.gnastnosaj.filter.dsl.groovy.api.Connection)?.task("preview", object : Closure<MutableMap<String, Any>?>(page) {
+        override fun call(vararg args: Any?): MutableMap<String, Any>? {
+            var previous = false
+
+            if (args.size > 1) {
+                previous = args[1] as? Boolean ?: false
+            }
+
+            val preview = mutableMapOf<String, Any>()
+
+            parent?.let {
+                preview["parent"] = it
+            }
+
+            if (previous) {
+                for (i in 1 until data.size) {
+                    if (data[i]["href"] == args[0]) {
+                        (parent?.execute("page", data[i - 1]["href"] as String) as? Connection)?.let {
+                            preview(it, parent, data)
+                            preview["page"] = it
+                        }
+                        preview["data"] = data[i - 1]
+                        return preview
+                    }
+                }
+            } else {
+                for (i in 0 until data.size - 1) {
+                    if (data[i]["href"] == args[0]) {
+                        (parent?.execute("page", data[i + 1]["href"] as String) as? Connection)?.let {
+                            preview(it, parent, data)
+                            preview["page"] = it
+                        }
+                        preview["data"] = data[i + 1]
+                        return preview
+                    }
                 }
             }
+
             return null
         }
     })
