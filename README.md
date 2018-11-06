@@ -9,3 +9,6 @@
 ## LICENSE
 
 Filter is released under the terms of the GPL_V3 license.See [COPYING](https://github.com/gnastnosaj/Filter/blob/develop/COPYING) for more information or see <http://www.gnu.org/licenses/#GPL>.
+
+$$ Screenshot
+![](https://raw.githubusercontent.com/gnastnosaj/Filter/develop/screenshot/Screenshot_20181106-100001.png)![](https://raw.githubusercontent.com/gnastnosaj/Filter/develop/screenshot/Screenshot_20181106-100002.png)
