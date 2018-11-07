@@ -65,20 +65,24 @@ class WebViewPageActivity : BaseActivity() {
 
         init {
             //this hook is a candidate
-            DexposedBridge.findAndHookMethod(WebView::class.java, "evaluateJavascript", String::class.java, ValueCallback::class.java, object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    Timber.d("beforeHookedMethod: %s", param.method.name)
-                    val webView = param.thisObject as? NestedScrollAdblockWebView
-                    webView?.injectJS?.let {
-                        val injectJS = param.args[0] as String
-                        if (injectJS.contains(HOOK_POINT) && !injectJS.contains(HOOK_MAGIC)) {
-                            //previous hook may fail
-                            it.invoke(injectJS)
-                            param.result = null
+            try {
+                DexposedBridge.findAndHookMethod(WebView::class.java, "evaluateJavascript", String::class.java, ValueCallback::class.java, object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        Timber.d("beforeHookedMethod: %s", param.method.name)
+                        val webView = param.thisObject as? NestedScrollAdblockWebView
+                        webView?.injectJS?.let {
+                            val injectJS = param.args[0] as String
+                            if (injectJS.contains(HOOK_POINT) && !injectJS.contains(HOOK_MAGIC)) {
+                                //previous hook may fail
+                                it.invoke(injectJS)
+                                param.result = null
+                            }
                         }
                     }
-                }
-            })
+                })
+            } catch (throwable: Throwable) {
+                Timber.w(throwable)
+            }
         }
     }
 

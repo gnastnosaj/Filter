@@ -30,44 +30,52 @@ class NestedScrollAdblockWebView(context: Context) : AdblockWebView(context), Ne
     var injectJS: ((injectJS: String) -> Unit)? = null
     var filter: ((url: String) -> Boolean)? = null
 
-    private var unhook: XC_MethodHook.Unhook
+    private var unhook: XC_MethodHook.Unhook? = null
 
     companion object {
         init {
-            DexposedBridge.findAndHookMethod(AdblockWebView::class.java, "runScript", String::class.java, object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    Timber.d("beforeHookedMethod: %s", param.method.name)
-                    val webView = param.thisObject as? NestedScrollAdblockWebView
-                    webView?.injectJS?.let {
-                        it.invoke(param.args[0] as String)
-                        param.result = null
+            try {
+                DexposedBridge.findAndHookMethod(AdblockWebView::class.java, "runScript", String::class.java, object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        Timber.d("beforeHookedMethod: %s", param.method.name)
+                        val webView = param.thisObject as? NestedScrollAdblockWebView
+                        webView?.injectJS?.let {
+                            it.invoke(param.args[0] as String)
+                            param.result = null
+                        }
                     }
-                }
-            })
+                })
+            } catch (throwable: Throwable) {
+                Timber.w(throwable)
+            }
         }
     }
 
     init {
         isNestedScrollingEnabled = true
-        object : XC_MethodHook() {
-            init {
-                unhook = DexposedBridge.findAndHookMethod(AdblockEngine::class.java, "matches", String::class.java, FilterEngine.ContentType::class.java, Array<String>::class.java, object : XC_MethodKeepHook() {
-                    override fun beforeHookedMethod(param: MethodHookParam) {
-                        Timber.d("beforeHookedMethod: %s", param.method)
-                        filter?.let {
-                            if (it.invoke(param.args[0] as String)) {
-                                param.result = true
+        try {
+            object : XC_MethodHook() {
+                init {
+                    unhook = DexposedBridge.findAndHookMethod(AdblockEngine::class.java, "matches", String::class.java, FilterEngine.ContentType::class.java, Array<String>::class.java, object : XC_MethodKeepHook() {
+                        override fun beforeHookedMethod(param: MethodHookParam) {
+                            Timber.d("beforeHookedMethod: %s", param.method)
+                            filter?.let {
+                                if (it.invoke(param.args[0] as String)) {
+                                    param.result = true
+                                }
                             }
                         }
-                    }
-                })
+                    })
+                }
             }
+        } catch (throwable: Throwable) {
+            Timber.w(throwable)
         }
         setProvider(AdblockHelper.get().provider)
     }
 
     override fun destroy() {
-        unhook.unhook()
+        unhook?.unhook()
         super.destroy()
     }
 
