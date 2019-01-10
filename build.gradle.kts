@@ -2,15 +2,15 @@ import org.gradle.kotlin.dsl.repositories
 import java.net.URI
 
 ext {
-    set("kotlinVersion", "1.2.30")
+    set("kotlinVersion", "1.2.51")
 
-    set("compileSdkVersion", 27)
-    set("buildToolsVersion", "27.0.3")
+    set("compileSdkVersion", 28)
+    set("buildToolsVersion", "28.0.3")
     set("minSdkVersion", 16)
-    set("targetSdkVersion", 27)
-    set("versionCode", 9)
-    set("versionName", "0.0.9")
-    set("supportLibraryVersion", "27.1.0")
+    set("targetSdkVersion", 28)
+    set("versionCode", 10)
+    set("versionName", "0.1.0")
+    set("supportLibraryVersion", "28.0.0")
 
     set("ankoVersion", "0.10.4")
 
@@ -23,13 +23,13 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:3.1.2")
+        classpath("com.android.tools.build:gradle:3.2.1")
         classpath("org.codehaus.groovy:groovy-android-gradle-plugin:2.0.0")
     }
 }
 
 plugins {
-    kotlin("jvm").version("1.2.30").apply(false)
+    kotlin("jvm").version("1.2.51").apply(false)
 }
 
 allprojects {

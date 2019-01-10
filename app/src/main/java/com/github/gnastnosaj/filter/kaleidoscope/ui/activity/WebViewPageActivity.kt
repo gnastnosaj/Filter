@@ -18,9 +18,6 @@ import android.view.MenuItem
 import android.view.View
 import android.webkit.*
 import android.widget.FrameLayout
-import com.github.gnastnosaj.boilerplate.Boilerplate
-import com.github.gnastnosaj.boilerplate.rxbus.RxHelper
-import com.github.gnastnosaj.boilerplate.util.keyboard.BaseActivity
 import com.github.gnastnosaj.filter.dsl.core.Connection
 import com.github.gnastnosaj.filter.kaleidoscope.Kaleidoscope
 import com.github.gnastnosaj.filter.kaleidoscope.R
@@ -30,23 +27,11 @@ import com.github.gnastnosaj.filter.kaleidoscope.api.plugin.StarApi
 import com.github.gnastnosaj.filter.kaleidoscope.ui.view.NestedScrollAdblockWebView
 import com.github.gnastnosaj.filter.kaleidoscope.util.HistoryManager
 import com.google.gson.Gson
-import com.just.agentweb.AgentWeb
-import com.just.agentweb.BaseIndicatorView
-import com.mikepenz.iconics.IconicsDrawable
-import com.mikepenz.material_design_iconic_typeface_library.MaterialDesignIconic
-import com.taobao.android.dexposed.DexposedBridge
-import com.taobao.android.dexposed.XC_MethodHook
-import com.trello.rxlifecycle2.android.ActivityEvent
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
-import org.adblockplus.libadblockplus.android.settings.AdblockHelper
-import org.jetbrains.anko.*
-import org.jetbrains.anko.appcompat.v7.toolbar
-import org.jetbrains.anko.design.coordinatorLayout
-import org.jetbrains.anko.design.themedAppBarLayout
-import org.jetbrains.anko.support.v4.swipeRefreshLayout
-import timber.log.Timber
+import org.jetbrains.anko.matchParent
+import org.jetbrains.anko.wrapContent
 import java.util.concurrent.TimeUnit
 
 class WebViewPageActivity : BaseActivity() {
@@ -384,7 +369,7 @@ class WebViewPageActivity : BaseActivity() {
         }
     }
 
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         if (agentWeb?.handleKeyEvent(keyCode, event) == true) {
             return true
         }

@@ -14,20 +14,10 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
-import com.github.gnastnosaj.boilerplate.Boilerplate
-import com.github.gnastnosaj.boilerplate.util.keyboard.BaseActivity
 import com.github.gnastnosaj.filter.kaleidoscope.R
 import com.github.gnastnosaj.filter.kaleidoscope.ui.view.NestedScrollAdblockWebView
-import com.just.agentweb.AgentWeb
-import com.just.agentweb.BaseIndicatorView
-import com.mikepenz.iconics.IconicsDrawable
-import com.mikepenz.material_design_iconic_typeface_library.MaterialDesignIconic
-import org.adblockplus.libadblockplus.android.settings.AdblockHelper
-import org.jetbrains.anko.*
-import org.jetbrains.anko.appcompat.v7.toolbar
-import org.jetbrains.anko.design.coordinatorLayout
-import org.jetbrains.anko.design.themedAppBarLayout
-import org.jetbrains.anko.support.v4.swipeRefreshLayout
+import org.jetbrains.anko.matchParent
+import org.jetbrains.anko.wrapContent
 
 class WebViewActivity : BaseActivity() {
     companion object {
@@ -173,7 +163,7 @@ class WebViewActivity : BaseActivity() {
         }
     }
 
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         if (agentWeb?.handleKeyEvent(keyCode, event) == true) {
             return true
         }

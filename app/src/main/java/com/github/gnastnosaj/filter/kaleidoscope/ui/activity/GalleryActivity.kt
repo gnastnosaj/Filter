@@ -10,12 +10,6 @@ import android.support.v4.view.ViewPager
 import android.view.*
 import android.view.animation.DecelerateInterpolator
 import android.widget.ProgressBar
-import com.bilibili.socialize.share.core.shareparam.ShareImage
-import com.bilibili.socialize.share.core.shareparam.ShareParamImage
-import com.github.gnastnosaj.boilerplate.mvchelper.ViewPagerViewHandler
-import com.github.gnastnosaj.boilerplate.rxbus.RxBus
-import com.github.gnastnosaj.boilerplate.rxbus.RxHelper
-import com.github.gnastnosaj.boilerplate.ui.activity.BaseActivity
 import com.github.gnastnosaj.filter.dsl.groovy.api.Connection
 import com.github.gnastnosaj.filter.kaleidoscope.Kaleidoscope
 import com.github.gnastnosaj.filter.kaleidoscope.R
@@ -25,24 +19,13 @@ import com.github.gnastnosaj.filter.kaleidoscope.api.event.ToolbarEvent
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Star
 import com.github.gnastnosaj.filter.kaleidoscope.api.plugin.StarApi
-import com.github.gnastnosaj.filter.kaleidoscope.api.search.search
 import com.github.gnastnosaj.filter.kaleidoscope.ui.adapter.GalleryAdapter
-import com.github.gnastnosaj.filter.kaleidoscope.ui.view.tagGroup
 import com.github.gnastnosaj.filter.kaleidoscope.util.ShareHelper
 import com.google.gson.Gson
-import com.mikepenz.iconics.IconicsDrawable
-import com.mikepenz.material_design_iconic_typeface_library.MaterialDesignIconic
-import com.shizhefei.mvc.ILoadViewFactory
-import com.shizhefei.mvc.MVCHelper
-import com.shizhefei.mvc.MVCNormalHelper
-import com.trello.rxlifecycle2.android.ActivityEvent
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
-import me.gujun.android.taggroup.TagGroup
-import org.jetbrains.anko.*
-import org.jetbrains.anko.appcompat.v7.toolbar
-import org.jetbrains.anko.design.themedAppBarLayout
-import org.jetbrains.anko.support.v4.viewPager
+import org.jetbrains.anko.matchParent
+import org.jetbrains.anko.wrapContent
 
 
 class GalleryActivity : BaseActivity() {
@@ -178,7 +161,7 @@ class GalleryActivity : BaseActivity() {
         })
 
         val gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
-            override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
+            override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
                 connection?.url?.let {
                     val preview = when {
                         velocityX < 0 && viewPager?.currentItem == galleryAdapter!!.data.size - 1 -> {

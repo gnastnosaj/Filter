@@ -19,14 +19,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
-import br.com.mauker.materialsearchview.MaterialSearchView
-import com.bilibili.socialize.share.core.shareparam.ShareParamText
-import com.getkeepsafe.taptargetview.TapTarget
-import com.getkeepsafe.taptargetview.TapTargetView
-import com.github.gnastnosaj.boilerplate.Boilerplate
-import com.github.gnastnosaj.boilerplate.rxbus.RxHelper
-import com.github.gnastnosaj.boilerplate.util.keyboard.BaseActivity
-import com.github.gnastnosaj.boilerplate.util.textdrawable.TextDrawable
 import com.github.gnastnosaj.filter.dsl.groovy.api.Project
 import com.github.gnastnosaj.filter.kaleidoscope.BuildConfig
 import com.github.gnastnosaj.filter.kaleidoscope.Kaleidoscope
@@ -34,30 +26,15 @@ import com.github.gnastnosaj.filter.kaleidoscope.R
 import com.github.gnastnosaj.filter.kaleidoscope.api.KaleidoscopeRetrofit
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
 import com.github.gnastnosaj.filter.kaleidoscope.api.plugin.PluginApi
-import com.github.gnastnosaj.filter.kaleidoscope.api.search.search
-import com.github.gnastnosaj.filter.kaleidoscope.ui.view.htmlTextView
-import com.github.gnastnosaj.filter.kaleidoscope.ui.view.materialSearchView
 import com.github.gnastnosaj.filter.kaleidoscope.util.ShareHelper
 import com.google.gson.Gson
-import com.mikepenz.iconics.IconicsDrawable
-import com.mikepenz.material_design_iconic_typeface_library.MaterialDesignIconic
-import com.tbruyelle.rxpermissions2.RxPermissions
-import com.trello.rxlifecycle2.android.ActivityEvent
-import com.yalantis.contextmenu.lib.ContextMenuDialogFragment
-import com.yalantis.contextmenu.lib.MenuObject
-import com.yalantis.contextmenu.lib.MenuParams
-import ezy.boost.update.UpdateInfo
-import ezy.boost.update.UpdateManager
+import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import okhttp3.Request
 import org.jetbrains.anko.*
-import org.jetbrains.anko.appcompat.v7.toolbar
-import org.jetbrains.anko.design.themedAppBarLayout
-import org.sufficientlysecure.htmltextview.HtmlHttpImageGetter
-import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URLEncoder
@@ -476,34 +453,40 @@ class KaleidoActivity : BaseActivity() {
                                     pluginDisposable = start(plugins[i]).subscribe()
                                 }
 
-                                val kaleido = findViewById<View>(R.id.action_kaleido)
-                                kaleido.setOnLongClickListener {
-                                    if (crazy) {
-                                        crazy = false
-                                        createContextMenu()
-                                        PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("crazy", crazy).apply()
-                                        Snackbar.make(findViewById(android.R.id.content), R.string.normal_mode, Snackbar.LENGTH_SHORT).show()
-                                        true
-                                    } else {
-                                        false
-                                    }
-                                }
-                                val tapTarget = TapTarget
-                                        .forView(kaleido, resources.getString(R.string.filter), resources.getString(R.string.filter_description))
-                                        .outerCircleAlpha(0.8f)
-                                TapTargetView.showFor(this, tapTarget, object : TapTargetView.Listener() {
-                                    override fun onTargetClick(view: TapTargetView) {
-                                        view.dismiss(true)
-                                        if (fragmentManager.findFragmentByTag(ContextMenuDialogFragment.TAG) == null) {
-                                            contextMenuDialogFragment?.show(supportFragmentManager, ContextMenuDialogFragment.TAG)
+                                Completable
+                                        .fromRunnable {
+                                            val kaleido = findViewById<View>(R.id.action_kaleido)
+                                            kaleido.setOnLongClickListener {
+                                                if (crazy) {
+                                                    crazy = false
+                                                    createContextMenu()
+                                                    PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("crazy", crazy).apply()
+                                                    Snackbar.make(findViewById(android.R.id.content), R.string.normal_mode, Snackbar.LENGTH_SHORT).show()
+                                                    true
+                                                } else {
+                                                    false
+                                                }
+                                            }
+                                            val tapTarget = TapTarget
+                                                    .forView(kaleido, resources.getString(R.string.filter), resources.getString(R.string.filter_description))
+                                                    .outerCircleAlpha(0.8f)
+                                            TapTargetView.showFor(this, tapTarget, object : TapTargetView.Listener() {
+                                                override fun onTargetClick(view: TapTargetView) {
+                                                    view.dismiss(true)
+                                                    if (fragmentManager.findFragmentByTag(ContextMenuDialogFragment.TAG) == null) {
+                                                        contextMenuDialogFragment?.show(supportFragmentManager, ContextMenuDialogFragment.TAG)
+                                                    }
+                                                }
+                                            })
                                         }
-                                    }
-                                })
+                                        .andThen(Observable.timer(500, TimeUnit.MILLISECONDS).observeOn(AndroidSchedulers.mainThread()))
+                                        .retry(3)
+                                        .subscribeBy(onError = Timber::e)
                             }
                 }
                 .subscribeOn(Schedulers.io())
                 .compose(bindUntilEvent(ActivityEvent.DESTROY))
-                .subscribe()
+                .subscribeBy(onError = Timber::e)
     }
 
     private fun search(keyword: String) {

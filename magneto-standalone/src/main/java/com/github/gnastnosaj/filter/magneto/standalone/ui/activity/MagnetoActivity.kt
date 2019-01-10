@@ -16,26 +16,10 @@ import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.widget.ImageView
 import android.widget.ListView
-import br.com.mauker.materialsearchview.MaterialSearchView
-import com.github.gnastnosaj.boilerplate.Boilerplate
-import com.github.gnastnosaj.boilerplate.ui.activity.BaseActivity
 import com.github.gnastnosaj.filter.magneto.standalone.R
 import com.github.gnastnosaj.filter.magneto.standalone.api.datasource.MagnetoDataSource
 import com.github.gnastnosaj.filter.magneto.standalone.ui.adatper.MagnetoAdapter
-import com.github.gnastnosaj.filter.magneto.standalone.ui.view.materialSearchView
-import com.mikepenz.iconics.IconicsDrawable
-import com.mikepenz.material_design_iconic_typeface_library.MaterialDesignIconic
-import com.shizhefei.mvc.IDataAdapter
-import com.shizhefei.mvc.MVCHelper
-import com.shizhefei.mvc.MVCSwipeRefreshHelper
-import com.shizhefei.mvc.OnStateChangeListener
-import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration
 import org.jetbrains.anko.*
-import org.jetbrains.anko.appcompat.v7.toolbar
-import org.jetbrains.anko.design.coordinatorLayout
-import org.jetbrains.anko.design.themedAppBarLayout
-import org.jetbrains.anko.recyclerview.v7.recyclerView
-import org.jetbrains.anko.support.v4.swipeRefreshLayout
 
 class MagnetoActivity : BaseActivity() {
 
@@ -79,10 +63,10 @@ class MagnetoActivity : BaseActivity() {
                             addItemDecoration(HorizontalDividerItemDecoration.Builder(context).size(1).build())
 
                             val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
-                                override fun onLongPress(e: MotionEvent?) {
+                                override fun onLongPress(e: MotionEvent) {
                                     super.onLongPress(e)
-                                    e?.let { event ->
-                                        val childView = findChildViewUnder(event.x, event.y)
+                                    val childView = findChildViewUnder(e.x, e.y)
+                                    childView?.let {
                                         val position = getChildAdapterPosition(childView)
                                         if (-1 < position && position < magnetoAdapter.data.size) {
                                             val data = magnetoAdapter.data[position]
@@ -94,15 +78,15 @@ class MagnetoActivity : BaseActivity() {
                                     }
                                 }
 
-                                override fun onSingleTapUp(e: MotionEvent?): Boolean {
+                                override fun onSingleTapUp(e: MotionEvent): Boolean {
                                     return true
                                 }
                             })
                             addOnItemTouchListener(object : RecyclerView.SimpleOnItemTouchListener() {
-                                override fun onInterceptTouchEvent(rv: RecyclerView?, e: MotionEvent?): Boolean {
+                                override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
                                     return if (gestureDetector.onTouchEvent(e)) {
-                                        e?.let { event ->
-                                            val childView = findChildViewUnder(event.x, event.y)
+                                        val childView = findChildViewUnder(e.x, e.y)
+                                        childView?.let {
                                             val position = getChildAdapterPosition(childView)
                                             if (-1 < position && position < magnetoAdapter.data.size) {
                                                 val data = magnetoAdapter.data[position]

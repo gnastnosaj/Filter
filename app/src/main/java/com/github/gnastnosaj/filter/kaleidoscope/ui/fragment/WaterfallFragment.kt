@@ -5,17 +5,12 @@ import android.support.v4.app.Fragment
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.StaggeredGridLayoutManager
 import android.view.*
-import com.github.gnastnosaj.boilerplate.ui.activity.BaseActivity
 import com.github.gnastnosaj.filter.dsl.core.Connection
 import com.github.gnastnosaj.filter.kaleidoscope.Kaleidoscope
 import com.github.gnastnosaj.filter.kaleidoscope.api.datasource.ConnectionDataSource
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
 import com.github.gnastnosaj.filter.kaleidoscope.ui.activity.WaterfallActivity
-import com.github.gnastnosaj.filter.kaleidoscope.ui.activity.preview
-import com.github.gnastnosaj.filter.kaleidoscope.ui.activity.show
 import com.github.gnastnosaj.filter.kaleidoscope.ui.adapter.WaterfallAdapter
-import com.shizhefei.mvc.MVCHelper
-import com.shizhefei.mvc.MVCSwipeRefreshHelper
 import org.jetbrains.anko.AnkoContext
 import org.jetbrains.anko.frameLayout
 import org.jetbrains.anko.intentFor
@@ -56,15 +51,15 @@ class WaterfallFragment : Fragment() {
                             layoutManager = staggeredGridLayoutManager
 
                             val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
-                                override fun onSingleTapUp(e: MotionEvent?): Boolean {
+                                override fun onSingleTapUp(e: MotionEvent): Boolean {
                                     return true
                                 }
                             })
                             addOnItemTouchListener(object : RecyclerView.SimpleOnItemTouchListener() {
-                                override fun onInterceptTouchEvent(rv: RecyclerView?, e: MotionEvent?): Boolean {
+                                override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
                                     return if (gestureDetector.onTouchEvent(e)) {
-                                        e?.let { event ->
-                                            val childView = findChildViewUnder(event.x, event.y)
+                                        val childView = findChildViewUnder(e.x, e.y)
+                                        childView?.let {
                                             val position = getChildAdapterPosition(childView)
                                             if (-1 < position && position < waterfallAdapter.data.size) {
                                                 val data = waterfallAdapter.data[position]
