@@ -15,7 +15,7 @@ before_install:
   - yes | sdkmanager "platforms;android-28"
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+  - rm -rf $HOME/.gradle/caches/*/plugin-resolution/
 cache:
   directories:
     - $HOME/.gradle/caches/
@@ -26,4 +26,3 @@ script:
    - ./gradlew dsl-groovy:clean dsl-groovy:build
    - ./gradlew magneto:clean magneto:build
    - ./gradlew app:clean app:build
-   - ./gradlew magneto-standalone:clean magneto-standalone:build

@@ -11,9 +11,7 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/dsl" />
             <option value="$PROJECT_DIR$/dsl-groovy" />
-            <option value="$PROJECT_DIR$/dsl-kotlin" />
             <option value="$PROJECT_DIR$/magneto" />
-            <option value="$PROJECT_DIR$/magneto-standalone" />
           </set>
         </option>
       </GradleProjectSettings>
