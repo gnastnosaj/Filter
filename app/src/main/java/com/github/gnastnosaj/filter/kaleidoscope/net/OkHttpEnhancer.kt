@@ -8,10 +8,27 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level
 import java.io.File
+import java.security.cert.X509Certificate
+import javax.net.ssl.SSLContext
+import javax.net.ssl.X509TrustManager
 
 object OkHttpEnhancer {
     private const val MAX_STALE = 30
     private const val MAX_AGE = 60 * 60
+
+    private val trustManager = object : X509TrustManager {
+        override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
+
+        }
+
+        override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {
+
+        }
+
+        override fun getAcceptedIssuers(): Array<X509Certificate> {
+            return arrayOf()
+        }
+    }
 
     fun OkHttpClient.Builder.enhance() {
         if (Boilerplate.DEBUG) {
@@ -41,5 +58,9 @@ object OkHttpEnhancer {
             }
             chain.proceed(request)
         }
+        hostnameVerifier { _, _ -> true }
+        val sc = SSLContext.getInstance("TLS")
+        sc.init(null, arrayOf(trustManager), null)
+        sslSocketFactory(sc.socketFactory, trustManager)
     }
 }

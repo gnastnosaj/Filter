@@ -10,7 +10,6 @@ import me.drakeet.support.about.Category
 import me.drakeet.support.about.Contributor
 import me.drakeet.support.about.License
 
-
 class AboutActivity : AbsAboutActivity() {
     override fun onItemsCreated(items: Items) {
         items.add(Category("Developers"))

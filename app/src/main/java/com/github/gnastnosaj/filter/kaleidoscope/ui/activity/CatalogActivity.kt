@@ -49,7 +49,6 @@ import org.jetbrains.anko.design.tabLayout
 import org.jetbrains.anko.design.themedAppBarLayout
 import org.jetbrains.anko.support.v4.viewPager
 
-
 class CatalogActivity : BaseActivity() {
     private var searchView: MaterialSearchView? = null
     private var searchDisposable: Disposable? = null

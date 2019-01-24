@@ -2,7 +2,7 @@ import org.gradle.kotlin.dsl.repositories
 import java.net.URI
 
 ext {
-    set("kotlinVersion", "1.2.51")
+    set("kotlinVersion", "1.2.60")
 
     set("compileSdkVersion", 28)
     set("buildToolsVersion", "28.0.3")
@@ -14,7 +14,7 @@ ext {
 
     set("ankoVersion", "0.10.4")
 
-    set("boilerplateVersion", "2.0.6-rc2")
+    set("boilerplateVersion", "42b326a")
 }
 
 buildscript {
@@ -29,7 +29,7 @@ buildscript {
 }
 
 plugins {
-    kotlin("jvm").version("1.2.51").apply(false)
+    kotlin("jvm").version("1.2.60").apply(false)
 }
 
 allprojects {

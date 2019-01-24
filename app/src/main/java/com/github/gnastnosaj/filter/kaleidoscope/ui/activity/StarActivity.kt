@@ -10,6 +10,8 @@ import android.view.GestureDetector
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
+import com.facebook.drawee.view.SimpleDraweeView
+import com.github.gnastnosaj.boilerplate.ui.activity.BaseActivity
 import com.github.gnastnosaj.filter.dsl.core.Catalog
 import com.github.gnastnosaj.filter.dsl.core.Category
 import com.github.gnastnosaj.filter.dsl.core.Connection
@@ -18,9 +20,15 @@ import com.github.gnastnosaj.filter.kaleidoscope.R
 import com.github.gnastnosaj.filter.kaleidoscope.api.datasource.StarDataSource
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
 import com.github.gnastnosaj.filter.kaleidoscope.ui.adapter.WaterfallAdapter
+import com.shizhefei.mvc.MVCSwipeRefreshHelper
+import org.jetbrains.anko.appcompat.v7.toolbar
+import org.jetbrains.anko.design.coordinatorLayout
+import org.jetbrains.anko.design.themedAppBarLayout
+import org.jetbrains.anko.frameLayout
 import org.jetbrains.anko.matchParent
+import org.jetbrains.anko.recyclerview.v7.recyclerView
+import org.jetbrains.anko.support.v4.swipeRefreshLayout
 import org.jetbrains.anko.wrapContent
-
 
 class StarActivity : BaseActivity() {
     private var plugin: Plugin? = null

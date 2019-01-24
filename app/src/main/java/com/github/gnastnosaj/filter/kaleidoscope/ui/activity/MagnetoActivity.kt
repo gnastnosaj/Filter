@@ -15,11 +15,24 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.widget.ListView
+import br.com.mauker.materialsearchview.MaterialSearchView
+import com.github.gnastnosaj.boilerplate.Boilerplate
+import com.github.gnastnosaj.boilerplate.util.keyboard.BaseActivity
 import com.github.gnastnosaj.filter.kaleidoscope.R
 import com.github.gnastnosaj.filter.kaleidoscope.api.datasource.MagnetoDataSource
 import com.github.gnastnosaj.filter.kaleidoscope.ui.adapter.MagnetoAdapter
+import com.github.gnastnosaj.filter.kaleidoscope.ui.view.materialSearchView
+import com.mikepenz.iconics.IconicsDrawable
+import com.mikepenz.material_design_iconic_typeface_library.MaterialDesignIconic
+import com.shizhefei.mvc.MVCHelper
+import com.shizhefei.mvc.MVCSwipeRefreshHelper
+import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration
 import org.jetbrains.anko.*
-
+import org.jetbrains.anko.appcompat.v7.toolbar
+import org.jetbrains.anko.design.coordinatorLayout
+import org.jetbrains.anko.design.themedAppBarLayout
+import org.jetbrains.anko.recyclerview.v7.recyclerView
+import org.jetbrains.anko.support.v4.swipeRefreshLayout
 
 class MagnetoActivity : BaseActivity() {
     private var searchView: MaterialSearchView? = null

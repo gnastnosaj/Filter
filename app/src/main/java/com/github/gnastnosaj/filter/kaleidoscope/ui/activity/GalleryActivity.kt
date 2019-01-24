@@ -10,23 +10,40 @@ import android.support.v4.view.ViewPager
 import android.view.*
 import android.view.animation.DecelerateInterpolator
 import android.widget.ProgressBar
+import com.bilibili.socialize.share.core.shareparam.ShareImage
+import com.bilibili.socialize.share.core.shareparam.ShareParamImage
+import com.github.gnastnosaj.boilerplate.mvchelper.ViewPagerViewHandler
+import com.github.gnastnosaj.boilerplate.rxbus.RxBus
+import com.github.gnastnosaj.boilerplate.rxbus.RxHelper
+import com.github.gnastnosaj.boilerplate.ui.activity.BaseActivity
 import com.github.gnastnosaj.filter.dsl.groovy.api.Connection
 import com.github.gnastnosaj.filter.kaleidoscope.Kaleidoscope
 import com.github.gnastnosaj.filter.kaleidoscope.R
 import com.github.gnastnosaj.filter.kaleidoscope.api.datasource.ConnectionDataSource
+import com.github.gnastnosaj.filter.kaleidoscope.api.event.PreviewEvent
 import com.github.gnastnosaj.filter.kaleidoscope.api.event.TagEvent
 import com.github.gnastnosaj.filter.kaleidoscope.api.event.ToolbarEvent
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Star
 import com.github.gnastnosaj.filter.kaleidoscope.api.plugin.StarApi
+import com.github.gnastnosaj.filter.kaleidoscope.api.search.search
 import com.github.gnastnosaj.filter.kaleidoscope.ui.adapter.GalleryAdapter
+import com.github.gnastnosaj.filter.kaleidoscope.ui.view.tagGroup
 import com.github.gnastnosaj.filter.kaleidoscope.util.ShareHelper
 import com.google.gson.Gson
+import com.mikepenz.iconics.IconicsDrawable
+import com.mikepenz.material_design_iconic_typeface_library.MaterialDesignIconic
+import com.shizhefei.mvc.ILoadViewFactory
+import com.shizhefei.mvc.MVCHelper
+import com.shizhefei.mvc.MVCNormalHelper
+import com.trello.rxlifecycle2.android.ActivityEvent
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
-import org.jetbrains.anko.matchParent
-import org.jetbrains.anko.wrapContent
-
+import me.gujun.android.taggroup.TagGroup
+import org.jetbrains.anko.*
+import org.jetbrains.anko.appcompat.v7.toolbar
+import org.jetbrains.anko.design.themedAppBarLayout
+import org.jetbrains.anko.support.v4.viewPager
 
 class GalleryActivity : BaseActivity() {
     private var appBar: AppBarLayout? = null
@@ -47,6 +64,8 @@ class GalleryActivity : BaseActivity() {
     private var entrance: String? = null
     private var starApi: StarApi? = null
     private var star: Boolean = false
+
+    private var gestureDetector: GestureDetector? = null
 
     companion object {
         const val EXTRA_DATA = "data"
@@ -138,71 +157,48 @@ class GalleryActivity : BaseActivity() {
             }
         }
 
-        val mvcHelper = MVCNormalHelper<List<Map<String, String>>>(viewPager, MVCHelper.loadViewFactory.madeLoadView(), object : ILoadViewFactory.ILoadMoreView {
-            override fun showFail(e: Exception?) {
-                progressBar?.visibility = View.GONE
-            }
-
-            override fun showLoading() {
-                progressBar?.visibility = View.VISIBLE
-            }
-
-            override fun showNomore() {
-                progressBar?.visibility = View.GONE
-            }
-
-            override fun init(footViewHolder: ILoadViewFactory.FootViewAdder?, onClickLoadMoreListener: View.OnClickListener?) {
-
-            }
-
-            override fun showNormal() {
-                progressBar?.visibility = View.GONE
-            }
-        })
-
-        val gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
-            override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
-                connection?.url?.let {
-                    val preview = when {
-                        velocityX < 0 && viewPager?.currentItem == galleryAdapter!!.data.size - 1 -> {
-                            connection?.execute("preview", it) as? Map<String, Any>
-                        }
-                        velocityX > 0 && viewPager?.currentItem == 0 -> {
-                            connection?.execute("preview", it, true) as? Map<String, Any>
-                        }
-                        else -> null
-                    }
-
-                    (preview?.get("page") as? Connection)?.let { page ->
-                        ActivityCompat.startActivity(this@GalleryActivity, intentFor<GalleryActivity>(EXTRA_DATA to Gson().toJson(preview["data"]), EXTRA_PLUGIN to plugin, EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(page)), null)
-                        setPendingTransition(null)
-                        finish()
-                        if (velocityX < 0) {
-                            overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left)
-                        } else if (velocityX > 0) {
-                            overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right)
-                        }
-                    }
-                }
-
-                return false
-            }
-        })
-
         connection?.let {
             val dataSource = ConnectionDataSource(this@GalleryActivity, it)
+            val mvcHelper = MVCNormalHelper<List<Map<String, String>>>(viewPager, MVCHelper.loadViewFactory.madeLoadView(), object : ILoadViewFactory.ILoadMoreView {
+                override fun showFail(e: Exception?) {
+                    progressBar?.visibility = View.GONE
+                }
+
+                override fun showLoading() {
+                    progressBar?.visibility = View.VISIBLE
+                }
+
+                override fun showNomore() {
+                    progressBar?.visibility = View.GONE
+                }
+
+                override fun init(footViewHolder: ILoadViewFactory.FootViewAdder?, onClickLoadMoreListener: View.OnClickListener?) {
+
+                }
+
+                override fun showNormal() {
+                    progressBar?.visibility = View.GONE
+                }
+            })
             mvcHelper.setDataSource(dataSource)
             mvcHelper.setAdapter(galleryAdapter, ViewPagerViewHandler())
             mvcHelper.refresh()
 
-            viewPager?.apply {
-                setOnTouchListener { view, event ->
-                    if (!dataSource.hasMore() || (view as ViewPager).currentItem == 0) {
-                        gestureDetector.onTouchEvent(event)
-                    } else {
-                        false
+            gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+                override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+                    RxBus.getInstance().post(PreviewEvent::class.java, PreviewEvent(if (velocityX < 0) PreviewEvent.TYPE_NEXT else PreviewEvent.TYPE_PRE))
+                    return true
+                }
+            })
+            viewPager?.setOnTouchListener { view, event ->
+                if (!dataSource.hasMore()) {
+                    (view as ViewPager).apply {
+                        if (currentItem == 0 || currentItem == galleryAdapter!!.data.size - 1) {
+                            gestureDetector?.onTouchEvent(event)
+                        }
                     }
                 }
+                false
             }
         }
     }
@@ -224,6 +220,33 @@ class GalleryActivity : BaseActivity() {
                                 .start()
                     }
                     isAppBarHidden = !isAppBarHidden
+                }
+        PreviewEvent.observable
+                .compose(RxHelper.rxSchedulerHelper())
+                .compose(bindToLifecycle())
+                .subscribe { event ->
+                    connection?.url?.let {
+                        val preview = when {
+                            event.type == PreviewEvent.TYPE_NEXT && viewPager?.currentItem == galleryAdapter!!.data.size - 1 -> {
+                                connection?.execute("preview", it) as? Map<String, Any>
+                            }
+                            event.type == PreviewEvent.TYPE_PRE && viewPager?.currentItem == 0 -> {
+                                connection?.execute("preview", it, true) as? Map<String, Any>
+                            }
+                            else -> null
+                        }
+
+                        (preview?.get("page") as? Connection)?.let { page ->
+                            ActivityCompat.startActivity(this@GalleryActivity, intentFor<GalleryActivity>(EXTRA_DATA to Gson().toJson(preview["data"]), EXTRA_PLUGIN to plugin, EXTRA_CONNECTION_HASH_CODE to Kaleidoscope.saveInstanceState(page)), null)
+                            setPendingTransition(null)
+                            finish()
+                            if (event.type == PreviewEvent.TYPE_NEXT) {
+                                overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left)
+                            } else if (event.type == PreviewEvent.TYPE_PRE) {
+                                overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right)
+                            }
+                        }
+                    }
                 }
     }
 
@@ -324,6 +347,13 @@ class GalleryActivity : BaseActivity() {
                 super.onOptionsItemSelected(item)
             }
         }
+    }
+
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        if (event.action == MotionEvent.ACTION_DOWN) {
+            gestureDetector?.onTouchEvent(event)
+        }
+        return super.dispatchTouchEvent(event)
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {

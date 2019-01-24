@@ -34,7 +34,6 @@ import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 
-
 class MosaicActivity : BaseActivity() {
     private var mosaicView: MosaicView? = null
 

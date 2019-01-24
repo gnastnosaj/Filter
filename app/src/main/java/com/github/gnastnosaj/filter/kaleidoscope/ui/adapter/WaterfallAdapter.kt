@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import com.github.gnastnosaj.filter.kaleidoscope.ui.viewbinder.HeadViewBinder
 import com.github.gnastnosaj.filter.kaleidoscope.ui.viewbinder.PostViewBinder
 import com.github.gnastnosaj.filter.kaleidoscope.ui.viewbinder.ThumbnailViewBinder
+import com.shizhefei.mvc.IDataAdapter
+import me.drakeet.multitype.*
 
 
 class WaterfallAdapter : MultiTypeAdapter(), IDataAdapter<List<Map<String, String>>> {

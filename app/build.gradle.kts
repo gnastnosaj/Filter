@@ -107,12 +107,13 @@ dependencies {
     debugImplementation("com.squareup.leakcanary:leakcanary-android:+")
     releaseImplementation("com.squareup.leakcanary:leakcanary-android-no-op:+")
     implementation("com.github.JiongBull:jlog:+")
-    implementation("me.drakeet.multitype:multitype-kotlin:+")
+    implementation("me.drakeet.multitype:multitype:3.4.4")
+    implementation("me.drakeet.multitype:multitype-kotlin:3.4.4")
     implementation("com.github.gnastnosaj.Boilerplate:net:$boilerplateVersion")
     implementation("com.github.gnastnosaj.okhttp:okhttp-urlconnection:dafbeaf") {
         exclude(mapOf("module" to "okhttp"))
     }
-    implementation("com.github.gnastnosaj.BiliShare:library:bad078d")
+    implementation("com.github.gnastnosaj.BiliShare:library:-SNAPSHOT")
     implementation("com.squareup.okhttp3:logging-interceptor:+")
     implementation("io.reactivex.rxjava2:rxkotlin:+")
     implementation("com.tbruyelle.rxpermissions2:rxpermissions:+@aar")
@@ -122,10 +123,10 @@ dependencies {
     implementation("com.github.gnastnosaj.Boilerplate-util:keyboard:ba6e131")
     implementation("com.github.gnastnosaj.Boilerplate-util:textdrawable:ba6e131")
 
-    implementation("com.mikepenz:iconics-views:+@aar")
-    implementation("com.mikepenz:material-design-iconic-typeface:+@aar")
+    implementation("com.mikepenz:iconics-views:3.0.4@aar")
+    implementation("com.mikepenz:material-design-iconic-typeface:2.2.0.4")
 
-    implementation("com.github.gnastnosaj:MaterialSearchView:4463cd3949")
+    implementation("com.github.gnastnosaj:MaterialSearchView:-SNAPSHOT")
     implementation("com.github.Yalantis:Context-Menu.Android:1.0.8")
     implementation("org.adblockplus:adblock-android:3.0")
     implementation("org.adblockplus:adblock-android-settings:3.0")
@@ -137,7 +138,7 @@ dependencies {
     implementation("com.github.piasy:BigImageViewer:+")
     implementation("com.github.piasy:FrescoImageLoader:+")
     implementation("com.github.piasy:FrescoImageViewFactory:+")
-    implementation("com.github.gnastnosaj:AndroidTagGroup:743b9e1175")
+    implementation("com.github.gnastnosaj:AndroidTagGroup:-SNAPSHOT")
     implementation("com.github.developer-shivam:Crescento:+")
     implementation("tm.charlie.androidlib:expandable-textview:+")
     implementation("com.jaeger.ninegridimageview:library:+")

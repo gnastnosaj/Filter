@@ -16,15 +16,10 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
 import java.lang.reflect.Type
-import java.security.SecureRandom
-import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
-import javax.net.ssl.SSLSocketFactory
-import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
-
 
 class MagnetoRetrofit(private val context: Context) {
     val service: MagnetoService
@@ -33,11 +28,14 @@ class MagnetoRetrofit(private val context: Context) {
         val logging = HttpLoggingInterceptor()
         logging.level = Level.BASIC
 
+        val sc = SSLContext.getInstance("TLS")
+        sc.init(null, arrayOf(trustManager), null)
+
         val okHttpClient = OkHttpClient.Builder()
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .retryOnConnectionFailure(true)
                 .hostnameVerifier { _, _ -> true }
-                .sslSocketFactory(createSSLSocketFactory(), TrustAllCerts())
+                .sslSocketFactory(sc.socketFactory, trustManager)
                 .addNetworkInterceptor(logging)
                 .cache(Cache(File(context.externalCacheDir, "okHttpCache"), 100 * 1024 * 1024))
                 .addNetworkInterceptor { chain ->
@@ -84,30 +82,22 @@ class MagnetoRetrofit(private val context: Context) {
         service = retrofit.create(MagnetoService::class.java)
     }
 
-    class TrustAllCerts : X509TrustManager {
-        @Throws(CertificateException::class)
-        override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {
-
-        }
-
-        @Throws(CertificateException::class)
-        override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
-
-        }
-
-        override fun getAcceptedIssuers(): Array<X509Certificate>? {
-            return arrayOf()
-        }
-    }
-
     companion object {
         private const val MAX_STALE = 30
         private const val MAX_AGE = 60 * 60
 
-        fun createSSLSocketFactory(): SSLSocketFactory {
-            val sc = SSLContext.getInstance("TLS")
-            sc.init(null, arrayOf<TrustManager>(TrustAllCerts()), SecureRandom())
-            return sc.socketFactory
+        private val trustManager = object : X509TrustManager {
+            override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
+
+            }
+
+            override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {
+
+            }
+
+            override fun getAcceptedIssuers(): Array<X509Certificate> {
+                return arrayOf()
+            }
         }
     }
 }

@@ -5,12 +5,17 @@ import android.support.v4.app.Fragment
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.StaggeredGridLayoutManager
 import android.view.*
+import com.github.gnastnosaj.boilerplate.ui.activity.BaseActivity
 import com.github.gnastnosaj.filter.dsl.core.Connection
 import com.github.gnastnosaj.filter.kaleidoscope.Kaleidoscope
 import com.github.gnastnosaj.filter.kaleidoscope.api.datasource.ConnectionDataSource
 import com.github.gnastnosaj.filter.kaleidoscope.api.model.Plugin
 import com.github.gnastnosaj.filter.kaleidoscope.ui.activity.WaterfallActivity
+import com.github.gnastnosaj.filter.kaleidoscope.ui.activity.preview
+import com.github.gnastnosaj.filter.kaleidoscope.ui.activity.show
 import com.github.gnastnosaj.filter.kaleidoscope.ui.adapter.WaterfallAdapter
+import com.shizhefei.mvc.MVCHelper
+import com.shizhefei.mvc.MVCSwipeRefreshHelper
 import org.jetbrains.anko.AnkoContext
 import org.jetbrains.anko.frameLayout
 import org.jetbrains.anko.intentFor

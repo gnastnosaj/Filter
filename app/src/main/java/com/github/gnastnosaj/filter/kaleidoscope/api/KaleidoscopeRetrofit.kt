@@ -13,15 +13,7 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import java.lang.reflect.Type
-import java.security.SecureRandom
-import java.security.cert.CertificateException
-import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
-import javax.net.ssl.SSLContext
-import javax.net.ssl.SSLSocketFactory
-import javax.net.ssl.TrustManager
-import javax.net.ssl.X509TrustManager
-
 
 class KaleidoscopeRetrofit(private val context: Context) {
     val service: KaleidoscopeService
@@ -32,8 +24,6 @@ class KaleidoscopeRetrofit(private val context: Context) {
         okHttpClientBuilder.apply {
             connectTimeout(30, TimeUnit.SECONDS)
             retryOnConnectionFailure(true)
-            hostnameVerifier { _, _ -> true }
-            sslSocketFactory(createSSLSocketFactory(), TrustAllCerts())
             enhance()
         }
 
@@ -60,31 +50,9 @@ class KaleidoscopeRetrofit(private val context: Context) {
         service = retrofit.create(KaleidoscopeService::class.java)
     }
 
-    class TrustAllCerts : X509TrustManager {
-        @Throws(CertificateException::class)
-        override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {
-
-        }
-
-        @Throws(CertificateException::class)
-        override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
-
-        }
-
-        override fun getAcceptedIssuers(): Array<X509Certificate> {
-            return arrayOf()
-        }
-    }
-
     companion object {
         val instance by lazy {
             KaleidoscopeRetrofit(Boilerplate.getInstance())
-        }
-
-        fun createSSLSocketFactory(): SSLSocketFactory {
-            val sc = SSLContext.getInstance("TLS")
-            sc.init(null, arrayOf<TrustManager>(TrustAllCerts()), SecureRandom())
-            return sc.socketFactory
         }
     }
 }

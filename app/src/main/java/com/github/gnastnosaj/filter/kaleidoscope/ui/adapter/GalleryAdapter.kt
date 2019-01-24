@@ -20,7 +20,6 @@ import com.github.piasy.biv.view.FrescoImageViewFactory
 import com.shizhefei.mvc.IDataAdapter
 import java.io.File
 
-
 class GalleryAdapter(private val context: Context) : PagerAdapter(), IDataAdapter<List<Map<String, String>>> {
     private val data = arrayListOf<Map<String, String>>()
 
@@ -97,7 +96,7 @@ class GalleryAdapter(private val context: Context) : PagerAdapter(), IDataAdapte
                 thumbnailError(error)
             }
         })
-        bigImageView.setOnClickListener { _ -> RxBus.getInstance().post(ToolbarEvent::class.java, ToolbarEvent) }
+        bigImageView.setOnClickListener { RxBus.getInstance().post(ToolbarEvent::class.java, ToolbarEvent) }
         bigImageView.setOnLongClickListener {
             AlertDialog.Builder(context)
                     .setMessage(R.string.save_to_phone)
