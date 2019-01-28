@@ -1,0 +1,94 @@
+def baseUrl = 'http://www.mp4ba.com'
+
+task('build') {
+    connection {
+        url baseUrl
+        page {
+            document {
+                catalog {
+                    def builder = { _href ->
+                        return {
+                            url _href
+
+                            def current, next
+
+                            def parser = { page ->
+                                def items = select('#data_list tr')
+                                items.each {
+                                    def title = it.select('td').get(2).text().trim()
+                                    def href = it.select('td').get(2).select('a').attr('abs:href')
+                                    def publish = it.select('td').get(0).text()
+                                    def author = it.select('td').get(3).text()
+
+                                    page.data(
+                                            'type': 'post',
+                                            'id': title,
+                                            'title': title,
+                                            'href': href,
+                                            'publish': publish
+                                    )
+                                }
+
+                                next = select('a.button').attr('abs:href')
+                            }
+
+                            task('refresh') {
+                                def result
+
+                                current = _href
+
+                                connection {
+                                    url current
+                                    result = page {
+                                        document parser
+                                    }
+                                }
+
+                                return result
+                            }
+
+                            task('loadMore') {
+                                def result
+
+                                current = next
+
+                                connection {
+                                    url current
+                                    result = page {
+                                        document parser
+                                    }
+                                }
+
+                                return result
+                            }
+
+                            task('hasMore') {
+                                return next && !next.allWhitespace
+                            }
+
+                            task('page') { href ->
+                                return connection {
+                                    url href
+
+                                    task('entrance') {
+                                        return _href.toString()
+                                    }
+
+                                    task('layout') {
+                                        return 'webview'
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    def list = select('div.nav ul li a')
+
+                    list.each {
+                        connection(it.text(), builder(it.attr('abs:href')))
+                    }
+                }
+            }
+        }
+    }
+}
