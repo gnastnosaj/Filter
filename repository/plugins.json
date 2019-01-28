@@ -9,6 +9,9 @@
     "id": "mp4ba",
     "name": "高清MP4",
     "www": "http://www.mp4ba.com",
-    "script": "https://raw.githubusercontent.com/gnastnosaj/Filter/develop/repository/mp4ba.filter"
+    "script": "https://raw.githubusercontent.com/gnastnosaj/Filter/develop/repository/mp4ba.filter",
+    "args": {
+      "tab_mode": "scrollable"
+    }
   }
 ]

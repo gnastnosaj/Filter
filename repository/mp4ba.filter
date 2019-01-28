@@ -71,12 +71,77 @@ task('build') {
                                 return connection {
                                     url href
 
+                                    task('refresh') {
+                                        def result
+
+                                        connection {
+                                            url href
+                                            result = page {
+                                                document { page ->
+                                                    def details = [:]
+                                                    select('.intro tbody tr').each {
+                                                        def k = it.select('td').get(0).text()
+                                                        def v = [:]
+                                                        it.select('td').get(1).select('a').each {
+                                                            def t = it.text()
+                                                            if (t.length() > 0) {
+                                                                def build = builder(it.attr('abs:href'))
+                                                                def c = connection build
+                                                                v[t] = c
+                                                            }
+                                                        }
+                                                        if (!k.contains('详情') && v.size() != 0) {
+                                                            details[k] = v
+                                                        }
+                                                    }
+
+                                                    def cover = select('.intro .img-thumbnail').attr('src')
+                                                    if (cover.indexOf('http') == -1) {
+                                                        cover = "$baseUrl$cover".toString()
+                                                    }
+                                                    def description = ''
+                                                    def spans = select('.intro div.row p')
+                                                    def i = 0
+                                                    while (description.length() < 10 && i < spans.size()) {
+                                                        description = spans[i].text()
+                                                        i++
+                                                    }
+                                                    page.data(
+                                                            "cover": cover,
+                                                            "details": details,
+                                                            "description": description
+                                                    )
+                                                    select('.intro div.row p img').each {
+                                                        def thumbnail = it.attr('src')
+                                                        if (thumbnail.indexOf('http') == -1) {
+                                                            thumbnail = "$baseUrl$thumbnail".toString()
+                                                        }
+                                                        page.data(
+                                                                "cover": cover,
+                                                                "thumbnail": thumbnail
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        return result
+                                    }
+
+                                    task('loadMore') {
+                                        return null
+                                    }
+
+                                    task('hasMore') {
+                                        return false
+                                    }
+
                                     task('entrance') {
                                         return _href.toString()
                                     }
 
                                     task('layout') {
-                                        return 'webview'
+                                        return 'detail'
                                     }
                                 }
                             }
