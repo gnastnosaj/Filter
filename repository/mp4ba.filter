@@ -17,8 +17,8 @@ task('build') {
                                 items.each {
                                     def title = it.select('td').get(2).text().trim()
                                     def href = it.select('td').get(2).select('a').attr('abs:href')
-                                    def publish = it.select('td').get(0).text()
-                                    def author = it.select('td').get(3).text()
+                                    def publish = it.select('td').get(3).text()
+                                    def author = it.select('td').get(0).text()
 
                                     page.data(
                                             'type': 'post',
@@ -100,7 +100,7 @@ task('build') {
                                                         cover = "$baseUrl$cover".toString()
                                                     }
                                                     def description = ''
-                                                    def spans = select('.intro div.row p')
+                                                    def spans = select('.intro p')
                                                     def i = 0
                                                     while (description.length() < 10 && i < spans.size()) {
                                                         description = spans[i].text()
@@ -111,7 +111,7 @@ task('build') {
                                                             "details": details,
                                                             "description": description
                                                     )
-                                                    select('.intro div.row p img').each {
+                                                    select('.intro p img').each {
                                                         def thumbnail = it.attr('src')
                                                         if (thumbnail.indexOf('http') == -1) {
                                                             thumbnail = "$baseUrl$thumbnail".toString()
@@ -149,7 +149,6 @@ task('build') {
                     }
 
                     def list = select('div.nav ul li a')
-
                     list.each {
                         connection(it.text(), builder(it.attr('abs:href')))
                     }
