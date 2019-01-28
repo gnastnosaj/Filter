@@ -1,5 +1,6 @@
 package com.github.gnastnosaj.filter.kaleidoscope
 
+import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
@@ -13,6 +14,8 @@ import com.facebook.common.memory.MemoryTrimmable
 import com.facebook.common.memory.MemoryTrimmableRegistry
 import com.facebook.imagepipeline.core.ImagePipelineConfig
 import com.github.gnastnosaj.boilerplate.Boilerplate
+import com.github.gnastnosaj.boilerplate.event.ActivityLifecycleEvent
+import com.github.gnastnosaj.boilerplate.rxbus.RxBus
 import com.github.gnastnosaj.filter.kaleidoscope.net.OkHttpEnhancer.enhance
 import com.github.gnastnosaj.filter.kaleidoscope.net.PluginInterceptor
 import com.github.gnastnosaj.filter.kaleidoscope.util.ShareHelper
@@ -23,6 +26,7 @@ import com.jiongbull.jlog.constant.LogLevel
 import com.jiongbull.jlog.constant.LogSegment
 import ezy.boost.update.UpdateManager
 import io.reactivex.Completable
+import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
 import okhttp3.OkUrlFactory
@@ -45,6 +49,10 @@ class Kaleidoscope : Application() {
     }
 
     companion object {
+        private var currentActivity: WeakReference<Activity>? = null
+
+        fun getCurrentActivity(): Activity? = currentActivity?.get()
+
         fun saveInstanceState(any: Any): Int {
             val pool = (Boilerplate.getInstance() as Kaleidoscope).instanceStatePool
 
@@ -87,6 +95,14 @@ class Kaleidoscope : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        RxBus.getInstance()
+                .register(ActivityLifecycleEvent::class.java, ActivityLifecycleEvent::class.java)
+                .subscribeBy(onNext = {
+                    if (it.type == ActivityLifecycleEvent.onActivityResumed) {
+                        currentActivity = WeakReference(it.activity)
+                    }
+                }, onError = Timber::e)
 
         val logger = Logger.Builder.newBuilder(this, "Kaleidoscope")
                 .setWriteToFile(true)
@@ -146,15 +162,13 @@ class Kaleidoscope : Application() {
 
             Completable
                     .fromRunnable {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                            val okHttpClientBuilder = OkHttpClient.Builder()
-                            okHttpClientBuilder.apply {
-                                enhance()
-                                addInterceptor(PluginInterceptor)
-                            }
-
-                            URL.setURLStreamHandlerFactory(OkUrlFactory(okHttpClientBuilder.build()))
+                        val okHttpClientBuilder = OkHttpClient.Builder()
+                        okHttpClientBuilder.apply {
+                            enhance()
+                            addInterceptor(PluginInterceptor.interceptor)
+                            addNetworkInterceptor(PluginInterceptor.networkInterceptor)
                         }
+                        URL.setURLStreamHandlerFactory(OkUrlFactory(okHttpClientBuilder.build()))
 
                         if (!AdblockHelper.get().isInit) {
                             // init Adblock

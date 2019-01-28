@@ -186,7 +186,12 @@ class GalleryActivity : BaseActivity() {
 
             gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
                 override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
-                    RxBus.getInstance().post(PreviewEvent::class.java, PreviewEvent(if (velocityX < 0) PreviewEvent.TYPE_NEXT else PreviewEvent.TYPE_PRE))
+                    viewPager?.let {
+                        val page = it.getChildAt(it.currentItem)
+                        if (page == null || page.alpha == 1f) {
+                            RxBus.getInstance().post(PreviewEvent::class.java, PreviewEvent(if (velocityX < 0) PreviewEvent.TYPE_NEXT else PreviewEvent.TYPE_PRE))
+                        }
+                    }
                     return true
                 }
             })
