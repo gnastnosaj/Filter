@@ -25,7 +25,8 @@ task('build') {
                                             'id': title,
                                             'title': title,
                                             'href': href,
-                                            'publish': publish
+                                            'publish': publish,
+                                            'author': author
                                     )
                                 }
 
