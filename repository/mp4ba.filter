@@ -31,7 +31,7 @@ task('build') {
                                     )
                                 }
 
-                                next = select('a.button').attr('abs:href')
+                                next = select('div.pages a.pagelink_a:matches(下一页)').attr('abs:href')
                             }
 
                             task('refresh') {
@@ -91,7 +91,10 @@ task('build') {
                                                                 v[t] = c
                                                             }
                                                         }
-                                                        if (!k.contains('详情') && v.size() != 0) {
+                                                        if (k == "制片地区") {
+                                                            k = "地区"
+                                                        }
+                                                        if (v.size() != 0) {
                                                             details[k] = v
                                                         }
                                                     }
