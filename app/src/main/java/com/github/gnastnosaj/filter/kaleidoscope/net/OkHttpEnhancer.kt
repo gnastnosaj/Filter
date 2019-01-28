@@ -6,7 +6,6 @@ import com.github.gnastnosaj.filter.magneto.util.NetworkUtil
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level
-import timber.log.Timber
 import java.io.File
 import java.security.cert.X509Certificate
 import javax.net.ssl.SSLContext
@@ -30,20 +29,20 @@ object OkHttpEnhancer {
         }
     }
 
-    private val cookieStore = HashMap<String, MutableList<Cookie>>()
-
-    val cookieJar = object : CookieJar {
-        override fun saveFromResponse(url: HttpUrl, cookies: MutableList<Cookie>) {
-            Timber.d("saveFromResponse url: $url, cookies: $cookies")
-            cookieStore[url.host()] = cookies
-        }
-
-        override fun loadForRequest(url: HttpUrl): MutableList<Cookie> {
-            val cookies = cookieStore[url.host()] ?: mutableListOf()
-            Timber.d("loadForRequest url: $url, cookies: $cookies")
-            return cookies
-        }
-    }
+//    private val cookieStore = HashMap<String, List<Cookie>>()
+//
+//    val cookieJar = object : CookieJar {
+//        override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
+//            Timber.d("saveFromResponse url: $url, cookies: $cookies")
+//            cookieStore[url.host()] = cookies
+//        }
+//
+//        override fun loadForRequest(url: HttpUrl): List<Cookie> {
+//            val cookies = cookieStore[url.host()] ?: emptyList()
+//            Timber.d("loadForRequest url: $url, cookies: $cookies")
+//            return cookies
+//        }
+//    }
 
     fun OkHttpClient.Builder.enhance() {
         if (Boilerplate.DEBUG) {
@@ -77,6 +76,6 @@ object OkHttpEnhancer {
         val sc = SSLContext.getInstance("TLS")
         sc.init(null, arrayOf(trustManager), null)
         sslSocketFactory(sc.socketFactory, trustManager)
-        cookieJar(cookieJar)
+        //cookieJar(cookieJar)
     }
 }

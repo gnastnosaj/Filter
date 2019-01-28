@@ -83,25 +83,20 @@ object PluginInterceptor {
                     Timber.e(throwable)
                 }
             }
-        }
 
-        response?.let {
-            if (it.code() == HTTP_UNAVAILABLE) {
-                it.header("Location")?.let { location ->
-                    Timber.d("start cloudflare bypass, request url: $location")
-                    val httpUrl = request.url()
-                    val host = request.url().host()
-                    val referer = request.url().toString()
-                    request = request.newBuilder().apply {
-                        url(httpUrl.newBuilder(location).toString())
-                        header("HOST", host)
-                        header("Referer", referer)
-                        it.header("Set-Cookie")?.let {
-                            header("Cookie", it)
-                        }
-                    }.build()
-                    response = chain.withConnectTimeout(15, TimeUnit.SECONDS).proceed(request)
-                }
+            if (response?.code() == HTTP_UNAVAILABLE) {
+                val httpUrl = request.url()
+                val host = request.url().host()
+                val referer = request.url().toString()
+
+                request = request.newBuilder().apply {
+                    header("HOST", host)
+                    header("Referer", referer)
+                    CookieManager.getInstance().getCookie(httpUrl.toString())?.let {
+                        header("Cookie", it)
+                    }
+                }.build()
+                response = chain.withConnectTimeout(15, TimeUnit.SECONDS).proceed(request)
             }
         }
 
@@ -153,11 +148,8 @@ object PluginInterceptor {
                                             val httpUrl = HttpUrl.get(url)
                                             val newHttpUrl = HttpUrl.get(newUrl)
                                             if (newHttpUrl == httpUrl) {
-                                                val setCookie = cookieManager.getCookie(newUrl)
-                                                val cookie = Cookie.parse(httpUrl, setCookie)
-                                                if (cookie != null && cookie.expiresAt() > System.currentTimeMillis() && setCookie.contains("cf_clearance")) {
-                                                    response = response.newBuilder().header("Location", newUrl).header("Set-Cookie", setCookie).build()
-                                                    OkHttpEnhancer.cookieJar.saveFromResponse(newHttpUrl, mutableListOf(Cookie.parse(newHttpUrl, setCookie)))
+                                                val cookie = cookieManager.getCookie(newUrl)
+                                                if (cookie.contains("cf_clearance")) {
                                                     countDownLatch.countDown()
                                                     timeout.dispose()
                                                     activity.findViewById<ViewGroup>(android.R.id.content).removeView(this@apply)
